@@ -18,6 +18,7 @@ class LookEditorView():
         self.main_window_view = parent
         self.view_model = view_model
         self.view_model.root_model = parent.view_model
+        self.main_window_view.view_model.vm_look_editor = view_model
         self.event_handler = LookEditorEventHandler(self, self.view_model)
 
         self.add_main_frame(root)

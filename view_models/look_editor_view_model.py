@@ -79,3 +79,6 @@ class LookEditorViewModel:
         if config:
             print(self.__class__.__name__, "get_active_config_var", config.name)
         return config.name_var if config else None
+    
+    def update_configurations(self, configurations:'Configurations'):
+        pass

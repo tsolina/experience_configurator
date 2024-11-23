@@ -4,7 +4,9 @@ from tkinter import ttk
 
 from application.actor import Actor
 # from application.actors import Actors
+from application.actors import Actors
 from application.configuration import Configuration
+from application.configurations import Configurations
 from application.observable_list import ObservableList
 
 if TYPE_CHECKING:
@@ -24,14 +26,14 @@ class LookEditorEventHandler:
     
     def on_config_selected(self, configuration:'Configuration'):
         print(self.__class__.__name__, "config selected:", configuration.name)
-        self.populate_actors(configuration.actors.actor_list)
+        self.populate_actors(configuration.actors)
         self.view.bind_config_name_var()
 
     def clear_treeview_widgets(self):
         for widget in self.view.configurations_container.winfo_children():
             widget.destroy()
 
-    def update_treeview(self, configurations:ObservableList['Configuration']):
+    def update_treeview(self, configurations:'Configurations'):
         self.clear_treeview_widgets()
 
         frame = ttk.Frame(self.view.configurations_container)
@@ -102,7 +104,7 @@ class LookEditorEventHandler:
         # frame.bind("<Double-1>", self.on_double_click)
 
 
-    def populate_actors(self, actors:ObservableList['Actor']):
+    def populate_actors(self, actors:'Actors'):
         for row in self.view.actors_tree.get_children():
             self.view.actors_tree.delete(row)
 

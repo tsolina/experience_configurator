@@ -43,13 +43,13 @@ class MainWindowView():
         self.root.title(self.view_model.title)
 
         app = self.view_model.application
-        app.projects.project_collection.add_observer(self.update_project)
-        app.projects.project_collection._notify_observers()
+        app.projects.add_observer(self.update_project)
+        app.projects._notify_observers()
 
     def update_project(self, projects:ObservableList['Project']):
         for project in projects:
             project.configurations.add_observer(self.look_editor.event_handler.update_treeview)
-            project.variants.variant_collection.add_observer(self.variant_editor.update_variant)
+            project.variants.add_observer(self.variant_editor.update_variant)
 
     def update_root_title(self, new_title:str):
         self.root.title(new_title)
@@ -90,18 +90,6 @@ class MainWindowView():
         self.vm_variant_editor = VariantEditorViewModel(model)
         self.variant_editor = VariantEditorView(root, self, self.vm_variant_editor)
         self.view_model.variant_editor = self.variant_editor.variant_editor_frame
-
-    # @staticmethod
-    # def do_events():
-    #     """Process pending events."""
-    #     root = tk._default_root  # Reference the main tkinter root window.
-    #     if root:
-    #         root.update_idletasks()
-    #         root.update()
-
-    # def sta_thread(self, callback):
-    #     """Execute the callback on the main thread."""
-    #     self.root.after(0, lambda: (callback(), self.do_events()))
 
     def sta_thread(self, callback:Callable):
         # time.sleep(2)

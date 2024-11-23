@@ -20,9 +20,12 @@ class Configurations(ObservableList['Configuration']):
 
     def _on_configuration_changed(self, new_list: List['Configuration']):
         # Trigger UI update here
+        print(self.__class__.__name__, "Configuration collection updated:", "updating:", len(new_list), self.application.parent.vm_look_editor)
+
+        if not self.application.parent or not self.application.parent.vm_look_editor:
+            return 
         print(self.__class__.__name__, "Configuration collection updated:", len(new_list))
-        # Call your UI binding logic, e.g., refreshing a ListBox in tkinter
-        # self.application.projects.project_collection._notify_observers()
+        self.application.parent.vm_look_editor.update_configurations(new_list)
 
     @property
     def parent(self) -> 'Project':

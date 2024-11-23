@@ -94,10 +94,10 @@ class LookValidator:
         if reference.actors.count == 0 and target.actors.count == 0:
             overlapping = True
 
-        for ref_actor in reference.actors.actor_list:
+        for ref_actor in reference.actors:
             if overlapping:
                 break
-            for target_actor in target.actors.actor_list:
+            for target_actor in target.actors:
                 if overlapping:
                     break
                 # print(self.__class__.__name__, "config_overlapping", ref_actor.cat_object is target_actor.cat_object, ref_actor.com_id == target_actor.com_id, ref_actor.com_id, target_actor.com_id)
@@ -113,10 +113,10 @@ class LookValidator:
         if reference.actors.count == 0 and target.actors.count == 0:
             return False
 
-        for ref_actor in reference.actors.actor_list:
+        for ref_actor in reference.actors:
             if differs:
                 break
-            target_actor = next((a for a in target.actors.actor_list if a.com_id == ref_actor.com_id), None)
+            target_actor = next((a for a in target.actors if a.com_id == ref_actor.com_id), None)
             if target_actor is None:
                 differs = True
                 break
@@ -151,7 +151,7 @@ class LookValidator:
         if config.active_look == "" or config.active_look not in config.look_collection:
             return self
 
-        for actor in config.actors.actor_list:
+        for actor in config.actors:
             self.application.look.add_look(actor)
 
         return self

@@ -1,91 +1,84 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable, Optional
 from application.tristate import Tristate
-from application.variant import Variant
+from application.observable_list import ObservableList
 
 if TYPE_CHECKING:
+    from application.variant import Variant
     from application.sub_variant import SubVariant
 
-class SubVariants():
+
+class SubVariants(ObservableList['SubVariant']):
     def __init__(self, parent: 'Variant'):
+        super().__init__()
         self._parent = parent
         self.application = parent.application
         self._name = self.__class__.__name__
-        self._sub_variant_collection = [SubVariant]
-        self._active_sub_variant = None
-        self._editing_sub_variant = None
-        self._on_variant = None
-        self._off_variant = None
+        self._active_sub_variant: Optional['SubVariant'] = None
+        self._editing_sub_variant: Optional['SubVariant'] = None
+        self._on_variant: Optional['SubVariant'] = None
+        self._off_variant: Optional['SubVariant'] = None
 
-        # Initialize SubVariants based on MTristate states
-        for name in Tristate.to_list():
-            from application.sub_variant import SubVariant
-            self._sub_variant_collection.append(SubVariant(self, name))
+        # Initialize SubVariants based on Tristate states
+        from application.sub_variant import SubVariant
+        for state_name in Tristate.to_list():
+            self.append(SubVariant(self, state_name))
 
-        self.active_sub_variant = self._sub_variant_collection[0]
+        self.active_sub_variant = self[0]
         self.editing_sub_variant = self.active_sub_variant
 
     @property
-    def parent(self):
+    def parent(self) -> 'Variant':
         return self._parent
 
     @property
-    def name(self):
+    def name(self) -> str:
         return self._name
 
     @name.setter
-    def name(self, value):
+    def name(self, value: str):
         self._name = value
 
     @property
-    def active_sub_variant(self) -> 'SubVariant':
+    def active_sub_variant(self) -> Optional['SubVariant']:
         return self._active_sub_variant
 
     @active_sub_variant.setter
-    def active_sub_variant(self, value:'SubVariant'):
+    def active_sub_variant(self, value: 'SubVariant'):
         self._active_sub_variant = value
 
     @property
-    def editing_sub_variant(self) -> 'SubVariant':
+    def editing_sub_variant(self) -> Optional['SubVariant']:
         return self._editing_sub_variant
 
     @editing_sub_variant.setter
-    def editing_sub_variant(self, value:'SubVariant'):
+    def editing_sub_variant(self, value: 'SubVariant'):
         self._editing_sub_variant = value
 
     @property
-    def sub_variant_collection(self) ->list['SubVariant']:
-        return self._sub_variant_collection
-
-    @sub_variant_collection.setter
-    def sub_variant_collection(self, value:list['SubVariant']):
-        self._sub_variant_collection = value
-
-    @property
-    def on_variant(self):
+    def on_variant(self) -> 'SubVariant':
         if self._on_variant is None:
             self._on_variant = self.get_sub_variant(Tristate.OnState)
         return self._on_variant
 
     @property
-    def off_variant(self):
+    def off_variant(self) -> 'SubVariant':
         if self._off_variant is None:
             self._off_variant = self.get_sub_variant(Tristate.OffState)
         return self._off_variant
 
-    def get_sub_variant(self, iName) -> 'SubVariant':
-        return next((sv for sv in self._sub_variant_collection if sv.name == iName), None)
+    def get_sub_variant(self, name: str) -> Optional['SubVariant']:
+        return next((sv for sv in self if sv.name == name), None)
 
-    def get_sub_variant_with_callback(self, iName, cb):
-        sv = self.get_sub_variant(iName)
-        if sv is not None:
-            cb(sv)
+    def get_sub_variant_with_callback(self, name: str, callback: Callable[['SubVariant'], None]):
+        sub_variant = self.get_sub_variant(name)
+        if sub_variant is not None:
+            callback(sub_variant)
         else:
-            self.application.error_message = f"State {iName} of variant {self._parent.name} not found"
+            self.application.error_message = f"State {name} of variant {self.parent.name} not found"
 
-    def for_each(self, cb):
-        for sv in self._sub_variant_collection:
-            cb(sv)
+    def for_each(self, callback: Callable[['SubVariant'], None]):
+        for sub_variant in self:
+            callback(sub_variant)
 
     def __del__(self):
-        self._sub_variant_collection.clear()
-        self._sub_variant_collection = None
+        self.clear()
