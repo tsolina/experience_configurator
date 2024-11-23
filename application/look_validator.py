@@ -124,7 +124,7 @@ class LookValidator:
         return differs
 
     def deactivate_different(self, config: 'Configuration') -> 'LookValidator':
-        for conf in config.parent.configuration_collection:
+        for conf in config.parent: #.configuration_collection:
             if conf.uID == config.uID or conf.active_look_state == Tristate.OffState:
                 continue
             

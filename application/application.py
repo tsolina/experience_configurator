@@ -59,7 +59,7 @@ class Application():
             self._active_project = value
             self.parent.title = self.active_project.name
 
-            self.active_project.configurations.configuration_collection._notify_observers()
+            self.active_project.configurations._notify_observers()
             self.active_project.variants.variant_collection._notify_observers()
             # self._notify_active_project_observers()
 

@@ -80,7 +80,7 @@ class Project:
     def active_configuration(self, value: 'Configuration'):
         if self._active_configuration != value:
             self._active_configuration = value
-            self.configurations.configuration_collection._notify_observers()
+            # self.configurations.configuration_collection._notify_observers()
 
     @property
     def variants(self) -> 'Variants':

@@ -48,7 +48,7 @@ class MainWindowView():
 
     def update_project(self, projects:ObservableList['Project']):
         for project in projects:
-            project.configurations.configuration_collection.add_observer(self.look_editor.event_handler.update_treeview)
+            project.configurations.add_observer(self.look_editor.event_handler.update_treeview)
             project.variants.variant_collection.add_observer(self.variant_editor.update_variant)
 
     def update_root_title(self, new_title:str):

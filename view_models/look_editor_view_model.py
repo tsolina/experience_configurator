@@ -1,4 +1,5 @@
 from typing import TYPE_CHECKING, Callable, Optional
+from application.configurations import Configurations
 from application.observable_list import ObservableList
 from application.tristate import Tristate
 from models.look_editor_model import LookEditorModel
@@ -62,11 +63,12 @@ class LookEditorViewModel:
     def get_active_project(self) -> 'Project':
         return self.root_model.application.active_project
     
-    def get_configurations(self) -> ObservableList['Configuration']:
-        return self.get_active_project().configurations.configuration_collection
+    def get_configurations(self) -> 'Configurations':
+        return self.get_active_project().configurations
     
     def get_configuration_by_row_id(self, index:int) -> 'Configuration':
-        return self.get_active_project().configurations.configuration_collection[index]
+        return self.get_configurations()[index]
+        # return self.get_active_project().configurations[index]
     
     def get_active_configuration(self) -> 'Configuration':
         project = self.get_active_project()
