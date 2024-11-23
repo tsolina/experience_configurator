@@ -14,16 +14,14 @@ class LookEditorViewModel:
     def __init__(self, model: 'LookEditorModel'):
         self._model = model
         self.root_model: 'MainWindowViewModel' = None
-        self._selected_configuration: 'Configuration' = None
 
     @property 
     def selected_configuration(self) -> 'Configuration':
-        return self._selected_configuration
+        return self.get_active_project().active_configuration
     
     @selected_configuration.setter
     def selected_configuration(self, value: 'Configuration'):
-        self._selected_configuration = value
-        self.root_model.application.active_project.active_configuration = value
+        self.get_active_project().active_configuration = value
 
 
     def new_configuration(self):
@@ -31,7 +29,7 @@ class LookEditorViewModel:
                         
             def on_thread():
                 self.selected_configuration = project.configurations.add()
-                self.root_model.application.active_project.active_configuration = self.selected_configuration
+                # self.root_model.application.active_project.active_configuration = self.selected_configuration
 
             self.root_model.sta_thread(on_thread)
 
@@ -50,19 +48,7 @@ class LookEditorViewModel:
         app = self.root_model.application
         if not app.active_project:            
             app.projects.activate()
-
-    def get_configuration_by_row_id(self, index:int) -> 'Configuration':
-        return self.root_model.application.active_project.configurations.configuration_collection[index]
     
-    # def update_configuration_look(self, row_id:int, value:str):
-    #     configuration:Configuration = self.get_configuration_by_row_id(row_id)
-    #     configuration.active_look = value
-
-    # def update_configuration_active_state(self, row_id:int, value:str):
-    #     configuration:Configuration = self.get_configuration_by_row_id(row_id)
-    #     configuration.property_true_value_selection = True
-    #     configuration.active_look_state = value
-
     def update_configuration_name(self, row_id:int, value:str):
         configuration:Configuration = self.get_configuration_by_row_id(row_id)
         configuration.name = value
@@ -72,3 +58,22 @@ class LookEditorViewModel:
     
     def get_look_options(self):
         return self.root_model.application.look_file.targets_list
+    
+    def get_active_project(self) -> 'Project':
+        return self.root_model.application.active_project
+    
+    def get_configurations(self) -> ObservableList['Configuration']:
+        return self.get_active_project().configurations.configuration_collection
+    
+    def get_configuration_by_row_id(self, index:int) -> 'Configuration':
+        return self.get_active_project().configurations.configuration_collection[index]
+    
+    def get_active_configuration(self) -> 'Configuration':
+        project = self.get_active_project()
+        return project.active_configuration if project else None
+
+    def get_active_config_var(self) -> tk.StringVar:
+        config = self.get_active_configuration()
+        if config:
+            print(self.__class__.__name__, "get_active_config_var", config.name)
+        return config.name_var if config else None

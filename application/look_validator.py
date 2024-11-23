@@ -25,20 +25,6 @@ class LookValidator:
     def name(self, value: str):
         self._name = value
 
-    # def validate_actor(self, actor: 'Actor') -> 'LookValidator':
-    #     if actor.cat_object is None:
-    #         return self
-        
-    #     self.validate_actor(actor.parent.parent)
-        
-    #     if actor.parent.parent.active_look_state == Tristate.OnState:
-    #         if actor.parent.parent.active_look != "":
-    #             self.application.look.add_look(actor)
-    #             self.deactivate_different(actor.parent.parent)
-
-    #     return self
-    
-
     @overload
     def validate(self, i_actor: 'Actor') -> 'LookValidator':
         ...
@@ -130,7 +116,7 @@ class LookValidator:
         for ref_actor in reference.actors.actor_list:
             if differs:
                 break
-            target_actor = next((a for a in target.actors.actor_list if a.cat_object is ref_actor.cat_object), None)
+            target_actor = next((a for a in target.actors.actor_list if a.com_id == ref_actor.com_id), None)
             if target_actor is None:
                 differs = True
                 break

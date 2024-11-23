@@ -31,7 +31,9 @@ class Configuration:
 
         self.active_look_var = tk.StringVar(value=self._active_look)
         self.active_look_state_var = tk.StringVar(value=self._active_look_state)
+        self.name_var = tk.StringVar(value=self._name)
 
+        self.name_var.trace_add("write", self._update_name_from_var)
         self.active_look_var.trace_add("write", self._update_active_look_from_var)
         self.active_look_state_var.trace_add("write", self._update_active_look_state_from_var)
 
@@ -100,6 +102,9 @@ class Configuration:
     @active_look.setter
     def active_look(self, value: str):
         self._active_look = value
+        if self.property_true_value_selection:
+            self.property_true_value_selection = False
+            self.application.look_validator.validate(self) 
 
     def __eq__(self, other: 'Configuration') -> bool:
         return isinstance(other, Configuration) and self.uID == other.uID
@@ -153,6 +158,7 @@ class Configuration:
     
     def _update_active_look_from_var(self, *args):
         # Synchronize active_look with active_look_var
+        self.property_true_value_selection = True
         self.active_look = self.active_look_var.get()
 
     def _update_active_look_state_from_var(self, *args):
@@ -160,6 +166,10 @@ class Configuration:
         self.property_true_value_selection = True
         self.active_look_state = self.active_look_state_var.get()
         # print(self.__class__.__name__, "update_active_look_state_from_var", self.name)
+
+    def _update_name_from_var(self, *args):
+        # Synchronize name with name_var
+        self.active_look_state = self.name_var.get()
 
     
     def __del__(self):

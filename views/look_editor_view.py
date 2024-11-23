@@ -39,52 +39,35 @@ class LookEditorView():
         self.look_editor_frame.grid_columnconfigure(0, weight=1)
         self.look_editor_frame.grid_columnconfigure(1, weight=1)
 
+    def bind_config_name_var(self):
+        name_var = self.view_model.get_active_config_var()
+        print(self.__class__.__name__, "bind_config_name_var", name_var)
+        if name_var:
+            self.config_name.config(textvariable=name_var)
+        else:
+            self.config_name.config(text="select configuration")
+
+
     def add_title(self):
-        title = ttk.Label(self.look_editor_frame, text="Look editor", style="Red.TLabel")
-        title.grid(row=0, column=0, sticky='w')
+        container = ttk.Frame(self.look_editor_frame)
+        container.grid(row=0, column=0, sticky='w')
+
+        title = ttk.Label(container, text="Look editor", style="Red.TLabel")
+        title.pack(side="left", anchor="w")
+
+        # self.config_name = ttk.Label(container)
+        # self.config_name.pack(side="left", anchor="w")
+        # self.bind_config_name_var()
 
     def add_data_grid(self):
-        frame = ttk.Frame(self.look_editor_frame)
-        frame.grid(row=1, column=0, sticky="nsew")
+        self.configurations_container = ttk.Frame(self.look_editor_frame)
+        self.configurations_container.grid(row=1, column=0, sticky="nsew")
 
-        # Define columns
-        columns = ("id", "name", "look", "activated", "error")
-        self.tree = ttk.Treeview(frame, columns=columns, show="headings")
-        
-        # Set column headers
-        self.tree.heading("id", text="#")
-        self.tree.heading("name", text="Name")
-        self.tree.heading("look", text="Look")
-        self.tree.heading("activated", text="Activated")
-        self.tree.heading("error", text="Error")
-
-        # Set column widths
-        self.tree.column("id", width=10, anchor="center")
-        self.tree.column("name", minwidth=80, width=100)
-        self.tree.column("look", minwidth=175, width=175)
-        self.tree.column("activated", minwidth=75, width=75, anchor="center")
-        self.tree.column("error", width=40, anchor="center")
-
+        # Sample data rows from view model
         self.view_model.activate_project()
-        self.tree.pack(fill="both", expand=True)
-
-        # Add a callback for selection change
-        self.tree.bind("<<TreeviewSelect>>", self.event_handler.on_look_editor_selection_change)
-        self.tree.bind("<Double-1>", self.event_handler.on_double_click)
-
-        # self.tree_cb_looks = ttk.Combobox(frame)
-        # # self.tree_cb_looks.bind("<<ComboboxSelected>>", self.event_handler.on_cb_looks_selected)
-        # self.tree_cb_looks.place_forget()
-
-        self.tree_entry_name = widgets.EntryWithVar(frame)
-        self.tree_entry_name.bind("<Return>", self.event_handler.update_cell)
-        self.tree_entry_name.bind("<FocusOut>", self.event_handler.update_cell)
-        self.tree_entry_name.place_forget()
-    
-        # self.tree_cb_activate = ttk.Combobox(frame, values=Tristate.to_toggle())
-        # # self.tree_cb_activate.bind("<<ComboboxSelected>>", self.event_handler.on_cb_activate_selected)
-        # self.tree_cb_activate.place_forget()
-
+        configurations = self.view_model.get_configurations()
+        self.event_handler.update_treeview(configurations)
+        return
 
     def add_tooltip(self, widget: tk.Widget, text: str):
         def on_enter(event):
@@ -118,8 +101,15 @@ class LookEditorView():
         self.create_button(button_frame, "Delete", "delete selected configuration", self.view_model.delete_configuration)
 
     def add_active_configuration(self):
-        title = ttk.Label(self.look_editor_frame, text="Active configuration:", style="Red.TLabel")
-        title.grid(row=0, column=1, sticky='w')
+        container = ttk.Frame(self.look_editor_frame)
+        container.grid(row=0, column=1, sticky='w')
+
+        title = ttk.Label(container, text="Active configuration:", style="Red.TLabel")
+        title.pack(side="left", anchor="w")
+
+        self.config_name = ttk.Label(container)
+        self.config_name.pack(side="left", anchor="w")
+        self.bind_config_name_var()
 
     def add_configuration_grid(self):
         frame = ttk.Frame(self.look_editor_frame)

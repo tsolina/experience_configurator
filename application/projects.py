@@ -15,7 +15,7 @@ class Projects():
         self._name = self.__class__.__name__
         self._project_collection = []
         self._project_collection: ObservableList['Project'] = ObservableList()
-        # self._project_collection.add_observer(self._on_project_changed)
+        self._project_collection.add_observer(self._on_project_changed)
 
     def _on_project_changed(self, new_list: List['Project']):
         # Trigger UI update here
