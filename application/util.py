@@ -43,15 +43,14 @@ class Util:
     def _set_catia_off(self):
         self._hso_state = self.catia.hso_synchronized()
         self._refresh_state = self.catia.refresh_display()
-        self.catia.refresh_display(False)
-        self.catia.hso_synchronized(False)
+        self.catia.refresh_display(False).hso_synchronized(False)
 
     def catia_on(self):
         return self.ready(lambda: self._set_catia_on())
 
     def _set_catia_on(self):
-        self.catia.refresh_display(self._refresh_state) 
-        self.catia.hso_synchronized(self._hso_state)
+        self.catia.refresh_display(self._refresh_state).hso_synchronized(self._hso_state)
+        # self.catia.refresh_display(True).hso_synchronized(True)
 
     def cat_select(self, cb:Callable[[exp.Selection], None]) -> 'Util':
         self.catia_off()

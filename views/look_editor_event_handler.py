@@ -16,9 +16,9 @@ if TYPE_CHECKING:
 
 
 class LookEditorEventHandler:
-    # def __init__(self, view:'LookEditorView', view_model:'LookEditorViewModel'):
     def __init__(self, context:ApplicationContext):
         self.context = context
+        self.context.view_look_editor_event_handler = self
         self.view = context.view_look_editor
         self.view_model = context.vm_look_editor
         self.tree_active_row = 0
@@ -28,13 +28,21 @@ class LookEditorEventHandler:
         return treeview.index(row_id)
     
     def on_config_selected(self, configuration:'Configuration'):
-        print(self.__class__.__name__, "config selected:", configuration.name)
-        self.populate_actors(configuration.actors)
+        # print(self.__class__.__name__, "config selected:", configuration.name)
+        if not configuration:
+            return
+        self.view_model.activate_configuration(configuration)
+        self.populate_actors(configuration.actors)        
         self.view.bind_config_name_var()
 
     def clear_treeview_widgets(self):
+        # print(self.__class__.__name__, self.view.configurations_container)
+        # if not self.view.configurations_container.winfo_exists():
+        #     return
+        
         for widget in self.view.configurations_container.winfo_children():
             widget.destroy()
+
 
     def update_treeview(self, configurations:'Configurations'):
         self.clear_treeview_widgets()
@@ -100,8 +108,8 @@ class LookEditorEventHandler:
             frame.rowconfigure(row_idx, weight=1)
 
         if len(configurations):
-            print(self.__class__.__name__, "update_treeview", configurations[0].name)
-            self.view_model.selected_configuration = configurations[0]
+            if not self.view_model.selected_configuration:
+                self.view_model.selected_configuration = configurations[-1]
 
         # Add event bindings for specific actions (e.g., double-click)
         # frame.bind("<Double-1>", self.on_double_click)
@@ -135,14 +143,43 @@ class LookEditorEventHandler:
                 )
             )
 
-    def on_actors_selection_change(self, event:tk.Event):
-        selected_item = self.view.tree.selection()
-        # print(self.__class__.__name__, "Selection changed:", selected_item, type(selected_item))
+    # def on_actors_selection_change(self, event:tk.Event):
+    #     selected_item = self.view.tree.selection()
+    #     # print(self.__class__.__name__, "Selection changed:", selected_item, type(selected_item))
 
-        if not self.view.tree_cb_looks['values']:
-            targets_list = self.view_model.root_model.application.look_file.targets_list
-            if targets_list:
-                self.view.tree_cb_looks['values'] = targets_list
-        if selected_item:
-            row_id = self.view.tree.index(selected_item[0])
-            self.view_model.selected_configuration = self.view_model.get_configuration_by_row_id(row_id)
+    #     if not self.view.tree_cb_looks['values']:
+    #         targets_list = self.view_model.root_model.application.look_file.targets_list
+    #         if targets_list:
+    #             self.view.tree_cb_looks['values'] = targets_list
+    #     if selected_item:
+    #         row_id = self.view.tree.index(selected_item[0])
+    #         self.view_model.selected_configuration = self.view_model.get_configuration_by_row_id(row_id)
+
+    def on_actors_selection_change(self, event:tk.Event):
+        selected = self.context.view_look_editor.actors_tree.selection()
+        if selected:
+            row_id = self.context.view_look_editor.actors_tree.index(selected[0])
+            self.context.vm_look_editor.select_actor_from_view(row_id)
+            # actor = self.context.application.active_project.active_configuration.actors[row_id]
+            # print(self.__class__.__name__, "on_selection_change", selected, row_id, actor)
+
+    # Private Sub DG_Editor_SelectionChanged(sender As Object, e As SelectionChangedEventArgs)
+    #     Dim dg As DataGrid = sender
+    #     If dg.SelectedItem Is Nothing Then Exit Sub
+
+    #     App.Model.Ready(Sub(p)
+    #                         p.ActiveConfiguration.ActiveActor = dg.SelectedItem
+
+    #                         App.Selection(Sub(sel)
+    #                                           App.Catia.RefreshDisplay = True
+    #                                           App.Catia.HSOSynchronized = True
+
+    #                                           If p.ActiveConfiguration.ActiveActor.ErrMessage <> vbNullString Then
+    #                                               App.ErrorMessage = p.ActiveConfiguration.ActiveActor.Name & " cannot be selected as it has error: " & p.ActiveConfiguration.ActiveActor.ErrMessage
+    #                                           Else
+    #                                               sel.ClearEx.Add(p.ActiveConfiguration.ActiveActor.CatObject)
+    #                                               App.StatusMessage = "Ready"
+    #                                           End If
+    #                                       End Sub, Sub(msg) App.StatusMessage = msg)
+    #                     End Sub)
+    # End Sub

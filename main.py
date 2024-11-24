@@ -18,9 +18,6 @@ def start(catia_com = None):
 
     context = ApplicationContext()
 
-    # Initialize the Model
-    # model = MainWindowModel(catia_com)
-
     # Initialize the ViewModel with the Model
     view_model = MainWindowViewModel(root, context, catia_com)
 

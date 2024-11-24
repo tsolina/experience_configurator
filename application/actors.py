@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Callable, Optional
+from typing import TYPE_CHECKING, Callable, List, Optional
 from application.observable_list import ObservableList
 from application.eval_selected import EvalSelected
 import experience as exp
@@ -14,6 +14,17 @@ class Actors(ObservableList['Actor']):
         self._parent = parent
         self.application = parent.application
         self._name = "Actors"
+
+        self.add_observer(self._on_actors_changed)
+
+    def _on_actors_changed(self, new_list: List['Actor']):
+        # Trigger UI update here
+        # print(self.__class__.__name__, "Actors collection updated:", "updating:", len(new_list), self.application.context.vm_look_editor)
+
+        if not self.application.parent or not self.application.context.vm_look_editor:
+            return 
+        # print(self.__class__.__name__, "Actors collection updated:", len(new_list))
+        self.application.context.vm_look_editor.update_actors(new_list)
 
     @property
     def parent(self) -> 'Configuration':
@@ -152,3 +163,12 @@ class Actors(ObservableList['Actor']):
     def for_each(self, callback: Callable[['Actor'], None]):
         for actor in self:
             callback(actor)
+
+
+    def add_actor_to_selection(self, actor:'Actor') -> 'Actors':
+        def select_actor(sel:exp.Selection):
+            sel.clear().add(actor.cat_object)
+
+        self.application.selection(select_actor)
+        return self
+

@@ -44,7 +44,7 @@ class LookEditorView():
 
     def bind_config_name_var(self):
         name_var = self.view_model.get_active_config_var()
-        print(self.__class__.__name__, "bind_config_name_var", name_var)
+        # print(self.__class__.__name__, "bind_config_name_var", name_var)
         if name_var:
             self.config_name.config(textvariable=name_var)
         else:
@@ -57,10 +57,6 @@ class LookEditorView():
 
         title = ttk.Label(container, text="Look editor", style="Red.TLabel")
         title.pack(side="left", anchor="w")
-
-        # self.config_name = ttk.Label(container)
-        # self.config_name.pack(side="left", anchor="w")
-        # self.bind_config_name_var()
 
     def add_data_grid(self):
         self.configurations_container = ttk.Frame(self.look_editor_frame)

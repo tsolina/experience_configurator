@@ -17,7 +17,7 @@ class Projects(ObservableList['Project']):
 
     def _on_project_changed(self, new_list: List['Project']):
         # Trigger UI update here
-        print(self.__class__.__name__, "Projects collection updated:", new_list)
+        self.application.context.vm_main_window.update_project(new_list)
 
     @property
     def parent(self) -> 'Application':

@@ -20,11 +20,11 @@ class Configurations(ObservableList['Configuration']):
 
     def _on_configuration_changed(self, new_list: List['Configuration']):
         # Trigger UI update here
-        print(self.__class__.__name__, "Configuration collection updated:", "updating:", len(new_list), self.application.context.vm_look_editor)
+        # print(self.__class__.__name__, "Configuration collection updated:", "updating:", len(new_list), self.application.context.vm_look_editor)
 
         if not self.application.parent or not self.application.context.vm_look_editor:
             return 
-        print(self.__class__.__name__, "Configuration collection updated:", len(new_list))
+        # print(self.__class__.__name__, "Configuration collection updated:", len(new_list))
         self.application.context.vm_look_editor.update_configurations(new_list)
 
     @property
@@ -74,13 +74,18 @@ class Configurations(ObservableList['Configuration']):
         return configuration
     
     def delete(self) -> 'Configurations':
-        if self.parent.active_configuration is None:
+        active_config = self.parent.active_configuration
+        if active_config is None:
             self.application.error_message = "Delete unsuccessful, no configuration selected"
             return self
-        print(self.__class__.__name__, "delete", self.parent.active_configuration.id, self.parent.active_configuration.name)
-        active_id = self.parent.active_configuration.id
-        self.parent.active_configuration.actors.clear()
-        self.remove(self.parent.active_configuration)  # Use remove from ObservableList
+
+        active_id = active_config.id
+        active_config.actors.clear()
+
+        index = self.index(active_config)
+
+        self.parent.active_configuration = None
+        self.remove(self[index])
 
         for config in self:
             if config.id > active_id:
@@ -93,6 +98,6 @@ class Configurations(ObservableList['Configuration']):
         for config in self:
             callback(config)
 
-    def __del__(self):
-        # Clean-up code equivalent to Finalize
-        self.clear()  # Use clear method from ObservableList to empty the list
+    # def __del__(self):
+    #     # Clean-up code equivalent to Finalize
+    #     self.clear()  # Use clear method from ObservableList to empty the list

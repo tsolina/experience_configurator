@@ -7,7 +7,6 @@ if TYPE_CHECKING:
     from views.main_window_view import MainWindowView
 
 class MainMenuView():
-    # def __init__(self, root: tk.Tk, parent: 'MainWindowView', view_model: 'MainMenuViewModel'):
     def __init__(self, root: tk.Tk, context:ApplicationContext):
         self.context = context
         self.context.view_main_menu = self
@@ -77,6 +76,5 @@ class MainMenuView():
         windows_menu.add_cascade(label='Projects', menu=sub_windows_menu)
 
         self.menubar.add_cascade(label='Windows', menu=windows_menu)
-        # sub_windows_menu.add_command(label='Sub Item')
 
         root.config(menu=self.menubar)

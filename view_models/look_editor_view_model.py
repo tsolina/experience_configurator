@@ -1,4 +1,6 @@
 from typing import TYPE_CHECKING, Callable, Optional
+from application.actor import Actor
+from application.actors import Actors
 from application.configurations import Configurations
 from application.observable_list import ObservableList
 from application.tristate import Tristate
@@ -14,11 +16,8 @@ if TYPE_CHECKING:
     from application.configuration import Configuration
 
 class LookEditorViewModel:
-    # def __init__(self, model: 'LookEditorModel'):
     def __init__(self, context:'ApplicationContext'):
         self.context = context
-        # self._model = model
-        # self.root_model: 'MainWindowViewModel' = None
         self.root_model = self.context.vm_main_window
 
     @property 
@@ -35,7 +34,6 @@ class LookEditorViewModel:
                         
             def on_thread():
                 self.selected_configuration = project.configurations.add()
-                # self.root_model.application.active_project.active_configuration = self.selected_configuration
 
             self.root_model.sta_thread(on_thread)
 
@@ -47,6 +45,8 @@ class LookEditorViewModel:
     def delete_configuration(self):
         def delete_configuration(project:'Project'):
             project.configurations.delete()
+            # project.active_configuration = None
+            # self.selected_configuration = None
 
         self.root_model.application.project_ready(delete_configuration)
 
@@ -73,7 +73,6 @@ class LookEditorViewModel:
     
     def get_configuration_by_row_id(self, index:int) -> 'Configuration':
         return self.get_configurations()[index]
-        # return self.get_active_project().configurations[index]
     
     def get_active_configuration(self) -> 'Configuration':
         project = self.get_active_project()
@@ -81,9 +80,27 @@ class LookEditorViewModel:
 
     def get_active_config_var(self) -> tk.StringVar:
         config = self.get_active_configuration()
-        if config:
-            print(self.__class__.__name__, "get_active_config_var", config.name)
         return config.name_var if config else None
     
     def update_configurations(self, configurations:'Configurations'):
-        pass
+        self.context.view_look_editor_event_handler.update_treeview(configurations)
+
+    def activate_configuration(self, configuration:'Configuration'):
+        self.context.application.active_project.active_configuration = configuration
+
+    def update_actors(self, actors:'Actors'):
+        self.context.view_look_editor_event_handler.populate_actors(actors)
+
+    def get_actor_from_id(self, id:int):
+        config = self.get_active_configuration()
+        if not config:
+            return
+        return config.actors[id]
+
+    def select_actor_from_view(self, id:int):
+        actor = self.get_actor_from_id(id)
+        if not actor:
+            return
+        
+        self.get_active_configuration().actors.add_actor_to_selection(actor)
+        

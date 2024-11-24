@@ -3,6 +3,7 @@ import tkinter as tk
 from concurrent.futures import Future, ThreadPoolExecutor, as_completed
 from typing import Callable, List
 from application.application import Application
+from application.projects import Projects
 from application.task_executor import TaskExecutor
 from application.task_model import TaskModel
 from models.main_window_model import MainWindowModel
@@ -23,7 +24,6 @@ class MainWindowViewModel:
         self.context.vm_look_editor = LookEditorViewModel(self.context)
         self.context.vm_variant_editor = VariantEditorViewModel(self.context)
         self.context.vm_main_menu = MainMenuViewModel(self.context)
-        # self._model = model
         self.view_root = view_root
         self.application = Application(self, catia_com)
         self.context.application = self.application
@@ -36,14 +36,6 @@ class MainWindowViewModel:
 
         self._status_message = tk.StringVar()
         self.status_reset()
-
-        self.current_editor: tk.Frame = None
-        self.look_editor: tk.Frame = None
-        self.variant_editor: tk.Frame = None
-
-        # self.vm_main_menu: MainMenuViewModel = None
-        # self.vm_look_editor: LookEditorViewModel = None
-        # self.vm_variant_editor: VariantEditorViewModel = None
 
     @property
     def status_message(self):
@@ -71,18 +63,6 @@ class MainWindowViewModel:
     def add_title_observer(self, callback:Callable[[str], None]):
         self._title_observers.append(callback)
 
-
-
-    def look_editor_activate(self):
-        self.current_editor.pack_forget()
-        self.current_editor = self.look_editor
-        self.look_editor.pack(fill='both', expand=True)
-
-    def variant_editor_activate(self):
-        self.current_editor.pack_forget()
-        self.current_editor = self.variant_editor
-        self.variant_editor.pack(fill='both', expand=True)
-
     def sta_thread(self, callback:Callable):
         # time.sleep(2)
         self.dispatcher.begin_invoke(callback)
@@ -106,3 +86,6 @@ class MainWindowViewModel:
         # Wait for all tasks to complete
         for future in as_completed(futures):
             future.result()  # This will block until the task is complete
+
+    def update_project(self, projects:'Projects'):
+        pass

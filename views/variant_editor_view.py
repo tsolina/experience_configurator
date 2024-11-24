@@ -11,13 +11,10 @@ if TYPE_CHECKING:
     from views.main_window_view import MainWindowView
 
 class VariantEditorView():
-    # def __init__(self, root, parent:'MainWindowView', view_model: 'VariantEditorViewModel'):
     def __init__(self, root, context:ApplicationContext):
         self.context = context
         self.context.view_variant_editor = self
-        # self.main_window_view = parent
         self.view_model = context.vm_variant_editor
-        # self.view_model.root_model = parent.view_model
 
         self.add_main_frame(root)
         self.add_title()
@@ -28,15 +25,11 @@ class VariantEditorView():
         self.add_configuration_grid()
         self.add_configuration_controls(root)
 
-        # self.variant_editor_frame.pack_forget()
-
     def update_variant(self, variants:ObservableList['Variant']):
         pass
 
     def add_main_frame(self, root):
         self.variant_editor_frame = tk.Frame(root, background=root['bg'])
-        # self.variant_editor_frame.pack(fill='both', expand=True)
-        # self.variant_editor_frame.grid(row=1, column=0, sticky='nsew')
         self.variant_editor_frame.grid_rowconfigure(0, weight=0)  # Header row (fixed)
         self.variant_editor_frame.grid_rowconfigure(1, weight=1)  # Content row (expands)
         self.variant_editor_frame.grid_rowconfigure(2, weight=0)  # Footer row (fixed)
@@ -81,10 +74,10 @@ class VariantEditorView():
 
     def add_tooltip(self, widget: tk.Widget, text: str):
         def on_enter(event):
-            self.main_window_view.view_model.status_update(text)
+            self.context.vm_main_window.status_update(text)
 
         def on_leave(event):
-            self.main_window_view.view_model.status_reset()
+            self.context.vm_main_window.status_reset()
 
         widget.bind("<Enter>", on_enter)
         widget.bind("<Leave>", on_leave)

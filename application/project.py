@@ -79,7 +79,11 @@ class Project:
     @active_configuration.setter
     def active_configuration(self, value: 'Configuration'):
         if self._active_configuration != value:
+            if not value:
+                self.active_configuration.name_var.set("select configuration")
             self._active_configuration = value
+
+            self.application.context.view_look_editor_event_handler.on_config_selected(self.active_configuration)
 
     @property
     def variants(self) -> 'Variants':

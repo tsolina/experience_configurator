@@ -12,18 +12,15 @@ if TYPE_CHECKING:
 
 
 class MainMenuViewModel:
-    # def __init__(self, parent: 'MainWindowViewModel', model: 'MainMenuModel'):
     def __init__(self, context:ApplicationContext):
         self.context = context
-        # self.root_model = parent
-        # self._model = model
         self.root_model = self.context.vm_main_window
 
     def look_editor_activate(self):
-        self.root_model.look_editor_activate()
+        self.context.view_main_window.toggle_editors("look_editor")
 
     def variant_editor_activate(self):
-        self.root_model.variant_editor_activate()
+        self.context.view_main_window.toggle_editors("variant_editor")
         
     def change_default_saving_location(self):
         app = self.root_model.application
@@ -41,8 +38,6 @@ class MainMenuViewModel:
 
     def windows_activate(self, sub_windows_menu:tk.Menu):
         print("windows activated")
-        # sub_windows_menu.delete(0, tk.END)
-        # sub_windows_menu.add_command(label='Sub Item')
 
         def activate_window(window:exp.Window):
             window.activate()
@@ -58,21 +53,3 @@ class MainMenuViewModel:
 
 
         self.root_model.application.catia_ready(catia_ready)
-
-    # Public Sub AddMenuWindows(iMenu As MenuItem)
-    #     If App.Catia IsNot Nothing Then
-    #         iMenu.Items.Clear()
-
-    #         App.Catia.Windows.ForEach(Sub(w)
-    #                                       If w.IsEditModeOn Then
-    #                                           If w.Name <> "VIZ_LOOK_LIBRARY|A.1|In Work" Then
-    #                                               iMenu.Items.Add(CreateMenuItem(w.Name, w, Sub()
-    #                                                                                             w.Activate()
-    #                                                                                             Util.DoEvents()
-    #                                                                                             App.Model.Projects.Activate()
-    #                                                                                         End Sub))
-    #                                           End If
-    #                                       End If
-    #                                   End Sub)
-    #     End If
-    # End Sub

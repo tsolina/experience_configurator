@@ -1,5 +1,5 @@
 import time
-from typing import Callable, TYPE_CHECKING
+from typing import Callable, TYPE_CHECKING, Dict
 from application.observable_list import ObservableList
 import experience as exp
 from models.look_editor_model import LookEditorModel
@@ -22,48 +22,29 @@ if TYPE_CHECKING:
     from application.project import Project
 
 class MainWindowView():
-    # def __init__(self, root: tk.Tk, view_model: 'MainWindowViewModel'):
     def __init__(self, root: tk.Tk, context:ApplicationContext):
         self.root = root
         self.context = context
         self.context.view_main_window = self
         self.dispatcher = StaDispatcher(root)
-        # self.view_model = view_model
         self.view_model = self.context.vm_main_window
-        # self.view_model.dispatcher = self.dispatcher
         self.context.vm_main_window.dispatcher = self.dispatcher
 
         self.define_styles(root)
         self.add_status_bar(root)
  
         self.add_main_menu(root)
-        # self.current_editor: tk.Frame = None
-
+        self.editors:Dict[str, tk.Frame] = {}
         self.add_variant_editor(root)
         self.add_look_editor(root)
 
-        # self.add_user_input(root)
-        # self.add_options(root)
-        # self.execute_frame_definition(root)
         self.view_model.add_title_observer(self.update_root_title)
         self.root.title(self.view_model.title)
-
-        app = self.view_model.application
-        app.projects.add_observer(self.update_project)
-        app.projects._notify_observers()
-
-    def update_project(self, projects:ObservableList['Project']):
-        for project in projects:
-            project.configurations.add_observer(self.look_editor.event_handler.update_treeview)
-            project.variants.add_observer(self.variant_editor.update_variant)
 
     def update_root_title(self, new_title:str):
         self.root.title(new_title)
 
     def add_main_menu(self, root):
-        # model = MainMenuModel()
-        # self.vm_main_menu = MainMenuViewModel(self.view_model, model)
-        # self.main_menu = MainMenuView(root, self, self.vm_main_menu)
         self.main_menu = MainMenuView(root, self.context)
 
     def define_styles(self, root):
@@ -85,21 +66,22 @@ class MainWindowView():
         self.version.pack(side='left')
 
     def add_look_editor(self, root):
-        # model = LookEditorModel()
-        # self.vm_look_editor = LookEditorViewModel(model)
-        # self.look_editor = LookEditorView(root, self, self.vm_look_editor)
         self.look_editor = LookEditorView(root, self.context)
-        
-        self.view_model.look_editor = self.look_editor.look_editor_frame
-        self.view_model.current_editor = self.view_model.look_editor
+        self.editors["look_editor"] = self.look_editor.look_editor_frame
+        self.look_editor.look_editor_frame.pack()
 
     def add_variant_editor(self, root):
-        # model = VariantEditorModel()
-        # self.vm_variant_editor = VariantEditorViewModel(model)
-        # self.variant_editor = VariantEditorView(root, self, self.vm_variant_editor)
         self.variant_editor = VariantEditorView(root, self.context)
+        self.editors["variant_editor"] = self.variant_editor.variant_editor_frame
 
-        self.view_model.variant_editor = self.variant_editor.variant_editor_frame
+    def toggle_editors(self, editor_name:str):
+        for editor in self.editors.values():
+            editor.pack_forget()
+
+        if editor_name in self.editors:
+            self.editors[editor_name].pack(fill="both", expand=True)
+        else:
+            self.context.vm_main_window.status_update(f"Editor with name: '{editor_name}' not found")
 
     def sta_thread(self, callback:Callable):
         # time.sleep(2)
