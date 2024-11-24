@@ -1,4 +1,5 @@
 from typing import TYPE_CHECKING
+from view_models.application_context import ApplicationContext
 from view_models.main_menu_view_model import MainMenuViewModel
 import tkinter as tk
 
@@ -6,9 +7,11 @@ if TYPE_CHECKING:
     from views.main_window_view import MainWindowView
 
 class MainMenuView():
-    def __init__(self, root: tk.Tk, parent: 'MainWindowView', view_model: 'MainMenuViewModel'):
-        self.main_window_view = parent
-        self.view_model = view_model
+    # def __init__(self, root: tk.Tk, parent: 'MainWindowView', view_model: 'MainMenuViewModel'):
+    def __init__(self, root: tk.Tk, context:ApplicationContext):
+        self.context = context
+        self.context.view_main_menu = self
+        self.view_model = context.vm_main_menu
 
         self.add_main_menu(root)
 
@@ -77,14 +80,3 @@ class MainMenuView():
         # sub_windows_menu.add_command(label='Sub Item')
 
         root.config(menu=self.menubar)
-
-
-        # def open_file():
-        #     print("open file activated")
-
-        # root.bind_all("<Control-o>", lambda event: open_file())
-
-        # def show_tooltip(event: tk.Event, message):
-        #     print(message, event.widget)
-        # root.bind("<Enter>", lambda event: show_tooltip(event, "Enter"))
-        # root.bind("<Leave>", lambda event: show_tooltip(event, "Leave"))

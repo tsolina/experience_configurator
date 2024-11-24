@@ -6,6 +6,7 @@ from application.configuration import Configuration
 from application.observable_list import ObservableList
 from application.project import Project
 from application.tristate import Tristate
+from view_models.application_context import ApplicationContext
 from view_models.look_editor_view_model import LookEditorViewModel
 from views.look_editor_event_handler import LookEditorEventHandler
 import application.widgets as widgets
@@ -14,12 +15,13 @@ if TYPE_CHECKING:
     from views.main_window_view import MainWindowView
 
 class LookEditorView():
-    def __init__(self, root, parent:'MainWindowView', view_model: 'LookEditorViewModel'):
-        self.main_window_view = parent
-        self.view_model = view_model
-        self.view_model.root_model = parent.view_model
-        self.main_window_view.view_model.vm_look_editor = view_model
-        self.event_handler = LookEditorEventHandler(self, self.view_model)
+    # def __init__(self, root, parent:'MainWindowView', view_model: 'LookEditorViewModel'):
+    def __init__(self, root, context:ApplicationContext):
+        self.context = context
+        self.context.view_look_editor = self
+        self.view_model = self.context.vm_look_editor
+
+        self.event_handler = LookEditorEventHandler(context)
 
         self.add_main_frame(root)
         self.add_title()
@@ -72,10 +74,10 @@ class LookEditorView():
 
     def add_tooltip(self, widget: tk.Widget, text: str):
         def on_enter(event):
-            self.main_window_view.view_model.status_update(text)
+            self.context.vm_main_window.status_update(text)
 
         def on_leave(event):
-            self.main_window_view.view_model.status_reset()
+            self.context.vm_main_window.status_reset()
 
         widget.bind("<Enter>", on_enter)
         widget.bind("<Leave>", on_leave)

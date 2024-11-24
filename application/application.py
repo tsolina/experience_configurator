@@ -16,8 +16,10 @@ from application.xml import XML
 import experience as exp
 
 
+
 if TYPE_CHECKING:
     from view_models.main_window_view_model import MainWindowViewModel
+    from view_models.application_context import ApplicationContext
 
 class Flags:
     def __init__(self):
@@ -27,6 +29,7 @@ class Application():
     VERSION = "Version 0.0.0.1"
 
     def __init__(self, parent: 'MainWindowViewModel', catia_com = None):
+        self.context:'ApplicationContext' = None
         self.util = Util(catia_com)
         self._catia = self.util.catia
         self.log = Log(self)

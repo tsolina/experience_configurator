@@ -7,6 +7,7 @@ from application.task_executor import TaskExecutor
 from application.task_model import TaskModel
 from models.main_window_model import MainWindowModel
 import experience as exp
+from view_models.application_context import ApplicationContext
 from view_models.look_editor_view_model import LookEditorViewModel
 from view_models.main_menu_view_model import MainMenuViewModel
 from view_models.variant_editor_view_model import VariantEditorViewModel
@@ -15,10 +16,18 @@ from views.sta_dispatcher import StaDispatcher
 class MainWindowViewModel:
     BASE_TITLE = "3DExperience Configurator"
 
-    def __init__(self, view_root:tk.Tk, model: 'MainWindowModel', catia_com = None):
-        self._model = model
+    # def __init__(self, view_root:tk.Tk, model: 'MainWindowModel', catia_com = None):
+    def __init__(self, view_root:tk.Tk, context:ApplicationContext, catia_com = None):
+        self.context = context
+        self.context.vm_main_window = self
+        self.context.vm_look_editor = LookEditorViewModel(self.context)
+        self.context.vm_variant_editor = VariantEditorViewModel(self.context)
+        self.context.vm_main_menu = MainMenuViewModel(self.context)
+        # self._model = model
         self.view_root = view_root
         self.application = Application(self, catia_com)
+        self.context.application = self.application
+        self.application.context = context
         self.dispatcher: StaDispatcher = None
         self.task_executor: TaskExecutor = TaskExecutor()
         self.task_list = []
@@ -32,9 +41,9 @@ class MainWindowViewModel:
         self.look_editor: tk.Frame = None
         self.variant_editor: tk.Frame = None
 
-        self.vm_main_menu: MainMenuViewModel = None
-        self.vm_look_editor: LookEditorViewModel = None
-        self.vm_variant_editor: VariantEditorViewModel = None
+        # self.vm_main_menu: MainMenuViewModel = None
+        # self.vm_look_editor: LookEditorViewModel = None
+        # self.vm_variant_editor: VariantEditorViewModel = None
 
     @property
     def status_message(self):

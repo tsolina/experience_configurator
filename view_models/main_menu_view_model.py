@@ -4,6 +4,7 @@ from tkinter import filedialog
 from models.main_menu_model import MainMenuModel
 import os
 import experience as exp
+from view_models.application_context import ApplicationContext
 
 
 if TYPE_CHECKING:
@@ -11,9 +12,12 @@ if TYPE_CHECKING:
 
 
 class MainMenuViewModel:
-    def __init__(self, parent: 'MainWindowViewModel', model: 'MainMenuModel'):
-        self.root_model = parent
-        self._model = model
+    # def __init__(self, parent: 'MainWindowViewModel', model: 'MainMenuModel'):
+    def __init__(self, context:ApplicationContext):
+        self.context = context
+        # self.root_model = parent
+        # self._model = model
+        self.root_model = self.context.vm_main_window
 
     def look_editor_activate(self):
         self.root_model.look_editor_activate()

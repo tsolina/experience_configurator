@@ -1,6 +1,7 @@
 import tkinter as tk
 
-from models.main_window_model import MainWindowModel
+# from models.main_window_model import MainWindowModel
+from view_models.application_context import ApplicationContext
 from view_models.main_window_view_model import MainWindowViewModel
 from views.main_window_view import MainWindowView
 
@@ -15,14 +16,16 @@ def start(catia_com = None):
     root.geometry("800x450")
     root.configure(bg="SystemButtonFace")
 
+    context = ApplicationContext()
+
     # Initialize the Model
-    model = MainWindowModel(catia_com)
+    # model = MainWindowModel(catia_com)
 
     # Initialize the ViewModel with the Model
-    view_model = MainWindowViewModel(root, model)
+    view_model = MainWindowViewModel(root, context, catia_com)
 
     # Initialize the View with the ViewModel
-    view = MainWindowView(root, view_model)
+    view = MainWindowView(root, context)
 
     root.mainloop()
 

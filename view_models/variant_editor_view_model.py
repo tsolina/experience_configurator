@@ -3,14 +3,19 @@ from application.variant import Variant
 from models.variant_editor_model import VariantEditorModel
 from typing import TYPE_CHECKING
 
+from view_models.application_context import ApplicationContext
+
 if TYPE_CHECKING:
     from view_models.main_window_view_model import MainWindowViewModel
 
 
 class VariantEditorViewModel:
-    def __init__(self, model: 'VariantEditorModel'):
-        self._model = model
-        self.root_model: 'MainWindowViewModel' = None
+    # def __init__(self, model: 'VariantEditorModel'):
+    def __init__(self, context:ApplicationContext):
+        self.context = context
+        # self._model = model
+        # self.root_model: 'MainWindowViewModel' = None
+        self.root_model = self.context.vm_main_window
         self._selected_variant: 'Variant' = None
 
     @property 

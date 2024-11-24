@@ -7,7 +7,8 @@ from application.actor import Actor
 from application.actors import Actors
 from application.configuration import Configuration
 from application.configurations import Configurations
-from application.observable_list import ObservableList
+# from application.observable_list import ObservableList
+from view_models.application_context import ApplicationContext
 
 if TYPE_CHECKING:
     from view_models.look_editor_view_model import LookEditorViewModel
@@ -15,9 +16,11 @@ if TYPE_CHECKING:
 
 
 class LookEditorEventHandler:
-    def __init__(self, view:'LookEditorView', view_model:'LookEditorViewModel'):
-        self.view = view
-        self.view_model = view_model
+    # def __init__(self, view:'LookEditorView', view_model:'LookEditorViewModel'):
+    def __init__(self, context:ApplicationContext):
+        self.context = context
+        self.view = context.view_look_editor
+        self.view_model = context.vm_look_editor
         self.tree_active_row = 0
         self.tree_active_column = 0
 
@@ -112,21 +115,21 @@ class LookEditorEventHandler:
             self.view.actors_tree.insert("", tk.END, values=(actor.id, actor.name, actor.type_, actor.err_message))
 
     def btn_select_actors(self):
-        self.view_model.root_model.application.project_ready(
+        self.context.application.project_ready(
             lambda p: p.config_ready(
                 lambda c: c.actors.select_actors()
                 )
             )
         
     def btn_deselect_actors(self):
-        self.view_model.root_model.application.project_ready(
+        self.context.application.project_ready(
             lambda p: p.config_ready(
                 lambda c: c.actors.deselect_actors()
                 )
             )
 
     def btn_delete_actor(self):
-        self.view_model.root_model.application.project_ready(
+        self.context.application.project_ready(
             lambda p: p.config_ready(
                 lambda c: c.actors.delete_actor()
                 )

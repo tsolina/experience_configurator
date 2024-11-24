@@ -5,6 +5,7 @@ import experience as exp
 from models.look_editor_model import LookEditorModel
 from models.main_menu_model import MainMenuModel
 from models.variant_editor_model import VariantEditorModel
+from view_models.application_context import ApplicationContext
 from view_models.look_editor_view_model import LookEditorViewModel
 from view_models.main_menu_view_model import MainMenuViewModel
 from view_models.main_window_view_model import MainWindowViewModel
@@ -21,11 +22,16 @@ if TYPE_CHECKING:
     from application.project import Project
 
 class MainWindowView():
-    def __init__(self, root: tk.Tk, view_model: 'MainWindowViewModel'):
+    # def __init__(self, root: tk.Tk, view_model: 'MainWindowViewModel'):
+    def __init__(self, root: tk.Tk, context:ApplicationContext):
         self.root = root
+        self.context = context
+        self.context.view_main_window = self
         self.dispatcher = StaDispatcher(root)
-        self.view_model = view_model
-        self.view_model.dispatcher = self.dispatcher
+        # self.view_model = view_model
+        self.view_model = self.context.vm_main_window
+        # self.view_model.dispatcher = self.dispatcher
+        self.context.vm_main_window.dispatcher = self.dispatcher
 
         self.define_styles(root)
         self.add_status_bar(root)
@@ -55,9 +61,10 @@ class MainWindowView():
         self.root.title(new_title)
 
     def add_main_menu(self, root):
-        model = MainMenuModel()
-        self.vm_main_menu = MainMenuViewModel(self.view_model, model)
-        self.main_menu = MainMenuView(root, self, self.vm_main_menu)
+        # model = MainMenuModel()
+        # self.vm_main_menu = MainMenuViewModel(self.view_model, model)
+        # self.main_menu = MainMenuView(root, self, self.vm_main_menu)
+        self.main_menu = MainMenuView(root, self.context)
 
     def define_styles(self, root):
         self.style = ttk.Style()
@@ -78,17 +85,20 @@ class MainWindowView():
         self.version.pack(side='left')
 
     def add_look_editor(self, root):
-        model = LookEditorModel()
-        self.vm_look_editor = LookEditorViewModel(model)
-        self.look_editor = LookEditorView(root, self, self.vm_look_editor)
+        # model = LookEditorModel()
+        # self.vm_look_editor = LookEditorViewModel(model)
+        # self.look_editor = LookEditorView(root, self, self.vm_look_editor)
+        self.look_editor = LookEditorView(root, self.context)
         
         self.view_model.look_editor = self.look_editor.look_editor_frame
         self.view_model.current_editor = self.view_model.look_editor
 
     def add_variant_editor(self, root):
-        model = VariantEditorModel()
-        self.vm_variant_editor = VariantEditorViewModel(model)
-        self.variant_editor = VariantEditorView(root, self, self.vm_variant_editor)
+        # model = VariantEditorModel()
+        # self.vm_variant_editor = VariantEditorViewModel(model)
+        # self.variant_editor = VariantEditorView(root, self, self.vm_variant_editor)
+        self.variant_editor = VariantEditorView(root, self.context)
+
         self.view_model.variant_editor = self.variant_editor.variant_editor_frame
 
     def sta_thread(self, callback:Callable):

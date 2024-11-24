@@ -20,12 +20,12 @@ class Configurations(ObservableList['Configuration']):
 
     def _on_configuration_changed(self, new_list: List['Configuration']):
         # Trigger UI update here
-        print(self.__class__.__name__, "Configuration collection updated:", "updating:", len(new_list), self.application.parent.vm_look_editor)
+        print(self.__class__.__name__, "Configuration collection updated:", "updating:", len(new_list), self.application.context.vm_look_editor)
 
-        if not self.application.parent or not self.application.parent.vm_look_editor:
+        if not self.application.parent or not self.application.context.vm_look_editor:
             return 
         print(self.__class__.__name__, "Configuration collection updated:", len(new_list))
-        self.application.parent.vm_look_editor.update_configurations(new_list)
+        self.application.context.vm_look_editor.update_configurations(new_list)
 
     @property
     def parent(self) -> 'Project':
@@ -77,9 +77,9 @@ class Configurations(ObservableList['Configuration']):
         if self.parent.active_configuration is None:
             self.application.error_message = "Delete unsuccessful, no configuration selected"
             return self
-        print(self.__class__.__name__, "config", self.parent.active_configuration.id, self.parent.active_configuration.name)
+        print(self.__class__.__name__, "delete", self.parent.active_configuration.id, self.parent.active_configuration.name)
         active_id = self.parent.active_configuration.id
-        self.parent.active_configuration.actors.actor_list.clear()
+        self.parent.active_configuration.actors.clear()
         self.remove(self.parent.active_configuration)  # Use remove from ObservableList
 
         for config in self:

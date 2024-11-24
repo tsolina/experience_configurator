@@ -6,15 +6,20 @@ from models.look_editor_model import LookEditorModel
 import tkinter as tk
 from tkinter import ttk
 
+
 if TYPE_CHECKING:
+    from view_models.application_context import ApplicationContext
     from view_models.main_window_view_model import MainWindowViewModel
     from application.project import Project
     from application.configuration import Configuration
 
 class LookEditorViewModel:
-    def __init__(self, model: 'LookEditorModel'):
-        self._model = model
-        self.root_model: 'MainWindowViewModel' = None
+    # def __init__(self, model: 'LookEditorModel'):
+    def __init__(self, context:'ApplicationContext'):
+        self.context = context
+        # self._model = model
+        # self.root_model: 'MainWindowViewModel' = None
+        self.root_model = self.context.vm_main_window
 
     @property 
     def selected_configuration(self) -> 'Configuration':

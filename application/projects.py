@@ -50,7 +50,7 @@ class Projects(ObservableList['Project']):
             project.active_variant = None
         else:
             self.application.status_message = f"activeProject: {project.name}.{project.active_variant.name}"
-            self.application.parent.vm_variant_editor.selected_variant = project.active_variant
+            self.application.context.vm_variant_editor.selected_variant = project.active_variant
 
     def activate(self):
         def _set_active_project_variant(project: 'Project', variant: 'Variant'):

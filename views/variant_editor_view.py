@@ -4,16 +4,20 @@ from tkinter import ttk
 
 from application.observable_list import ObservableList
 from application.variant import Variant
+from view_models.application_context import ApplicationContext
 from view_models.variant_editor_view_model import VariantEditorViewModel
 
 if TYPE_CHECKING:
     from views.main_window_view import MainWindowView
 
 class VariantEditorView():
-    def __init__(self, root, parent:'MainWindowView', view_model: 'VariantEditorViewModel'):
-        self.main_window_view = parent
-        self.view_model = view_model
-        self.view_model.root_model = parent.view_model
+    # def __init__(self, root, parent:'MainWindowView', view_model: 'VariantEditorViewModel'):
+    def __init__(self, root, context:ApplicationContext):
+        self.context = context
+        self.context.view_variant_editor = self
+        # self.main_window_view = parent
+        self.view_model = context.vm_variant_editor
+        # self.view_model.root_model = parent.view_model
 
         self.add_main_frame(root)
         self.add_title()
