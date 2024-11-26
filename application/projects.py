@@ -53,6 +53,7 @@ class Projects(ObservableList['Project']):
             self.application.context.vm_variant_editor.selected_variant = project.active_variant
 
     def activate(self):
+        # print(self.__class__.__name__, "activate", "activating project")
         def _set_active_project_variant(project: 'Project', variant: 'Variant'):
             project.active_variant = variant
 
@@ -60,13 +61,18 @@ class Projects(ObservableList['Project']):
             self.application.status_message = "Activating Project"
             ent = self.application.catia.services().product_service().root_occurrence().plm_entity()
             project = self.get_project(ent.id())
+            # print(self.__class__.__name__, "activate", ent.id(), project)
 
-            if project is None:
+            if not project:
                 from application.project import Project
                 project = Project(self, id=ent.id(), name=ent.title(), revision=ent.revision())
+                # print(self.__class__.__name__, "activate", "ready", project)
+                self.parent.active_project = project
+                # print(self.__class__.__name__, "activate", "created", project)
                 self.append(project)
-                self.application.active_project = project
+                # print(self.__class__.__name__, "activate", "appended", project)
                 project.load_configuration()
+                # print(self.__class__.__name__, "activate", project)
             else:
                 self.application.active_project = project
                 project.variant_ready(lambda v: _set_active_project_variant(project, v))

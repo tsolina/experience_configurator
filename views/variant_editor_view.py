@@ -6,6 +6,7 @@ from application.observable_list import ObservableList
 from application.variant import Variant
 from view_models.application_context import ApplicationContext
 from view_models.variant_editor_view_model import VariantEditorViewModel
+from views.variant_editor_event_handler import VariantEditorEventHandler
 
 if TYPE_CHECKING:
     from views.main_window_view import MainWindowView
@@ -16,14 +17,16 @@ class VariantEditorView():
         self.context.view_variant_editor = self
         self.view_model = context.vm_variant_editor
 
+        self.event_handler = VariantEditorEventHandler(context)
+
         self.add_main_frame(root)
         self.add_title()
         self.add_data_grid()
         self.add_look_controls(root)
 
-        self.add_active_configuration()
-        self.add_configuration_grid()
-        self.add_configuration_controls(root)
+        self.add_active_variant()
+        self.add_variant_grid()
+        self.add_variant_controls(root)
 
     def update_variant(self, variants:ObservableList['Variant']):
         pass
@@ -41,36 +44,21 @@ class VariantEditorView():
         title.grid(row=0, column=0, sticky='w')
 
     def add_data_grid(self):
-        frame = ttk.Frame(self.variant_editor_frame)
-        frame.grid(row=1, column=0, sticky="nsew")
+        self.variants_container = ttk.Frame(self.variant_editor_frame, style="Standard.TFrame")
+        self.variants_container.grid(row=1, column=0, sticky="nsew")
 
-        # Define columns
-        columns = ("id", "variant_set", "current_variant")
-        self.variant_editor_tree = ttk.Treeview(frame, columns=columns, show="headings")
-        
-        # Set column headers
-        self.variant_editor_tree.heading("id", text="#")
-        self.variant_editor_tree.heading("variant_set", text="Variant Set")
-        self.variant_editor_tree.heading("current_variant", text="Current Variant")
+        # Sample data rows from view model
+        variants = self.view_model.get_variants()
+        self.event_handler.update_variant_container(variants)
+        return
+    
+    def bind_variant_name_var(self):
+        name_var = self.view_model.get_active_variant_var()
+        if name_var:
+            self.variant_name.config(textvariable=name_var)
+        else:
+            self.variant_name.config(text="select variant")
 
-        # Set column widths
-        self.variant_editor_tree.column("id", width=10, anchor="center")
-        self.variant_editor_tree.column("variant_set", minwidth=80, width=100)
-        self.variant_editor_tree.column("current_variant", minwidth=175, width=175)
-
-        # Insert sample data
-        for i in range(10):  # Sample data rows
-            self.variant_editor_tree.insert("", "end", values=(i+1, f"Item {i+1}", ""))
-
-        self.variant_editor_tree.pack(fill="both", expand=True)
-
-        # Add a callback for selection change
-        self.variant_editor_tree.bind("<<TreeviewSelect>>", self.on_selection_change)
-
-    def on_selection_change(self, event):
-        # Handle selection change
-        selected_item = self.variant_editor_tree.selection()
-        print("Selection changed:", selected_item)
 
     def add_tooltip(self, widget: tk.Widget, text: str):
         def on_enter(event):
@@ -99,53 +87,33 @@ class VariantEditorView():
         button_frame = tk.Frame(outer_frame, background=root['bg'])
         button_frame.pack(side="left", fill="both")
 
-        self.create_button(button_frame, "New Variant", "create new variant", self.new_configuration)
-        self.create_button(button_frame, "Clone", "clone selected variant", self.clone_configuration)
-        self.create_button(button_frame, "Delete", "delete selected variant", self.delete_configuration)
-  
-    def new_configuration(self):
-        print("New configuration clicked")
+        self.create_button(button_frame, "New Variant", "create new variant", self.view_model.new_variant)
+        self.create_button(button_frame, "Clone", "clone selected variant", self.view_model.clone_variant)
+        self.create_button(button_frame, "Delete", "delete selected variant", self.view_model.delete_variant)
 
-    def clone_configuration(self):
-        print("Clone clicked")
+    def add_active_variant(self):
+        container = ttk.Frame(self.variant_editor_frame, style='Standard.TFrame')
+        container.grid(row=0, column=1, sticky='w')
 
-    def delete_configuration(self):
-        print("Delete clicked")
+        title = ttk.Label(container, text="Active variant:", style="Red.TLabel")
+        title.pack(side="left", anchor="w")
 
-    def add_active_configuration(self):
-        title = ttk.Label(self.variant_editor_frame, text="Active variant:", style="Red.TLabel")
-        title.grid(row=0, column=1, sticky='w')
+        self.variant_name = ttk.Label(container, style="Standard.TLabel")
+        self.variant_name.pack(side="left", anchor="w")
+        self.bind_variant_name_var()
 
-    def add_configuration_grid(self):
-        frame = ttk.Frame(self.variant_editor_frame)
-        frame.grid(row=1, column=1, sticky="nsew")
+    def add_variant_grid(self):
+        self.sub_variants_container = ttk.Frame(self.variant_editor_frame, style="Standard.TFrame")
+        self.sub_variants_container.grid(row=1, column=1, sticky="nsew")
+        self.sub_variants_container.columnconfigure(0, weight=1)
+        self.sub_variants_container.rowconfigure(0, weight=1)
 
-        # Define columns
-        columns = ("id", "type", "actor", "value")
-        self.active_variant_tree = ttk.Treeview(frame, columns=columns, show="headings")
-        
-        # Set column headers
-        self.active_variant_tree.heading("id", text="#")
-        self.active_variant_tree.heading("type", text="Actor")
-        self.active_variant_tree.heading("actor", text="Type")
-        self.active_variant_tree.heading("value", text="Error")
+        # Sample data rows from view model
+        sub_variants = self.view_model.get_sub_variants()
+        self.event_handler.update_sub_variant_container(sub_variants)
+        return
 
-        # Set column widths
-        self.active_variant_tree.column("id", width=10, anchor="center")
-        self.active_variant_tree.column("type", minwidth=100, width=180)
-        self.active_variant_tree.column("actor", minwidth=40, width=50)
-        self.active_variant_tree.column("value", width=50, anchor="center")
-
-        # Insert sample data
-        for i in range(10):  # Sample data rows
-            self.active_variant_tree.insert("", "end", values=(i+1, f"Item {i+1}", "", "", ""))
-
-        self.active_variant_tree.pack(fill="both", expand=True)
-
-        # Add a callback for selection change
-        self.active_variant_tree.bind("<<TreeviewSelect>>", self.on_selection_change)
-
-    def add_configuration_controls(self, root):
+    def add_variant_controls(self, root):
         outer_frame = tk.Frame(self.variant_editor_frame, background=root['bg'], height=30)
         outer_frame.grid(row=2, column=1, sticky="w", padx=4, pady=3)
         outer_frame.grid_propagate(False)
@@ -153,7 +121,10 @@ class VariantEditorView():
         button_frame = tk.Frame(outer_frame, background=root['bg'])
         button_frame.pack(side="left", fill="both")
 
-        self.create_button(button_frame, "New Visibility", "Create new visibility switch", self.new_configuration)
-        self.create_button(button_frame, "New Look", "Create new look switch", self.clone_configuration)
-        self.create_button(button_frame, "New Code State", "Create new Code State switch", self.delete_configuration)
-        self.create_button(button_frame, "Delete", "delete selected switch", self.delete_configuration)
+        self.create_button(button_frame, "New Visibility", "Create new visibility switch", self.not_implemented)
+        self.create_button(button_frame, "New Look", "Create new look switch", self.not_implemented)
+        self.create_button(button_frame, "New Code State", "Create new Code State switch", self.not_implemented)
+        self.create_button(button_frame, "Delete", "delete selected switch", self.not_implemented)
+
+    def not_implemented(self):
+        self.context.application.status_message = "Not implemented yet"

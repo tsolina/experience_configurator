@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Callable, Optional
+from typing import TYPE_CHECKING, Callable, List, Optional
 from application.observable_list import ObservableList
 from application.tristate import Tristate
 
@@ -14,6 +14,17 @@ class Variants(ObservableList['Variant']):
         self._parent = parent
         self.application = parent.application
         self._name = self.__class__.__name__
+
+        self.add_observer(self._on_variant_changed)
+
+    def _on_variant_changed(self, new_list: List['Variant']):
+        # Trigger UI update here
+        # print(self.__class__.__name__, "Configuration collection updated:", "updating:", len(new_list), self.application.context.vm_look_editor)
+
+        if not self.application.parent or not self.application.context.vm_variant_editor:
+            return 
+        # print(self.__class__.__name__, "Configuration collection updated:", len(new_list))
+        self.application.context.vm_variant_editor.update_variants(new_list)
 
     @property
     def parent(self) -> 'Project':
@@ -34,36 +45,28 @@ class Variants(ObservableList['Variant']):
     def add_empty_variant(self) -> 'Variant':
         from application.variant import Variant
 
-        new_variant = Variant(self)
-        new_variant.id = self.count + 1
-        new_variant.name = f"variant.{new_variant.id}"
-        new_variant.switch_states = Tristate.to_list()
+        id = self.count + 1
+        new_variant = Variant(self, id=id, name=f"variant.{id}")
+        # new_variant.editing_state = new_variant.active_state
 
         def add_variant():
             self.append(new_variant)
 
-        self.application.sta_thread(add_variant)
-        new_variant.editing_state = new_variant.active_state
+        self.application.sta_thread(add_variant)        
         return new_variant
 
     def add(self) -> 'Variant':
         new_variant = self.add_empty_variant()
 
-        def select_variant():
-            self.application.parent.variant_editor.selected_item = new_variant
-
-        self.application.sta_thread(select_variant)
         self.application.status_message = f"{new_variant.name} added"
         return new_variant
 
     def add_to_container(self, container: list['Variant']) -> 'Variant':
         from application.variant import Variant
 
-        new_variant = Variant(self)
-        new_variant.id = len(container) + 1
-        new_variant.name = f"variant.{new_variant.id}"
-        new_variant.switch_states = Tristate.to_list()
-        new_variant.editing_state = new_variant.active_state
+        id = len(container) + 1
+        new_variant = Variant(self, id=id, name=f"variant.{id}")
+        # new_variant.editing_state = new_variant.active_state
 
         container.append(new_variant)
         return new_variant
@@ -71,37 +74,43 @@ class Variants(ObservableList['Variant']):
     def clone(self) -> 'Variants':
         def clone_variant(v: 'Variant'):
             cloned_variant = self.add_empty_variant()
-            for sub_variant in v.sub_variants.sub_variant_collection:
-                for switch in sub_variant.switches.switch_collection:
+            for sub_variant in v.sub_variants:
+                for switch in sub_variant.switches:
                     cloned_sub_variant = cloned_variant.sub_variants.get_sub_variant(sub_variant.name)
-                    cloned_sub_variant.switches.switch_collection.append(switch.deep_copy(sub_variant))
+                    cloned_sub_variant.switches.append(switch.deep_copy(sub_variant))
 
             cloned_variant.active_state = v.active_state
             cloned_variant.editing_state = cloned_variant.active_state
             self.application.status_message = f"Variant {v.name} cloned"
-            self.application.parent.variant_editor.selected_item = cloned_variant
+            # return cloned_variant
+            # self.application.parent.variant_editor.selected_item = cloned_variant
+            self.parent.active_variant = cloned_variant
 
         def clone_failed(msg: str):
             self.application.error_message = f"Clone failed, {msg}"
 
         self._parent.variant_ready(clone_variant, clone_failed)
         return self
-
+    
     def delete(self) -> 'Variants':
-        def delete_variant(v: 'Variant'):
-            active_id = v.id
-            self.application.status_message = f"{v.name} deleted"
-            self.remove(v)
-            self._parent.active_variant = None
+        active_variant = self.parent.active_variant
+        if active_variant is None:
+            self.application.error_message = "Delete unsuccessful, no variant selected"
+            return self
 
-            for variant in self:
-                if variant.id > active_id:
-                    variant.id -= 1
+        active_id = active_variant.id
+        active_variant.sub_variants.clear()
 
-        def delete_failed(msg: str):
-            self.application.error_message = f"Delete failed, {msg}"
+        index = self.index(active_variant)
 
-        self._parent.variant_ready(delete_variant, delete_failed)
+        self.parent.active_variant = None
+        self.remove(self[index])
+
+        for config in self:
+            if config.id > active_id:
+                config.id -= 1
+
+        self.application.status_message = "Ready"
         return self
 
     def delete_variant(self, variant: 'Variant') -> 'Variants':
@@ -131,5 +140,5 @@ class Variants(ObservableList['Variant']):
         else:
             callback(variant)
 
-    def __del__(self):
-        self.clear()
+    # def __del__(self):
+    #     self.clear()

@@ -3,6 +3,7 @@ import tkinter as tk
 from concurrent.futures import Future, ThreadPoolExecutor, as_completed
 from typing import Callable, List
 from application.application import Application
+from application.project import Project
 from application.projects import Projects
 from application.task_executor import TaskExecutor
 from application.task_model import TaskModel
@@ -20,14 +21,14 @@ class MainWindowViewModel:
     # def __init__(self, view_root:tk.Tk, model: 'MainWindowModel', catia_com = None):
     def __init__(self, view_root:tk.Tk, context:ApplicationContext, catia_com = None):
         self.context = context
-        self.context.vm_main_window = self
-        self.context.vm_look_editor = LookEditorViewModel(self.context)
-        self.context.vm_variant_editor = VariantEditorViewModel(self.context)
-        self.context.vm_main_menu = MainMenuViewModel(self.context)
-        self.view_root = view_root
         self.application = Application(self, catia_com)
         self.context.application = self.application
         self.application.context = context
+        self.context.vm_main_window = self
+        self.context.vm_main_menu = MainMenuViewModel(self.context)
+        self.context.vm_look_editor = LookEditorViewModel(self.context)
+        self.context.vm_variant_editor = VariantEditorViewModel(self.context)        
+        self.view_root = view_root
         self.dispatcher: StaDispatcher = None
         self.task_executor: TaskExecutor = TaskExecutor()
         self.task_list = []
@@ -86,6 +87,15 @@ class MainWindowViewModel:
         # Wait for all tasks to complete
         for future in as_completed(futures):
             future.result()  # This will block until the task is complete
+
+    def get_active_project(self) -> 'Project':
+        project = self.application.active_project
+        if not project:
+            # print(self.__class__.__name__, "get_active_project", "selecting project")
+            self.application.projects.activate()
+            project = self.application.active_project
+            # print(self.__class__.__name__, "get_active_project", project)
+        return project
 
     def update_project(self, projects:'Projects'):
         pass

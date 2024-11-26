@@ -62,9 +62,12 @@ class Application():
             self._active_project = value
             self.parent.title = self.active_project.name
 
-            self.active_project.configurations._notify_observers()
-            self.active_project.variants._notify_observers()
-            # self._notify_active_project_observers()
+            # print(self.__class__.__name__, "active_project", self.active_project.configurations, self.active_project.variants)
+            if self.context.view_look_editor:
+                self.active_project.configurations._notify_observers()
+            if self.context.view_variant_editor:
+                self.active_project.variants._notify_observers()
+
 
     def add_active_project_observer(self, observer:Callable[['Project'], None]):
         self._active_project_observers.append(observer)

@@ -48,9 +48,22 @@ class MainWindowView():
         self.main_menu = MainMenuView(root, self.context)
 
     def define_styles(self, root):
-        self.style = ttk.Style()
-        self.style.theme_use('clam')
-        self.style.configure("Red.TLabel", foreground="red", font=("Arial", 14), background=root['bg'])
+        style = ttk.Style()
+        style.theme_use('clam')
+        style.configure("Red.TLabel", foreground="red", font=("Arial", 14), background=root['bg'])
+        style.configure("Standard.TLabel", background=root['bg'])
+        style.configure("Custom.TFrame", background="orange", borderwidth=2, relief='solid', padx=2, pady=2)
+        style.configure("Standard.TFrame", background=root['bg'])
+        style.configure("Option.TFrame", background=root['bg'])
+        # style.map("Option.TFrame",
+        #           background=[
+        #               ("!selected", root["bg"]),
+        #               ("hover", "#f5f5f5"),
+        #               ("selected", "#f0f0f0")
+        #           ])
+        style.configure("Hover.Option.TFrame", background="#f5f5f5", borderwidth=0)
+        style.configure("Selected.Option.TFrame", background="#f0f0f0", borderwidth=0)
+        style.configure("Standard.TRadiobutton", background=root['bg'])
 
     def add_status_bar(self, root):
         self.status_frame = ttk.Frame(root)

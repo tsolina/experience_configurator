@@ -1,28 +1,50 @@
 from typing import TYPE_CHECKING
+import tkinter as tk
 from application.flat_variant import FlatVariant
 from application.tristate import Tristate
+from application.sub_variants import SubVariants
 
 if TYPE_CHECKING:
     from application.sub_variant import SubVariant
     from application.variants import Variants
-    from application.sub_variants import SubVariants
-
 
 class Variant():
-    def __init__(self, parent: 'Variants'):
+    def __init__(self, parent: 'Variants', id:str="", name:str=""):
         self._parent = parent
         self.application = parent.application
         self._uID = self.application.guid
         
-        self._active_state = Tristate.OffState
-        self._name = self.__class__.__name__
+        self._active_state = Tristate.UnknownState
+        self._name = name or self.__class__.__name__
         self._rttUID = ""
-        self._id = None
-        self._switch_states = []
+        self._id = id
+        self._switch_states = Tristate.to_list()
         self._sub_variants:'SubVariants' = SubVariants(self)
+        self._active_sub_variant:'SubVariant' = self._sub_variants[0]
+        self._editing_sub_variant:'SubVariant' = self._active_sub_variant
+        # print("SubVariants initialized:", self._sub_variants)
         self._desired_state = Tristate.UnknownState
-        self._editing_state = Tristate.UnknownState
+        self._editing_state = self._active_state # Tristate.UnknownState
         self.property_true_value_selection = False
+
+        self.name_var = tk.StringVar(value=self._name)
+        self.active_state_var = tk.StringVar(value=self._active_state)
+        self.editing_state_var = tk.StringVar(value=self._editing_state)     
+
+        self.name_var.trace_add("write", self._update_name_from_var)
+        self.active_state_var.trace_add("write", self._update_active_state_from_var)
+        self.editing_state_var.trace_add("write", self._update_editing_state_from_var)
+
+    def _update_name_from_var(self, *args):
+        self.name = self.name_var.get()
+
+    def _update_active_state_from_var(self, *args):
+        print(self.__class__.__name__, "update_active_state_var", self.active_state_var.get())
+        self.property_true_value_selection = True
+        self.active_state = self.active_state_var.get()
+
+    def _update_editing_state_from_var(self, *args):
+        self.editing_state = self.editing_state_var.get()
 
     @property
     def parent(self):
@@ -56,10 +78,10 @@ class Variant():
         self._id = value
 
     def __eq__(self, to_compare: 'Variant'):
-        return self.uID == to_compare.uID
+        return isinstance(to_compare, Variant) and self.uID == to_compare.uID
 
     def __ne__(self, to_compare: 'Variant'):
-        return self.uID != to_compare.uID
+        return not self.__eq__(to_compare)
 
     @property
     def switch_states(self):
@@ -79,21 +101,26 @@ class Variant():
 
     @property
     def active_sub_variant(self) -> 'SubVariant':
-        return self._sub_variants.active_sub_variant
+        if not hasattr(self, '_sub_variants'):
+            raise AttributeError("_sub_variants has not been initialized or was deleted.")
+
+        return self._active_sub_variant
 
     @active_sub_variant.setter
     def active_sub_variant(self, value: 'SubVariant'):
-        self._sub_variants.active_sub_variant = value
+        self._active_sub_variant = value
+
+        self.application.context.view_variant_editor_event_handler.update_sub_variant_container(self.sub_variants)
 
     @property
     def editing_sub_variant(self):
-        if self._sub_variants.editing_sub_variant is None:
-            self._sub_variants.editing_sub_variant = self._sub_variants.active_sub_variant
-        return self._sub_variants.editing_sub_variant
+        if self.editing_sub_variant is None:
+            self.editing_sub_variant = self.active_sub_variant
+        return self.editing_sub_variant
 
     @editing_sub_variant.setter
     def editing_sub_variant(self, value):
-        self._sub_variants.editing_sub_variant = value
+        self.editing_sub_variant = value
 
     @property
     def switches(self):
@@ -116,8 +143,11 @@ class Variant():
         return self._active_state
 
     @active_state.setter
-    def active_state(self, value):
-        self._active_state = value
+    def active_state(self, value:str):
+        if self._active_state != value:
+            self._active_state = value
+            # print(self.__class__.__name__, "active_state changed", value)
+            self.sub_variants.active_sub_variant = self.sub_variants.get_sub_variant(value)
 
     @property
     def desired_state(self):
@@ -132,12 +162,14 @@ class Variant():
         return self._editing_state
 
     @editing_state.setter
-    def editing_state(self, value):
-        def lambda_sub_variant(sub_variant: SubVariant):
+    def editing_state(self, value:str):
+        def lambda_sub_variant(sub_variant: 'SubVariant'):
             self._sub_variants.editing_sub_variant = sub_variant
 
         self._editing_state = value
-        self._sub_variants.get_sub_variant(value, lambda_sub_variant)
+        sv =  self._sub_variants.get_sub_variant(value)
+        if sv:
+            lambda_sub_variant(sv)
 
 
     def toggle_visible(self):

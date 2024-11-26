@@ -1,7 +1,12 @@
+
 from application.tristate import Tristate
 from application.variant_type import VariantType
+from typing import TYPE_CHECKING
 
-
+if TYPE_CHECKING:
+    from application.switch import Switch
+    from application.variant import Variant
+    
 class FlatVariant:
     def __init__(self, iVariant, iState:Tristate=None):
         self.flatten_ok = True
@@ -12,15 +17,15 @@ class FlatVariant:
         else:
             self._flatten_variant(iVariant)
 
-    def _flatten_variant(self, iVariant, iState=None):
+    def _flatten_variant(self, iVariant:'Variant', iState=None):
         if not self.flatten_ok:
             return self
 
-        def add_switch(s):
+        def add_switch(s:'Switch'):
             if not self.flatten_ok:
                 return
 
-            if s.type == VariantType.CodeState:
+            if s.type_ == VariantType.CodeState:
                 v = iVariant.parent.get_variant(s.name)
                 if v is None:
                     self.flatten_ok = False

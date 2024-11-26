@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     from views.main_menu_view import MainMenuView
     from views.main_window_view import MainWindowView
     from views.variant_editor_view import VariantEditorView
+    from views.variant_editor_event_handler import VariantEditorEventHandler
 
 
 class ApplicationContext:
@@ -26,6 +27,13 @@ class ApplicationContext:
         self.view_look_editor:'LookEditorView' = None
         self.view_look_editor_event_handler:'LookEditorEventHandler' = None
         self.view_variant_editor:'VariantEditorView' = None
+        self.view_variant_editor_event_handler:'VariantEditorEventHandler' = None
         self.view_main_menu:'MainMenuView' = None
 
         self.application:'Application' = None
+
+    def __getattribute__(self, name):
+        value = super().__getattribute__(name)
+        if value is None:
+            print(f"Accessed uninitialized context attribute: {name}")
+        return value

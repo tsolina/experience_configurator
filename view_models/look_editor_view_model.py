@@ -22,11 +22,11 @@ class LookEditorViewModel:
 
     @property 
     def selected_configuration(self) -> 'Configuration':
-        return self.get_active_project().active_configuration
+        return self.context.vm_main_window.get_active_project().active_configuration
     
     @selected_configuration.setter
     def selected_configuration(self, value: 'Configuration'):
-        self.get_active_project().active_configuration = value
+        self.context.vm_main_window.get_active_project().active_configuration = value
 
 
     def new_configuration(self):
@@ -65,17 +65,17 @@ class LookEditorViewModel:
     def get_look_options(self):
         return self.root_model.application.look_file.targets_list
     
-    def get_active_project(self) -> 'Project':
-        return self.root_model.application.active_project
+    # def get_active_project(self) -> 'Project':
+    #     return self.root_model.application.active_project
     
     def get_configurations(self) -> 'Configurations':
-        return self.get_active_project().configurations
+        return self.context.vm_main_window.get_active_project().configurations
     
     def get_configuration_by_row_id(self, index:int) -> 'Configuration':
         return self.get_configurations()[index]
     
     def get_active_configuration(self) -> 'Configuration':
-        project = self.get_active_project()
+        project = self.context.vm_main_window.get_active_project()
         return project.active_configuration if project else None
 
     def get_active_config_var(self) -> tk.StringVar:

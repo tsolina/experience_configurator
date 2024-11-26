@@ -38,7 +38,7 @@ class Validator():
         self._to_show_list.clear()
         self._to_hide_list.clear()
 
-        for variant in self.application.active_project.variants.variant_collection:
+        for variant in self.application.active_project.variants:
             variant.desired_state = variant.active_state
 
         for name, o_look in self.application.active_project.look_actors.items():
@@ -56,7 +56,7 @@ class Validator():
         self._to_hide_list.clear()
 
         self._do_evaluation = False
-        for variant in self.application.active_project.variants.variant_collection:
+        for variant in self.application.active_project.variants:
             if variant.desired_state != variant.active_state:
                 variant.desired_state = variant.active_state
 
@@ -67,7 +67,7 @@ class Validator():
     
     @overload
     def activate_visible(self, variant: 'Variant', state: Tristate, i_old: int = None) -> 'Validator':
-        for switch in variant.sub_variants.get_sub_variant(state).switches.switch_collection:
+        for switch in variant.sub_variants.get_sub_variant(state).switches:
             if switch.type_ == VariantType.Visibility:
                 condition_str = f"Name='{switch.name}'"
 
@@ -86,7 +86,7 @@ class Validator():
     
     @overload
     def activate_visible(self, variant: 'Variant', state: str) -> 'Validator':
-        for switch in variant.sub_variants.get_sub_variant(state).switches.switch_collection:
+        for switch in variant.sub_variants.get_sub_variant(state).switches:
             if switch.type_ == VariantType.Visibility:
                 if switch.active_value == Tristate.OnState:
                     self._to_show_list.extend(switch.search_list)
@@ -101,7 +101,7 @@ class Validator():
     
     def activate_look(self, variant: 'Variant', state: str) -> 'Validator':
         variant.sub_variants.get_sub_variant(state, lambda sv: [
-            self._process_switch(s, variant) for s in sv.switches
+            self._process_switch(s, variant) for s in sv
         ])
         return self
     
@@ -115,7 +115,7 @@ class Validator():
         return self
     
     def _process_variants_for_deactivation(self, variant:'Variant', flat_ref):
-        for v in variant.parent.variant_collection:
+        for v in variant.parent:
             if v == variant or v.desired_state == Tristate.UnknownState:
                 continue
             flat_trg_on = FlatVariant(v, Tristate.OnState)
@@ -147,7 +147,7 @@ class Validator():
         return self
 
     def _process_variants_for_activation(self, variant:'Variant', flat_ref):
-        for v in variant.parent.variant_collection:
+        for v in variant.parent:
             if v == variant or v.desired_state == Tristate.OnState:
                 continue
             flat_trg = FlatVariant(v, Tristate.OnState)
@@ -172,7 +172,7 @@ class Validator():
             return True
 
         result = True
-        for sv in variant.parent.variant_collection:
+        for sv in variant.parent:
             if not result or sv == variant or sv.desired_state == Tristate.UnknownState:
                 continue
 
@@ -183,10 +183,10 @@ class Validator():
         return result   
 
     def deactivate_parents(self, variant: 'Variant') -> 'Validator':
-        for sv in variant.parent.variant_collection:
+        for sv in variant.parent:
             if sv == variant:
                 continue
-            for s in sv.desired_switches.switch_collection:
+            for s in sv.desired_switches:
                 if s.type_ != VariantType.CodeState:
                     continue
                 sv.parent.get_variant(s.name, lambda v: self._evaluate_parent(sv, s, v))
@@ -250,8 +250,8 @@ class Validator():
                 executor.submit(lambda: sel.search_all(f"({' + '.join(self._to_show)})").show().clear())
 
     def extract_overrides(self) -> 'Validator':
-        for variant in self.application.active_project.variants.variant_collection:
-            for s in variant.desired_switches.switch_collection:
+        for variant in self.application.active_project.variants:
+            for s in variant.desired_switches:
                 if s.type_ != VariantType.Look or not s.active_value or not s.name or s.active_value.startswith("v_"):
                     continue
                 self.application.look_file.ready(lambda look: self._set_override_for_look(s))
@@ -264,8 +264,8 @@ class Validator():
                 print(f"override: {s.name}")
 
     def overrides_available(self) -> bool:
-        for variant in self.application.active_project.variants.variant_collection:
-            for s in variant.desired_switches.switch_collection:
+        for variant in self.application.active_project.variants:
+            for s in variant.desired_switches:
                 if s.type_ == VariantType.Look and s.active_value and s.name and not s.active_value.startswith("v_"):
                     return True
         return False
@@ -278,10 +278,10 @@ class Validator():
         return self
     
     def deactivate_parents(self, variant: 'Variant') -> 'Validator':
-        for sv in variant.parent.variant_collection:
+        for sv in variant.parent:
             if sv == variant:
                 continue
-            for s in sv.desired_switches.switch_collection:
+            for s in sv.desired_switches:
                 if s.type_ != VariantType.CodeState:
                     continue
                 sv.parent.get_variant(s.name, lambda v: self._evaluate_parent(sv, s, v))
@@ -405,10 +405,10 @@ class Validator():
 
 
     def deactivate_parents(self, variant: 'Variant') -> 'Validator':
-        for sv in variant.parent.variant_collection:
+        for sv in variant.parent:
             if sv == variant:
                 continue
-            for s in sv.desired_switches.switch_collection:
+            for s in sv.desired_switches:
                 if s.type_ != VariantType.CodeState:
                     continue
                 sv.parent.get_variant(s.name, lambda v: self._evaluate_parent(sv, s, v))

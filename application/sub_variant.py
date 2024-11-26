@@ -1,9 +1,10 @@
 from typing import TYPE_CHECKING
+from application.switches import Switches
 
 if TYPE_CHECKING:
     from application.sub_variants import SubVariants
     from application.switch import Switch
-    from application.switches import Switches
+    
 
 
 class SubVariant():
@@ -43,7 +44,7 @@ class SubVariant():
         self._active_switch = value
 
     def __eq__(self, other:'SubVariant'):
-        if isinstance(other, 'SubVariant'):
+        if isinstance(other, SubVariant):
             return self.name == other.name
         return False
 

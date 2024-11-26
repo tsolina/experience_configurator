@@ -36,10 +36,6 @@ class LookEditorEventHandler:
         self.view.bind_config_name_var()
 
     def clear_treeview_widgets(self):
-        # print(self.__class__.__name__, self.view.configurations_container)
-        # if not self.view.configurations_container.winfo_exists():
-        #     return
-        
         for widget in self.view.configurations_container.winfo_children():
             widget.destroy()
 
@@ -47,24 +43,28 @@ class LookEditorEventHandler:
     def update_treeview(self, configurations:'Configurations'):
         self.clear_treeview_widgets()
 
-        frame = ttk.Frame(self.view.configurations_container)
-        frame.grid(row=1, column=0, sticky="nsew")
+        self.view.configurations_container.columnconfigure(0, weight=1)
+        frame = ttk.Frame(self.view.configurations_container, style="Standard.TFrame")
+        frame.grid(row=1, column=0, sticky="nsew", padx=(6, 3))
 
         # Define column headers
-        headers = ["#", "Name", "Look", "Activated", "Error"]
-        for col_idx, header in enumerate(headers):
+        headers = [("#", 25), ("Name", 200), ("Look", 120), ("Activated", 88), ("Error", 25)]
+        for col_idx, (header, width) in enumerate(headers):
             label = ttk.Label(frame, text=header, anchor="center", relief="raised")
             label.grid(row=0, column=col_idx, sticky="nsew", padx=1, pady=1)
+
+            frame.grid_columnconfigure(col_idx, minsize=width)
 
         # Configure column weights
         frame.columnconfigure(0, weight=0)  # Adjust column weights as needed
         frame.columnconfigure(1, weight=2)
-        frame.columnconfigure(2, weight=2)
-        frame.columnconfigure(3, weight=1)
-        frame.columnconfigure(4, weight=1)
+        frame.columnconfigure(2, weight=1)
+        frame.columnconfigure(3, weight=0)
+        frame.columnconfigure(4, weight=0)
 
         # Sample data rows from view model
-        self.view_model.activate_project()
+        # self.context.vm_main_window.activate_project()
+        # self.context.vm_look_editor.activate_project()
         configurations = self.view_model.get_configurations()
 
         self.grid_rows = []  # To store the row widgets for dynamic updates
@@ -84,13 +84,13 @@ class LookEditorEventHandler:
 
 
             # Look (combobox)
-            look_combobox = ttk.Combobox(frame, values=self.view_model.get_look_options(), textvariable=config.active_look_var)
+            look_combobox = ttk.Combobox(frame, values=self.view_model.get_look_options(), textvariable=config.active_look_var, width=15)
             look_combobox.grid(row=row_idx, column=2, sticky="nsew", padx=1, pady=1)
             look_combobox.bind("<Button-1>", lambda e, conf=config: self.on_config_selected(conf))
 
 
             # Activated (combobox)
-            activated_combobox = ttk.Combobox(frame, values=self.view_model.get_state_options(), textvariable=config.active_look_state_var)
+            activated_combobox = ttk.Combobox(frame, values=self.view_model.get_state_options(), textvariable=config.active_look_state_var, width=11)
             activated_combobox.grid(row=row_idx, column=3, sticky="nsew", padx=1, pady=1)
             activated_combobox.bind("<Button-1>", lambda e, conf=config: self.on_config_selected(conf))
 

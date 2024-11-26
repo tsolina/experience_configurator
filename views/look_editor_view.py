@@ -17,10 +17,10 @@ if TYPE_CHECKING:
 class LookEditorView():
     # def __init__(self, root, parent:'MainWindowView', view_model: 'LookEditorViewModel'):
     def __init__(self, root, context:ApplicationContext):
+        # print(self.__class__.__name__, "init")
         self.context = context
         self.context.view_look_editor = self
         self.view_model = self.context.vm_look_editor
-
         self.event_handler = LookEditorEventHandler(context)
 
         self.add_main_frame(root)
@@ -59,11 +59,11 @@ class LookEditorView():
         title.pack(side="left", anchor="w")
 
     def add_data_grid(self):
-        self.configurations_container = ttk.Frame(self.look_editor_frame)
+        self.configurations_container = ttk.Frame(self.look_editor_frame, style="Standard.TFrame")
         self.configurations_container.grid(row=1, column=0, sticky="nsew")
 
         # Sample data rows from view model
-        self.view_model.activate_project()
+        # self.context.vm_main_window.activate_project()
         configurations = self.view_model.get_configurations()
         self.event_handler.update_treeview(configurations)
         return
@@ -100,13 +100,13 @@ class LookEditorView():
         self.create_button(button_frame, "Delete", "delete selected configuration", self.view_model.delete_configuration)
 
     def add_active_configuration(self):
-        container = ttk.Frame(self.look_editor_frame)
+        container = ttk.Frame(self.look_editor_frame, style="Standard.TFrame")
         container.grid(row=0, column=1, sticky='w')
 
         title = ttk.Label(container, text="Active configuration:", style="Red.TLabel")
         title.pack(side="left", anchor="w")
 
-        self.config_name = ttk.Label(container)
+        self.config_name = ttk.Label(container, style="Standard.TLabel")
         self.config_name.pack(side="left", anchor="w")
         self.bind_config_name_var()
 

@@ -29,7 +29,7 @@ class Project:
         self._revision = revision
         self._configurations: Configurations = Configurations(self)
         self._active_configuration = None
-        self._variants = Variants(self)
+        self._variants:Variants = Variants(self)
         self._active_variant = None
         self._occurrences = {}
         self.look_actors_lock = threading.Lock()
@@ -98,8 +98,19 @@ class Project:
         return self._active_variant
 
     @active_variant.setter
-    def active_variant(self, value: 'Variant'):
-        self._active_variant = value   
+    def active_variant(self, value: 'Variant'):  
+        if self._active_variant != value:
+            if not value:
+                self.active_variant.name_var.set("select variant")
+            self._active_variant = value
+
+            # print(self.__class__.__name__, "active_variant", "ok", value.active_state, value.active_state_var.get())
+            self.active_variant.active_sub_variant = value.sub_variants.get_sub_variant(value.active_state_var.get())
+            # print(self.__class__.__name__, "active_variant", "ok", value.sub_variants.get_sub_variant(value.active_state_var.get()), 
+            #       value.sub_variants.get_sub_variant(value.active_state_var.get()).name)
+
+
+            self.application.context.view_variant_editor_event_handler.on_variant_selected(self.active_variant)
 
     def ready(self, cb: callable, cb_fail: callable):
         self.application.catia_ready(

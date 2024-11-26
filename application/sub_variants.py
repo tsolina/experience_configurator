@@ -13,8 +13,8 @@ class SubVariants(ObservableList['SubVariant']):
         self._parent = parent
         self.application = parent.application
         self._name = self.__class__.__name__
-        self._active_sub_variant: Optional['SubVariant'] = None
-        self._editing_sub_variant: Optional['SubVariant'] = None
+        # self._active_sub_variant: Optional['SubVariant'] = None
+        # self._editing_sub_variant: Optional['SubVariant'] = None
         self._on_variant: Optional['SubVariant'] = None
         self._off_variant: Optional['SubVariant'] = None
 
@@ -23,8 +23,9 @@ class SubVariants(ObservableList['SubVariant']):
         for state_name in Tristate.to_list():
             self.append(SubVariant(self, state_name))
 
-        self.active_sub_variant = self[0]
-        self.editing_sub_variant = self.active_sub_variant
+        # self.active_sub_variant = self[0]
+        # print(self.__class__.__name__, "init", self.active_sub_variant, self.active_sub_variant is None)
+        # self.editing_sub_variant = self.active_sub_variant
 
     @property
     def parent(self) -> 'Variant':
@@ -38,21 +39,23 @@ class SubVariants(ObservableList['SubVariant']):
     def name(self, value: str):
         self._name = value
 
-    @property
-    def active_sub_variant(self) -> Optional['SubVariant']:
-        return self._active_sub_variant
+    # @property
+    # def active_sub_variant(self) -> Optional['SubVariant']:
+    #     return self._active_sub_variant
 
-    @active_sub_variant.setter
-    def active_sub_variant(self, value: 'SubVariant'):
-        self._active_sub_variant = value
+    # @active_sub_variant.setter
+    # def active_sub_variant(self, value: 'SubVariant'):
+    #     self._active_sub_variant = value
 
-    @property
-    def editing_sub_variant(self) -> Optional['SubVariant']:
-        return self._editing_sub_variant
+    #     self.application.context.view_variant_editor_event_handler.update_sub_variant_container(self)
 
-    @editing_sub_variant.setter
-    def editing_sub_variant(self, value: 'SubVariant'):
-        self._editing_sub_variant = value
+    # @property
+    # def editing_sub_variant(self) -> Optional['SubVariant']:
+    #     return self._editing_sub_variant
+
+    # @editing_sub_variant.setter
+    # def editing_sub_variant(self, value: 'SubVariant'):
+    #     self._editing_sub_variant = value
 
     @property
     def on_variant(self) -> 'SubVariant':
