@@ -238,7 +238,7 @@ class VariantEditorEventHandler:
 
         # Populate grid rows
         for row_idx, switch in enumerate(switches, start=1):
-            print(switch.name, switch.id)
+            # print(switch.name, switch.id)
             # Row ID (label)
             id_label = ttk.Label(self.view.switch_container, text=str(switch.id), anchor="center") #, relief="sunken")
             id_label.grid(row=row_idx, column=0, sticky="nsew", padx=1, pady=1)
@@ -271,7 +271,13 @@ class VariantEditorEventHandler:
             # Store row widgets for future updates
             self.grid_rows.append((id_label, sub_type, sub_actor, sub_value))
 
+
+
+        # if len(switches):
+        #     if not switches.parent.active_switch:
+        #         switches.parent.active_switch = switches[-1]    
+
         if len(switches):
-            if not self.view_model.selected_variant:
-                self.view_model.selected_variant = switches[-1]    
+            if not self.view_model.selected_variant.editing_sub_variant.active_switch:
+                self.view_model.selected_variant.editing_sub_variant.active_switch = switches[-1]
         

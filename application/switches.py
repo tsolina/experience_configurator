@@ -131,6 +131,7 @@ class Switches(ObservableList['Switch']):
         self.application.validator.validate(self.parent.parent.parent)
         return self
 
+
     def for_each(self, callback: Callable[['Switch'], None]) -> 'Switches':
         """Executes a callback for each switch."""
         for switch in self:
