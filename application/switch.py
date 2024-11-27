@@ -119,21 +119,21 @@ class Switch:
         self._active_value = value
 
     def get_list_of_variants(self) -> List[str]:
-        vl = [v.name for v in self.parent.parent.parent.parent.parent.variant_collection if v.name != self.parent.parent.name]
+        vl = [v.name for v in self.parent.parent.parent.parent.parent if v.name != self.parent.parent.parent.parent.name]
         vl.sort()
         return vl
 
-    def actor_code_style_lmb(self, cb: 'ComboBox') -> 'Switch':
-        if not cb.is_dropdown_open:
-            self.actor_collection = self.get_list_of_variants()
-        return self
+    # def actor_code_style_lmb(self, cb: 'ComboBox') -> 'Switch':
+    #     if not cb.is_dropdown_open:
+    #         self.actor_collection = self.get_list_of_variants()
+    #     return self
 
-    def actor_visibility_key(self, cb: 'ComboBox') -> 'Switch':
-        tb: 'TextBox' = cb.template.find_name("PART_EditableTextBox", cb)
-        if tb.text:
-            self.actor_collection = [tb.text]
-            self.name = self.actor_collection[0]
-        return self
+    # def actor_visibility_key(self, cb: 'ComboBox') -> 'Switch':
+    #     tb: 'TextBox' = cb.template.find_name("PART_EditableTextBox", cb)
+    #     if tb.text:
+    #         self.actor_collection = [tb.text]
+    #         self.name = self.actor_collection[0]
+    #     return self
 
     def toggle_visible(self) -> 'Switch':
         if self.type_ in (VariantType.Visibility, VariantType.CodeState):

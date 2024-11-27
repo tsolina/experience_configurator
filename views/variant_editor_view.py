@@ -124,7 +124,7 @@ class VariantEditorView():
 
         self.create_button(button_frame, "New Visibility", "Create new visibility switch", self.view_model.create_new_visibility_switch)
         self.create_button(button_frame, "New Look", "Create new look switch", self.view_model.create_new_look_switch)
-        self.create_button(button_frame, "New Code State", "Create new Code State switch", self.not_implemented)
+        self.create_button(button_frame, "New Code State", "Create new Code State switch", self.view_model.new_code_state_switch)
         self.create_button(button_frame, "Delete", "delete selected switch", self.not_implemented)
 
     def not_implemented(self):

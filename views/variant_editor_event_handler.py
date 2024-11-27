@@ -257,7 +257,7 @@ class VariantEditorEventHandler:
                 sub_actor = ttk.Combobox(self.view.switch_container, values=switch.actor_collection, textvariable=switch.name_var, width=20)            
             else:
             # Look (combobox)
-                sub_actor = ttk.Combobox(self.view.switch_container, values=self.view_model.get_active_state(), textvariable=switch.name_var, width=20)  # column / 8
+                sub_actor = ttk.Combobox(self.view.switch_container, values=switch.get_list_of_variants(), textvariable=switch.name_var, width=20)  # column / 8
             sub_actor.grid(row=row_idx, column=2, sticky="nsew", padx=1, pady=1)
             sub_actor.bind("<Button-1>", lambda e, var=switch: self.on_sub_variant_selected(var))
 
@@ -270,11 +270,6 @@ class VariantEditorEventHandler:
 
             # Store row widgets for future updates
             self.grid_rows.append((id_label, sub_type, sub_actor, sub_value))
-
-        # Configure row weights
-        # frame.rowconfigure(0, weight=0)  # Header row should not stretch
-        # for row_idx in range(1, len(sub_variants) + 1):  # Data rows start from 1
-        #     frame.rowconfigure(row_idx, weight=1)  # Allow data rows to stretch
 
         if len(switches):
             if not self.view_model.selected_variant:

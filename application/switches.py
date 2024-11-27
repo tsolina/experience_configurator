@@ -93,49 +93,23 @@ class Switches(ObservableList['Switch']):
         self.application.project_ready(on_project_ready)
         return new_switch
 
-
-    # Public Function AddLook() As CSwitch
-    #     AddLook = Nothing
-    #     App.Model.Ready(Sub()
-    #                         AddLook = New CSwitch(Me) With {.Id = Me.SwitchCollection.Count + 1, .Type = EVariantType.Look}
-
-    #                         App.StaThread(Sub()
-    #                                           SwitchCollection.Add(AddLook)
-    #                                       End Sub)
-
-    #                         Me.Parent.ActiveSwitch = AddLook
-
-    #                         App.LookFile.Ready(Sub(look)
-    #                                                AddLook.ValuesCollection = New ObservableCollection(Of String)(look.VariantsList)
-    #                                                AddLook.ActorCollection = New ObservableCollection(Of String)(look.TargetsList)
-    #                                            End Sub)
-
-    #                         If App.Flags.NoStatusMessages = False Then
-    #                             App.StatusMessage = "new look switch added"
-    #                         End If
-    #                     End Sub)
-    # End Function
-
-    def add_style_code(self) -> Optional['Switch']:
-        """Adds a style code switch."""
-        new_switch = None
-        self.application.ready(lambda: self._add_style_code_switch())
-        return new_switch
-
-    def _add_style_code_switch(self):
-        """Internal: Handles adding a style code switch."""
+    def add_code_style(self) -> 'Switch':
         from application.switch import Switch
+        new_switch:Optional['Switch'] = None
 
-        new_switch = Switch(self)
-        new_switch.id = len(self) + 1
-        new_switch.type_ = VariantType.CodeState
-        new_switch.values_collection = Tristate.to_toggle()
+        def on_project_ready(project:'Project'):
+            nonlocal new_switch
+            new_switch = Switch(self, id=len(self)+1, type_=VariantType.CodeState)
+            new_switch.name_var.set("")
 
-        self.application.sta_thread(lambda: self.append(new_switch))
-        self.parent.active_switch = new_switch
+            self.append(new_switch)
+            self.parent.active_switch = new_switch
 
-        if not self.application.flags.no_status_messages:
-            self.application.status_message = "New style code switch added"
+            if not self.application.flags.no_status_messages:
+                self.application.status_message = "new styleCode switch added"
+
+        self.application.project_ready(on_project_ready)
+        return new_switch
 
     def delete(self) -> 'Switches':
         """Deletes the currently active switch."""
