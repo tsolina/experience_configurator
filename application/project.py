@@ -104,11 +104,8 @@ class Project:
                 self.active_variant.name_var.set("select variant")
             self._active_variant = value
 
-            # print(self.__class__.__name__, "active_variant", "ok", value.active_state, value.active_state_var.get())
-            self.active_variant.active_sub_variant = value.sub_variants.get_sub_variant(value.active_state_var.get())
-            # print(self.__class__.__name__, "active_variant", "ok", value.sub_variants.get_sub_variant(value.active_state_var.get()), 
-            #       value.sub_variants.get_sub_variant(value.active_state_var.get()).name)
-
+            if self.active_variant:
+                self.active_variant.active_sub_variant = value.sub_variants.get_sub_variant(value.active_state_var.get())
 
             self.application.context.view_variant_editor_event_handler.on_variant_selected(self.active_variant)
 

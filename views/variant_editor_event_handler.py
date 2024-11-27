@@ -140,10 +140,10 @@ class VariantEditorEventHandler:
         # shared_option:tk.StringVar = None
         # shared_option = sub_variants.parent.active_state_var if sub_variants else None
         options = Tristate.to_list()
-        if not shared_option:
-            print(self.__class__.__name__, "options", "shared option still none")
-        else:
-            print(self.__class__.__name__, "options", shared_option.get())
+        # if not shared_option:
+        #     print(self.__class__.__name__, "options", "shared option still none")
+        # else:
+        #     print(self.__class__.__name__, "options", shared_option.get())
 
         containers = []
         for option in options:
