@@ -1,5 +1,6 @@
 from application.project import Project
 from application.sub_variants import SubVariants
+from application.switches import Switches
 from application.tristate import Tristate
 from application.variant import Variant
 from application.variants import Variants
@@ -64,6 +65,9 @@ class VariantEditorViewModel:
     def update_variants(self, variants:'Variants'):
         self.context.view_variant_editor_event_handler.update_variant_container(variants)
 
+    def update_switches_container(self, switches:'Switches'):
+        self.context.view_variant_editor_event_handler.update_switches_container(switches)
+
     def new_variant(self):
         def add_new_variant(project:'Project'):
                         
@@ -85,3 +89,14 @@ class VariantEditorViewModel:
             project.variants.delete()
 
         self.root_model.application.project_ready(delete_variant)
+
+    def create_new_visibility_switch(self):
+        def if_project_ready(project:'Project'):
+            def add_visible(variant:'Variant'):
+                if not variant.editing_sub_variant is None:
+                    variant.editing_sub_variant.switches.add_visible()
+                else:
+                    self.context.application.error_message("no active sub variant")
+            project.variant_ready(add_visible)
+
+        self.root_model.application.project_ready(if_project_ready)

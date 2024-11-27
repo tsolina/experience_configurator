@@ -110,6 +110,7 @@ class VariantEditorView():
 
         # Sample data rows from view model
         sub_variants = self.view_model.get_sub_variants()
+        self.switch_container:ttk.Frame = None
         self.event_handler.update_sub_variant_container(sub_variants)
         return
 
@@ -121,7 +122,7 @@ class VariantEditorView():
         button_frame = tk.Frame(outer_frame, background=root['bg'])
         button_frame.pack(side="left", fill="both")
 
-        self.create_button(button_frame, "New Visibility", "Create new visibility switch", self.not_implemented)
+        self.create_button(button_frame, "New Visibility", "Create new visibility switch", self.view_model.create_new_visibility_switch)
         self.create_button(button_frame, "New Look", "Create new look switch", self.not_implemented)
         self.create_button(button_frame, "New Code State", "Create new Code State switch", self.not_implemented)
         self.create_button(button_frame, "Delete", "delete selected switch", self.not_implemented)

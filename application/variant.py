@@ -109,18 +109,21 @@ class Variant():
     @active_sub_variant.setter
     def active_sub_variant(self, value: 'SubVariant'):
         self._active_sub_variant = value
+        # if self.editing_sub_variant is None and not value is None:
+        #     self.editing_sub_variant = value
 
         self.application.context.view_variant_editor_event_handler.update_sub_variant_container(self.sub_variants)
 
     @property
-    def editing_sub_variant(self):
-        if self.editing_sub_variant is None:
-            self.editing_sub_variant = self.active_sub_variant
-        return self.editing_sub_variant
+    def editing_sub_variant(self) -> 'SubVariant':
+        # if self.editing_sub_variant is None:
+        #     self.editing_sub_variant = self.active_sub_variant
+        return self._editing_sub_variant
 
     @editing_sub_variant.setter
-    def editing_sub_variant(self, value):
-        self.editing_sub_variant = value
+    def editing_sub_variant(self, value:'SubVariant'):
+        if self._editing_sub_variant != value:
+            self._editing_sub_variant = value
 
     @property
     def switches(self):

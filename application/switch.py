@@ -1,25 +1,51 @@
 from typing import List, Optional
+import tkinter as tk
 
 from application.sub_variant import SubVariant
 from application.switches import Switches
+from application.tristate import Tristate
 from application.variant import Variant
 from application.variant_type import VariantType
 import experience as exp
 
+    # AddVisible = New CSwitch(Me) With {.Id = Me.SwitchCollection.Count + 1, .Type = EVariantType.Visibility, .ValuesCollection = New ObservableCollection(Of String)(MTristate.ToToggle)}
+    # AddVisible.Name = item.Value.Name
+    # AddVisible.ActorCollection = New ObservableCollection(Of String) From {AddVisible.Name}
+
 class Switch:
-    def __init__(self, parent: 'Switches'):
+    def __init__(self, parent: 'Switches', id:int=None, type_:VariantType=VariantType.Unknown, values_collection: Optional[List[str]] = None, 
+                 name:str="", selected_item:exp.SelectedElement=None):
         self._parent = parent
         self.application = parent.application
         self._uid = self.application.guid
-        self._name = self.__class__.__name__
+        self._name = name or self.__class__.__name__
         self._rtt_uid = None
-        self._id = None
-        self._type = VariantType.Unknown
-        self._actor_collection: List[str] = []
-        self._values_collection: List[str] = []
+        self._id = id
+        self._type:VariantType = type_
+        self._actor_collection: List[str] = [self.name]
+        self._values_collection: List[str] = values_collection if values_collection is not None else Tristate.to_toggle()
         self._active_value = ""
         self.property_true_value_selection = False
-        self._search_list: Optional[List[exp.SelectedElement]] = None
+        self._search_list: Optional[List[exp.SelectedElement]] = []
+        if selected_item:
+            self.search_list.append(selected_item)
+
+        self.type_var = tk.StringVar(value=self.type_.name)
+        self.name_var = tk.StringVar(value=self.name)
+        self.active_value_var = tk.StringVar(value=self._active_value)     
+
+        self.type_var.trace_add("write", self._update_type_from_var)
+        self.name_var.trace_add("write", self._update_name_from_var)
+        self.active_value_var.trace_add("write", self._update_active_value_from_var)
+
+    def _update_type_from_var(self, *args):
+        self.name = self.type_var.get()
+
+    def _update_name_from_var(self, *args):
+        self.name = self.name_var.get()
+
+    def _update_active_value_from_var(self, *args):
+        self.active_value = self.active_value_var.get()
 
     @property
     def parent(self):

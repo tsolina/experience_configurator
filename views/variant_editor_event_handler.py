@@ -1,9 +1,11 @@
 from tkinter import ttk
 from typing import List
+from application.actors import Actors
 from application.sub_variants import SubVariants
 from application.switches import Switches
 from application.tristate import Tristate
 from application.variant import Variant
+from application.variant_type import VariantType
 from application.variants import Variants
 from view_models.application_context import ApplicationContext
 import tkinter as tk
@@ -189,9 +191,8 @@ class VariantEditorEventHandler:
         frame = ttk.Frame(outer_frame, style="Standard.TFrame")
         frame.grid(row=1, column=0, sticky="nsew")
 
-
         # Define column headers
-        headers = [("#", 25), ("Type", 160), ("Actor", 120), ("Value", 120)]
+        headers = [("#", 25), ("Type", 120), ("Actor", 160), ("Value", 120)]
         for col_idx, (header, width) in enumerate(headers):
             label = ttk.Label(frame, text=header, anchor="center", relief="raised")
             label.grid(row=0, column=col_idx, sticky="nsew", padx=0, pady=0)
@@ -200,51 +201,77 @@ class VariantEditorEventHandler:
 
         frame.columnconfigure(0, weight=0)  # Adjust column weights as needed
         frame.columnconfigure(1, weight=1)
-        frame.columnconfigure(2, weight=0)
-        frame.columnconfigure(3, weight=0)
+        frame.columnconfigure(2, weight=2)
+        frame.columnconfigure(3, weight=1)
         frame.rowconfigure(0, weight=0)
+        self.view.switch_container = frame
         
-        self.grid_rows = []  # To store the row widgets for dynamic updates
         if not sub_variants:
             return
         
-        sv = sub_variants.parent.active_sub_variant
+        # sv = sub_variants.parent.active_sub_variant
+        sv = sub_variants.parent.editing_sub_variant
         if not sv:
             return
-        
-        # Populate grid rows
-        for row_idx, sub_variant in enumerate(sv.switches, start=1):
-            # Row ID (label)
-            id_label = ttk.Label(frame, text=str(sub_variant.id), anchor="center") #, relief="sunken")
-            id_label.grid(row=row_idx, column=0, sticky="nsew", padx=1, pady=1)
-            id_label.bind("<Button-1>", lambda e, var=sub_variant: self.on_sub_variant_selected(var))
+        self.context.application.status_message = f"updating actors {len(sv.switches)}"
 
-
-            # Name (entry)
-            sub_type = ttk.Entry(frame, textvariable=sub_variant.name_var)
-            sub_type.grid(row=row_idx, column=1, sticky="nsew", padx=1, pady=1)
-            sub_type.bind("<Button-1>", lambda e, var=sub_variant: self.on_sub_variant_selected(var))
-
-
-            # Look (combobox)
-            sub_actor = ttk.Combobox(frame, values=self.view_model.get_active_state(), textvariable=sub_variant.active_state_var, width=15)  # column / 8
-            sub_actor.grid(row=row_idx, column=2, sticky="nsew", padx=1, pady=1)
-            sub_actor.bind("<Button-1>", lambda e, var=sub_variant: self.on_sub_variant_selected(var))
-
-            sub_value = ttk.Combobox(frame, values=self.view_model.get_active_state(), textvariable=sub_variant.active_state_var, width=15)  # column / 8
-            sub_value.grid(row=row_idx, column=2, sticky="nsew", padx=1, pady=1)
-            sub_value.bind("<Button-1>", lambda e, var=sub_variant: self.on_sub_variant_selected(var))
-
-            # Store row widgets for future updates
-            self.grid_rows.append((id_label, sub_type, sub_actor, sub_value))
-
-        # Configure row weights
-        frame.rowconfigure(0, weight=0)  # Header row should not stretch
-        for row_idx in range(1, len(sub_variants) + 1):  # Data rows start from 1
-            frame.rowconfigure(row_idx, weight=1)  # Allow data rows to stretch
+        self.update_switches_container(sv.switches)
 
         if len(sub_variants):
             if not self.view_model.selected_variant:
                 self.view_model.selected_variant = sub_variants[-1]
 
         frame.update_idletasks()
+
+
+    def clear_switches_container_widgets(self):
+        for widget in self.view.switch_container.winfo_children():
+            grid_info = widget.grid_info()
+
+            if grid_info.get('row') != 0:
+                widget.destroy()
+
+    def update_switches_container(self, switches:'Switches'):
+        self.clear_switches_container_widgets()
+
+        self.grid_rows = []  # To store the row widgets for dynamic updates
+
+        # Populate grid rows
+        for row_idx, switch in enumerate(switches, start=1):
+            print(switch.name, switch.id)
+            # Row ID (label)
+            id_label = ttk.Label(self.view.switch_container, text=str(switch.id), anchor="center") #, relief="sunken")
+            id_label.grid(row=row_idx, column=0, sticky="nsew", padx=1, pady=1)
+            id_label.bind("<Button-1>", lambda e, var=switch: self.on_sub_variant_selected(var))
+
+
+            # Name (entry)
+            sub_type = ttk.Label(self.view.switch_container, textvariable=switch.type_var)
+            sub_type.grid(row=row_idx, column=1, sticky="nsew", padx=1, pady=1)
+            sub_type.bind("<Button-1>", lambda e, var=switch: self.on_sub_variant_selected(var))
+
+
+            if switch.type_ == VariantType.Visibility:
+                sub_actor = ttk.Label(self.view.switch_container, textvariable=switch.name_var, width=20)#, anchor="center") #, relief="sunken")
+            else:
+            # Look (combobox)
+                sub_actor = ttk.Combobox(self.view.switch_container, values=self.view_model.get_active_state(), textvariable=switch.name_var, width=20)  # column / 8
+            sub_actor.grid(row=row_idx, column=2, sticky="nsew", padx=1, pady=1)
+            sub_actor.bind("<Button-1>", lambda e, var=switch: self.on_sub_variant_selected(var))
+
+            sub_value = ttk.Combobox(self.view.switch_container, values=self.view_model.get_active_state(), textvariable=switch.active_value_var, width=15)  # column / 8
+            sub_value.grid(row=row_idx, column=3, sticky="nsew", padx=1, pady=1)
+            sub_value.bind("<Button-1>", lambda e, var=switch: self.on_sub_variant_selected(var))
+
+            # Store row widgets for future updates
+            self.grid_rows.append((id_label, sub_type, sub_actor, sub_value))
+
+        # Configure row weights
+        # frame.rowconfigure(0, weight=0)  # Header row should not stretch
+        # for row_idx in range(1, len(sub_variants) + 1):  # Data rows start from 1
+        #     frame.rowconfigure(row_idx, weight=1)  # Allow data rows to stretch
+
+        if len(switches):
+            if not self.view_model.selected_variant:
+                self.view_model.selected_variant = switches[-1]    
+        

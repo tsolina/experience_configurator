@@ -9,6 +9,7 @@ if TYPE_CHECKING:
     from application.sub_variant import SubVariant
     from application.switch import Switch
     from application.look_container import LookContainer
+    from application.project import Project
 
 
 class Switches(ObservableList['Switch']):
@@ -17,6 +18,15 @@ class Switches(ObservableList['Switch']):
         self._parent = parent
         self.application = parent.application
         self._name = self.__class__.__name__
+
+        self.add_observer(self._on_switches_changed)
+
+    def _on_switches_changed(self, new_list: List['Switch']):
+        if not self.application.parent or not self.application.context.vm_variant_editor:
+            return 
+
+        self.application.context.vm_variant_editor.update_switches_container(new_list)
+
 
     @property
     def parent(self) -> 'SubVariant':
@@ -30,37 +40,34 @@ class Switches(ObservableList['Switch']):
     def name(self, value: str):
         self._name = value
 
-    def add_visible(self) -> Optional['Switch']:
-        """Adds a visibility switch."""
-        new_switch = None
-        self.application.ready(lambda: self.application.selection(lambda items: self._add_visibility_switch(items)))
+    def add_visible(self) -> Optional["Switch"]:
+        from application.switch import Switch
+        new_switch:Optional['Switch'] = None
+        def on_project_ready(project:'Project'):
+            def on_selection(sel:exp.Selection):
+                
+
+                def evaluate_item(item:exp.SelectedElement):
+                    nonlocal new_switch
+                    new_switch = Switch(self, id=len(self)+1, type_=VariantType.Visibility, name=item.value(exp.AnyObject).name(), selected_item=item)
+                    self.append(new_switch)
+
+                    if not new_switch:
+                        new_switch = Switch(self, id=len(self)+1, type_=VariantType.Visibility)
+                        self.append(new_switch)
+
+                    self.parent.active_switch = new_switch
+                    
+                    if not self.application.flags:
+                        self.application.status_message = "New visibility switch added"
+
+                sel.for_each(lambda item:evaluate_item(item))
+
+            self.application.selection_simple(on_selection)
+
+        self.application.project_ready(on_project_ready)
         return new_switch
 
-    def _add_visibility_switch(self, items: List[exp.SelectedElement]):
-        """Internal: Handles adding a visibility switch."""
-        from application.switch import Switch
-
-        new_switch = Switch(self)
-        new_switch.id = len(self) + 1
-        new_switch.type_ = VariantType.Visibility
-        new_switch.values_collection = Tristate.to_toggle()
-
-        for item in items:
-            new_switch.name = item.value(exp.AnyObject).name()
-            new_switch.actor_collection = [new_switch.name]
-            self.append(new_switch)
-            new_switch.search_list = [item]
-
-        if not new_switch:
-            new_switch = Switch(self)
-            new_switch.id = len(self) + 1
-            new_switch.type_ = VariantType.Visibility
-            self.append(new_switch)
-
-        self.parent.active_switch = new_switch
-
-        if not self.application.flags.no_status_messages:
-            self.application.status_message = "New visibility switch added"
 
     def add_look(self) -> Optional['Switch']:
         """Adds a look switch."""
