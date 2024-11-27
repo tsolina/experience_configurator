@@ -69,32 +69,52 @@ class Switches(ObservableList['Switch']):
         return new_switch
 
 
-    def add_look(self) -> Optional['Switch']:
-        """Adds a look switch."""
-        new_switch = None
-        self.application.ready(lambda: self._add_look_switch())
+    def add_look(self) -> 'Switch':
+        from application.switch import Switch
+        new_switch:Optional['Switch'] = None
+        def on_project_ready(project:'Project'):
+            nonlocal new_switch
+            new_switch = Switch(self, id=len(self)+1, type_=VariantType.Look)
+
+            def on_look_ready(look_container:'LookContainer'):
+                new_switch.values_collection = look_container.variants_list
+                new_switch.name_var.set("")
+                new_switch.actor_collection = look_container.targets_list
+                new_switch.active_value_var.set("")
+
+            self.application.look_file.ready(on_look_ready)
+
+            self.append(new_switch)
+            self.parent.active_switch = new_switch
+
+            if not self.application.flags:
+                self.application.status_message = "new look switch added"
+
+        self.application.project_ready(on_project_ready)
         return new_switch
 
-    def _add_look_switch(self):
-        """Internal: Handles adding a look switch."""
-        from application.switch import Switch
 
-        new_switch = Switch(self)
-        new_switch.id = len(self) + 1
-        new_switch.type_ = VariantType.Look
+    # Public Function AddLook() As CSwitch
+    #     AddLook = Nothing
+    #     App.Model.Ready(Sub()
+    #                         AddLook = New CSwitch(Me) With {.Id = Me.SwitchCollection.Count + 1, .Type = EVariantType.Look}
 
-        self.application.sta_thread(lambda: self.append(new_switch))
-        self.parent.active_switch = new_switch
+    #                         App.StaThread(Sub()
+    #                                           SwitchCollection.Add(AddLook)
+    #                                       End Sub)
 
-        self.application.look_file.ready(lambda look: self._assign_look_switch_values(new_switch, look))
+    #                         Me.Parent.ActiveSwitch = AddLook
 
-        if not self.application.flags.no_status_messages:
-            self.application.status_message = "New look switch added"
+    #                         App.LookFile.Ready(Sub(look)
+    #                                                AddLook.ValuesCollection = New ObservableCollection(Of String)(look.VariantsList)
+    #                                                AddLook.ActorCollection = New ObservableCollection(Of String)(look.TargetsList)
+    #                                            End Sub)
 
-    def _assign_look_switch_values(self, new_switch: 'Switch', look: 'LookContainer'):
-        """Internal: Assigns values to a look switch."""
-        new_switch.values_collection = look.variants_list[:]
-        new_switch.actor_collection = look.targets_list[:]
+    #                         If App.Flags.NoStatusMessages = False Then
+    #                             App.StatusMessage = "new look switch added"
+    #                         End If
+    #                     End Sub)
+    # End Function
 
     def add_style_code(self) -> Optional['Switch']:
         """Adds a style code switch."""

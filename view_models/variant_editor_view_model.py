@@ -100,3 +100,14 @@ class VariantEditorViewModel:
             project.variant_ready(add_visible)
 
         self.root_model.application.project_ready(if_project_ready)
+        
+    def create_new_look_switch(self):
+        def if_project_ready(project:'Project'):
+            def add_visible(variant:'Variant'):
+                if not variant.editing_sub_variant is None:
+                    variant.editing_sub_variant.switches.add_look()
+                else:
+                    self.context.application.error_message("no active sub variant")
+            project.variant_ready(add_visible)
+
+        self.root_model.application.project_ready(if_project_ready)

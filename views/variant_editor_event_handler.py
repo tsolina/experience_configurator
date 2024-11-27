@@ -253,13 +253,18 @@ class VariantEditorEventHandler:
 
             if switch.type_ == VariantType.Visibility:
                 sub_actor = ttk.Label(self.view.switch_container, textvariable=switch.name_var, width=20)#, anchor="center") #, relief="sunken")
+            elif switch.type_ == VariantType.Look:
+                sub_actor = ttk.Combobox(self.view.switch_container, values=switch.actor_collection, textvariable=switch.name_var, width=20)            
             else:
             # Look (combobox)
                 sub_actor = ttk.Combobox(self.view.switch_container, values=self.view_model.get_active_state(), textvariable=switch.name_var, width=20)  # column / 8
             sub_actor.grid(row=row_idx, column=2, sticky="nsew", padx=1, pady=1)
             sub_actor.bind("<Button-1>", lambda e, var=switch: self.on_sub_variant_selected(var))
 
-            sub_value = ttk.Combobox(self.view.switch_container, values=self.view_model.get_active_state(), textvariable=switch.active_value_var, width=15)  # column / 8
+            if switch.type_ == VariantType.Look:
+                sub_value = ttk.Combobox(self.view.switch_container, values=switch.values_collection, textvariable=switch.active_value_var, width=15)
+            else:
+                sub_value = ttk.Combobox(self.view.switch_container, values=self.view_model.get_active_state(), textvariable=switch.active_value_var, width=15)  # column / 8
             sub_value.grid(row=row_idx, column=3, sticky="nsew", padx=1, pady=1)
             sub_value.bind("<Button-1>", lambda e, var=switch: self.on_sub_variant_selected(var))
 
