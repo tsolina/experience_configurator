@@ -181,6 +181,21 @@ class Application():
                 cb_fail("No Active design app")
             else:
                 self.status_message = "No Active design app"    
+
+    # def selection(self, 
+    #             cb: Callable[[exp.Selection], None], 
+    #             cb_fail: Optional[Callable[[str], None]] = None, 
+    #             use_cat_select: bool = True):
+    #     if self.util.spec_window_ready():
+    #         if use_cat_select:
+    #             self.util.cat_select(lambda: cb(self.catia.active_editor().selection()))
+    #         else:
+    #             cb(self.catia.active_editor().selection())
+    #     else:
+    #         if cb_fail:
+    #             cb_fail("No Active design app")
+    #         else:
+    #             self.status_message = "No Active design app"
             
     @property
     def guid(self) -> int:

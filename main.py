@@ -5,7 +5,8 @@ from view_models.application_context import ApplicationContext
 from view_models.main_window_view_model import MainWindowViewModel
 from views.main_window_view import MainWindowView
 
-# from application.experience_extensions import perform_extensions
+from application.experience_extensions import *
+# perform_extensions
 # perform_extensions()
 
 # import experience as exp

@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Callable, Optional
+from typing import TYPE_CHECKING, Callable, Optional, Union, overload
 from application.tristate import Tristate
 from application.observable_list import ObservableList
 
@@ -69,15 +69,49 @@ class SubVariants(ObservableList['SubVariant']):
             self._off_variant = self.get_sub_variant(Tristate.OffState)
         return self._off_variant
 
-    def get_sub_variant(self, name: str) -> Optional['SubVariant']:
-        return next((sv for sv in self if sv.name == name), None)
+    # def get_sub_variant(self, name: str) -> Optional['SubVariant']:
+    #     return next((sv for sv in self if sv.name == name), None)
 
-    def get_sub_variant_with_callback(self, name: str, callback: Callable[['SubVariant'], None]):
-        sub_variant = self.get_sub_variant(name)
-        if sub_variant is not None:
-            callback(sub_variant)
+    # def get_sub_variant_with_callback(self, name: str, callback: Callable[['SubVariant'], None]):
+    #     sub_variant = self.get_sub_variant(name)
+    #     if sub_variant is not None:
+    #         callback(sub_variant)
+    #     else:
+    #         self.application.error_message = f"State {name} of variant {self.parent.name} not found"
+
+    @overload
+    def get_sub_variant(self, name: str) -> Optional['SubVariant']: ...
+    
+    @overload
+    def get_sub_variant(self, name: str, callback: Callable[['SubVariant'], None]) -> None: ...
+
+    def get_sub_variant(self, name: str, callback: Optional[Callable[['SubVariant'], None]] = None) -> Union[Optional['SubVariant'], None]:
+        """
+        Retrieves a sub-variant by name, optionally invoking a callback.
+
+        Args:
+            name (str): The name of the sub-variant to retrieve.
+            callback (Optional[Callable[[CSubVariant], None]]): A callback to invoke with the sub-variant if found.
+
+        Returns:
+            Optional[CSubVariant]: The found sub-variant, or None if no callback is provided and the sub-variant isn't found.
+        """
+        sub_variant = next((sv for sv in self if sv.name == name), None)
+
+        def handle_error() -> None:
+            """
+            Internal function to handle the error when a sub-variant is not found.
+            """
+            error_message = f"State '{name}' of variant '{self.parent.name}' not found"
+            print(error_message)  # Replace with actual error handling logic.
+
+        if callback:
+            if sub_variant:
+                callback(sub_variant)
+            else:
+                handle_error()
         else:
-            self.application.error_message = f"State {name} of variant {self.parent.name} not found"
+            return sub_variant
 
     def for_each(self, callback: Callable[['SubVariant'], None]):
         for sub_variant in self:

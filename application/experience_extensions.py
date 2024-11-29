@@ -1,14 +1,30 @@
-from typing import Callable, Optional, overload, TYPE_CHECKING
+from typing import Callable, Optional, overload, TYPE_CHECKING, Protocol
 from types import MethodType
+from application.util import Util
 import experience as exp
+
 
 if TYPE_CHECKING:
     from extension_typing import HybridBodies
 
+# class SelectionEx(exp.Selection, Protocol):
+#     def hide(self) -> 'SelectionEx':
+#         ...
+#     def show(self) -> 'SelectionEx':
+#         ...
+#     def search_all(self, search_string:str) -> 'SelectionEx':
+#         ...
+#     def search_sel(self, search_string:str) -> 'SelectionEx':
+#         ...
+#     def count_ex(self, cb: Optional[Callable[[exp.Selection], None]] = None,
+#                     cb_fail: Optional[Callable[[str], None]] = None,
+#                     compare: Optional[Callable[[int, int], bool]] = None,
+#                     iVal: Optional[int] = None) -> 'SelectionEx':
+#         ...
+
 if not hasattr(exp, "_extensions_applied"):
     if hasattr(exp, "Selection"):
         # Single wrapped function using Optionals
-        @overload
         def count_ex(self: exp.Selection,
                     cb: Optional[Callable[[exp.Selection], None]] = None,
                     cb_fail: Optional[Callable[[str], None]] = None,
@@ -41,18 +57,40 @@ if not hasattr(exp, "_extensions_applied"):
             return self
 
         exp.Selection.count_ex = count_ex
+        exp.Selection.count_ex.__annotations__ = {
+            'self': exp.Selection,
+            'cb': Optional[Callable[[exp.Selection], None]],
+            'cb_fail': Optional[Callable[[str], None]],
+            'compare': Optional[Callable[[int, int], bool]],
+            'iVal': Optional[int],
+            'return': exp.Selection
+        }
 
         def hide(self:exp.Selection) -> exp.Selection:
+            if self.count():
+                self.vis_properties().set_show(exp.CatVisPropertyShow.catVisPropertyNoShowAttr)
             return self
         exp.Selection.hide = hide
+        exp.Selection.hide.__annotations__ = {'self': exp.Selection}
         
         def show(self:exp.Selection) -> exp.Selection:
+            if self.count():
+                self.vis_properties().set_show(exp.CatVisPropertyShow.catVisPropertyShowAttr)
+
             return self
         exp.Selection.show = show
+        exp.Selection.show.__annotations__ = {'self': exp.Selection}
 
         def search_all(self:exp.Selection, search_string:str) -> exp.Selection:
-            return self
+            return self.search(search_string + Util.get_list_separator() + "All")
         exp.Selection.search_all = search_all
+        exp.Selection.search_all.__annotations__ = {'self': exp.Selection, 'search_string':str}
+
+        def search_sel(self:exp.Selection, search_string:str) -> exp.Selection:
+            return self.search(search_string + Util.get_list_separator() + "Sel")
+        exp.Selection.search_sel = search_sel
+        exp.Selection.search_sel.__annotations__ = {'self': exp.Selection, 'search_string':str}
+
 
     if hasattr(exp, 'HybridBodies'):
         # Overload for the method with no callbacks
@@ -121,3 +159,5 @@ def extend_hybrid_bodies():
 
 def perform_extensions():
     extend_hybrid_bodies()
+
+exp.Selection.hide.__annotations__ = {'self': exp.Selection}
