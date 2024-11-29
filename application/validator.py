@@ -179,7 +179,7 @@ class Validator():
     def deactivate_different(self, i_variant: 'Variant') -> 'Validator':
         flat_ref = FlatVariant(i_variant, i_variant.desired_state)
 
-        def process_flat_ref():
+        def process_flat_ref(flat_ref_):
             def process_variant(v: 'Variant'):
                 if v == i_variant or v.desired_state == Tristate.UnknownState:
                     return
@@ -465,7 +465,7 @@ class Validator():
         if isinstance(item, Variant):
             ref_flat = FlatVariant(item, item.active_state)
             
-            def on_ready():
+            def on_ready(ref_flat):
                 self._validate(item)
             
             def on_invalid():

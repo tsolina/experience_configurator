@@ -55,14 +55,11 @@ class MainWindowView():
         style.configure("Custom.TFrame", background="orange", borderwidth=2, relief='solid', padx=2, pady=2)
         style.configure("Standard.TFrame", background=root['bg'])
         style.configure("Option.TFrame", background=root['bg'])
-        # style.map("Option.TFrame",
-        #           background=[
-        #               ("!selected", root["bg"]),
-        #               ("hover", "#f5f5f5"),
-        #               ("selected", "#f0f0f0")
-        #           ])
         style.configure("Hover.Option.TFrame", background="#f5f5f5", borderwidth=0)
         style.configure("Selected.Option.TFrame", background="#f0f0f0", borderwidth=0)
+        style.configure("Option.TLabel", background=root['bg'])
+        style.configure("Hover.Option.TLabel", borderwidth=1, relief='sunken', highlightcolor="#f0f0f0") # "#D9E2E8")
+        style.configure("Selected.Option.TLabel", background="#f0f0f0", borderwidth=0)
         style.configure("Standard.TRadiobutton", background=root['bg'])
 
     def add_status_bar(self, root):

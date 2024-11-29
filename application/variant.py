@@ -125,6 +125,8 @@ class Variant():
         if self._editing_sub_variant != value:
             self._editing_sub_variant = value
 
+            self.application.context.view_variant_editor_event_handler.update_sub_variant_container(self.sub_variants)
+
     @property
     def switches(self):
         return self._sub_variants.get_sub_variant(self._active_state).switches

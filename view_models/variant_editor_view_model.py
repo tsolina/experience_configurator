@@ -1,5 +1,6 @@
 from application.project import Project
 from application.sub_variants import SubVariants
+from application.switch import Switch
 from application.switches import Switches
 from application.tristate import Tristate
 from application.variant import Variant
@@ -46,6 +47,18 @@ class VariantEditorViewModel:
     def activate_variant(self, variant:'Variant'):
         self.context.application.active_project.active_variant = variant
 
+    def activate_switch(self, switch:'Switch'):
+        self.context.application.active_project.active_variant.editing_sub_variant.active_switch = switch
+
+    def activate_editing_sub_variant(self, name:str):
+        var = self.get_active_variant()
+        if not var:
+            return
+        
+        sv = var.sub_variants.get_sub_variant(name)
+        if sv:
+            var.editing_sub_variant = sv
+
     def get_active_variant_var(self) -> tk.StringVar:
         variant = self.get_active_variant()
         return variant.name_var if variant else None
@@ -61,6 +74,18 @@ class VariantEditorViewModel:
     def get_sub_variants(self) -> 'SubVariants':
         variant = self.get_active_variant()
         return variant.sub_variants if variant else None
+    
+    def get_sub_variant_label_style(self, name:str) -> str:
+        sub_variants = self.get_sub_variants()
+        if sub_variants and sub_variants.parent.editing_sub_variant.name == name:
+            return "Selected.Option.TLabel"
+        return "Option.TLabel"
+    
+    def is_editing_sub_variant(self, name:str) -> bool:
+        sub_variants = self.get_sub_variants()
+        if not sub_variants:
+            return False
+        return sub_variants.parent.editing_sub_variant.name == name
     
     def update_variants(self, variants:'Variants'):
         self.context.view_variant_editor_event_handler.update_variant_container(variants)
