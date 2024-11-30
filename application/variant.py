@@ -152,7 +152,9 @@ class Variant():
         if self._active_state != value:
             self._active_state = value
             # print(self.__class__.__name__, "active_state changed", value)
-            self.sub_variants.active_sub_variant = self.sub_variants.get_sub_variant(value)
+            # self.sub_variants.active_sub_variant = self.sub_variants.get_sub_variant(value)
+            self.active_sub_variant = self.sub_variants.get_sub_variant(value)
+            print(self.__class__.__name__, "active_state", value)
 
     @property
     def desired_state(self):
@@ -162,6 +164,8 @@ class Variant():
     def desired_state(self, value):
         self._desired_state = value
 
+        # what do we do if desired state is different?
+
     @property
     def editing_state(self):
         return self._editing_state
@@ -169,7 +173,8 @@ class Variant():
     @editing_state.setter
     def editing_state(self, value:str):
         def lambda_sub_variant(sub_variant: 'SubVariant'):
-            self._sub_variants.editing_sub_variant = sub_variant
+            # self._sub_variants.editing_sub_variant = sub_variant
+            self.editing_sub_variant = sub_variant
 
         self._editing_state = value
         sv =  self._sub_variants.get_sub_variant(value)

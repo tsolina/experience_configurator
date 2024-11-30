@@ -161,7 +161,7 @@ class Validator():
     def is_state_different(self, i_ref: 'FlatVariant', i_trg: 'FlatVariant') -> bool:
         _result: bool = False
 
-        def check_difference():
+        def check_difference(trg_):
             nonlocal _result
             # If there is no overlap, exit early
             if not i_trg.is_overlapping(i_ref):
@@ -176,53 +176,102 @@ class Validator():
         return _result
     
 
+    # def deactivate_different(self, i_variant: 'Variant') -> 'Validator':
+    #     flat_ref = FlatVariant(i_variant, i_variant.desired_state)
+
+    #     def process_flat_ref(context:'FlatVariant'):
+    #         def process_variant(v: 'Variant'):
+    #             if v == i_variant or v.desired_state == Tristate.UnknownState:
+    #                 return
+
+    #             flat_trg_on = FlatVariant(v, Tristate.OnState)
+    #             flat_trg_off = FlatVariant(v, Tristate.OffState)
+
+    #             def handle_on_state():
+    #                 def process_on_state(ctx:'FlatVariant'):
+    #                     if self.is_state_different(flat_ref, flat_trg_on):
+    #                         def process_off_state(ctx:'FlatVariant'):
+    #                             if self.is_state_different(flat_ref, flat_trg_off):
+    #                                 v.desired_state = Tristate.UnknownState
+    #                             else:
+    #                                 v.desired_state = Tristate.OffState
+
+    #                         flat_trg_off.ready(process_off_state, lambda: setattr(v, "desired_state", Tristate.OffState))
+
+    #                 flat_trg_on.ready(process_on_state, lambda: flat_trg_off.ready(
+    #                     lambda: setattr(v, "desired_state", Tristate.OffState) if not self.is_state_different(flat_ref, flat_trg_off)
+    #                     else setattr(v, "desired_state", Tristate.UnknownState),
+    #                     lambda: setattr(v, "desired_state", Tristate.UnknownState)
+    #                 ))
+
+    #             def handle_off_state():
+    #                 if not v.desired_switches:
+    #                     return
+
+    #                 def process_off_state():
+    #                     if self.is_state_different(flat_ref, flat_trg_off):
+    #                         v.desired_state = Tristate.UnknownState
+
+    #                 flat_trg_off.ready(process_off_state, lambda: setattr(v, "desired_state", Tristate.UnknownState))
+
+    #             if v.desired_state == Tristate.OnState:
+    #                 handle_on_state()
+    #             elif v.desired_state == Tristate.OffState:
+    #                 handle_off_state()
+
+    #         i_variant.parent.for_each(process_variant)
+
+    #     flat_ref.ready(process_flat_ref)
+    #     return self
     def deactivate_different(self, i_variant: 'Variant') -> 'Validator':
         flat_ref = FlatVariant(i_variant, i_variant.desired_state)
 
-        def process_flat_ref(flat_ref_):
-            def process_variant(v: 'Variant'):
-                if v == i_variant or v.desired_state == Tristate.UnknownState:
+        def process_variant(v: 'Variant', flat_context: 'FlatVariant'):
+            if v == i_variant or v.desired_state == Tristate.UnknownState:
+                return
+
+            flat_trg_on = FlatVariant(v, Tristate.OnState)
+            flat_trg_off = FlatVariant(v, Tristate.OffState)
+
+            def handle_on_state(on_context: 'FlatVariant'):
+                if self.is_state_different(flat_context, flat_trg_on):
+                    def process_off_state(off_context: 'FlatVariant'):
+                        if self.is_state_different(flat_context, flat_trg_off):
+                            v.desired_state = Tristate.UnknownState
+                        else:
+                            v.desired_state = Tristate.OffState
+
+                    flat_trg_off.ready(
+                        process_off_state,
+                        lambda: setattr(v, "desired_state", Tristate.OffState)
+                    )
+
+            def handle_off_state():
+                if not v.desired_switches:
                     return
 
-                flat_trg_on = FlatVariant(v, Tristate.OnState)
-                flat_trg_off = FlatVariant(v, Tristate.OffState)
+                def process_off_state(off_context: 'FlatVariant'):
+                    if self.is_state_different(flat_context, flat_trg_off):
+                        v.desired_state = Tristate.UnknownState
 
-                def handle_on_state():
-                    def process_on_state(flat_trg_):
-                        if self.is_state_different(flat_ref, flat_trg_on):
-                            def process_off_state():
-                                if self.is_state_different(flat_ref, flat_trg_off):
-                                    v.desired_state = Tristate.UnknownState
-                                else:
-                                    v.desired_state = Tristate.OffState
+                flat_trg_off.ready(
+                    process_off_state,
+                    lambda: setattr(v, "desired_state", Tristate.UnknownState)
+                )
 
-                            flat_trg_off.ready(process_off_state, lambda: setattr(v, "desired_state", Tristate.OffState))
+            if v.desired_state == Tristate.OnState:
+                flat_trg_on.ready(handle_on_state)
+            elif v.desired_state == Tristate.OffState:
+                handle_off_state()
 
-                    flat_trg_on.ready(process_on_state, lambda: flat_trg_off.ready(
-                        lambda: setattr(v, "desired_state", Tristate.OffState) if not self.is_state_different(flat_ref, flat_trg_off)
-                        else setattr(v, "desired_state", Tristate.UnknownState),
-                        lambda: setattr(v, "desired_state", Tristate.UnknownState)
-                    ))
-
-                def handle_off_state():
-                    if not v.desired_switches:
-                        return
-
-                    def process_off_state():
-                        if self.is_state_different(flat_ref, flat_trg_off):
-                            v.desired_state = Tristate.UnknownState
-
-                    flat_trg_off.ready(process_off_state, lambda: setattr(v, "desired_state", Tristate.UnknownState))
-
-                if v.desired_state == Tristate.OnState:
-                    handle_on_state()
-                elif v.desired_state == Tristate.OffState:
-                    handle_off_state()
-
-            i_variant.parent.for_each(process_variant)
+        def process_flat_ref(flat_context: 'FlatVariant'):
+            i_variant.parent.for_each(
+                lambda v: process_variant(v, flat_context)
+            )
 
         flat_ref.ready(process_flat_ref)
         return self
+
 
 
     def activate_same(self, i_variant: 'Variant') -> 'Validator':
@@ -230,7 +279,7 @@ class Validator():
         if flat_ref.count() == 0:
             return self
 
-        def process_flat_ref(flat_ref_):
+        def process_flat_ref(context:'FlatVariant'):
             def process_variant(v: 'Variant'):
                 if v == i_variant or v.desired_state == Tristate.OnState:
                     return
@@ -238,7 +287,7 @@ class Validator():
                 on_ok = False
                 flat_trg = FlatVariant(v, Tristate.OnState)
 
-                def check_on_state(flat_ref__):
+                def check_on_state(on_context:'FlatVariant'):
                     nonlocal on_ok
                     if flat_ref == flat_trg and flat_ref.count() == flat_trg.count():
                         v.desired_state = Tristate.OnState
@@ -251,7 +300,7 @@ class Validator():
 
                 flat_trg_off = FlatVariant(v, Tristate.OffState)
 
-                def check_off_state():
+                def check_off_state(off_context:'FlatVariant'):
                     if flat_ref == flat_trg_off and flat_ref.count() == flat_trg.count():
                         v.desired_state = Tristate.OffState
 
@@ -261,6 +310,7 @@ class Validator():
 
         flat_ref.ready(process_flat_ref)
         return self
+    
   
     def is_state_available(self, i_variant: 'Variant', i_state: str) -> bool:
         flat_variant = FlatVariant(i_variant, i_state)

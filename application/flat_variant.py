@@ -104,11 +104,11 @@ class FlatVariant:
         Args:
             callback (Callable[[str, str], None]): A function to invoke with each key-value pair.
         """
-        def _execute_callback() -> None:
+        def _execute_callback(context:'FlatVariant') -> None:
             """
             Internal function to iterate through the flat variant and execute the callback.
             """
-            for key, value in self._flat_variant.items():
+            for key, value in context._flat_variant.items():
                 callback(key, value)
 
         self.ready(_execute_callback)
@@ -150,13 +150,13 @@ class FlatVariant:
         Returns:
             Optional[bool]: `True` if the key exists, `False` if not, or `None` if callbacks are provided.
         """
-        def _execute_logic() -> None:
+        def _execute_logic(context:FlatVariant) -> None:
             """
             Internal function to execute the contains logic based on callbacks.
             """
-            if name in self._flat_variant:
+            if name in context._flat_variant:
                 if callback:
-                    callback(self._flat_variant[name])
+                    callback(context._flat_variant[name])
             else:
                 if fail_callback:
                     fail_callback()
@@ -196,7 +196,7 @@ class FlatVariant:
 
             other.contains(name, success_callback, fail_callback)
 
-        self.ready(lambda: [check_key_value(name, value) for name, value in self._flat_variant.items()])
+        self.ready(lambda context: [check_key_value(name, value) for name, value in context._flat_variant.items()])
         return result
 
     def __ne__(self, other):
