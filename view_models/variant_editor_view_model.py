@@ -1,4 +1,5 @@
 from application.project import Project
+from application.sub_variant import SubVariant
 from application.sub_variants import SubVariants
 from application.switch import Switch
 from application.switches import Switches
@@ -48,7 +49,10 @@ class VariantEditorViewModel:
         self.context.application.active_project.active_variant = variant
 
     def activate_switch(self, switch:'Switch'):
-        self.context.application.active_project.active_variant.editing_sub_variant.active_switch = switch
+        if not switch:
+            return
+        sv = self.get_editing_sub_variant()
+        sv.active_switch = switch
 
     def activate_editing_sub_variant(self, name:str):
         var = self.get_active_variant()
@@ -76,22 +80,57 @@ class VariantEditorViewModel:
         return variant.sub_variants if variant else None
     
     def get_sub_variant_label_style(self, name:str) -> str:
-        sub_variants = self.get_sub_variants()
-        if sub_variants and sub_variants.parent.editing_sub_variant.name == name:
+        editing_sub_variant = self.get_editing_sub_variant()
+        if editing_sub_variant and editing_sub_variant.name == name:
             return "Selected.Option.TLabel"
         return "Option.TLabel"
     
+    def get_editing_sub_variant(self) -> 'SubVariant':
+        variant = self.get_active_variant()
+        return variant.editing_sub_variant if variant else None
+    
     def is_editing_sub_variant(self, name:str) -> bool:
-        sub_variants = self.get_sub_variants()
-        if not sub_variants:
+        editing_sub_variant = self.get_editing_sub_variant()
+        if not editing_sub_variant:
             return False
-        return sub_variants.parent.editing_sub_variant.name == name
+        return editing_sub_variant.name == name
     
     def update_variants(self, variants:'Variants'):
         self.context.view_variant_editor_event_handler.update_variant_container(variants)
 
+    def update_sub_variants(self):
+        self.context.view_variant_editor_event_handler.update_sub_variant_container()
+
     def update_switches_container(self, switches:'Switches'):
-        self.context.view_variant_editor_event_handler.update_switches_container(switches)
+        self.context.view_variant_editor_event_handler.update_switches_container()#switches)
+
+    def ensure_active_variant(self):
+        variants = self.get_variants()
+        if not variants:
+            return
+        
+        if not self.selected_variant:
+            self.selected_variant = variants[-1]
+
+        self.update_sub_variants()
+
+    def ensure_active_sub_variant(self):
+        sub_variants = self.get_sub_variants()
+        if not sub_variants:
+            return
+        
+        if not self.selected_variant:
+            self.selected_variant = sub_variants[-1]
+
+    def get_editing_switches(self) -> 'Switches':
+        editing_sub_variant = self.get_editing_sub_variant()
+        return editing_sub_variant.switches if editing_sub_variant else None
+    
+    def ensure_editing_switches(self):
+        editing_sub_variant = self.get_editing_sub_variant()
+        if editing_sub_variant and not editing_sub_variant.active_switch:
+            editing_sub_variant.active_switch = editing_sub_variant.switches[-1]
+
 
     def new_variant(self):
         def add_new_variant(project:'Project'):
@@ -158,3 +197,36 @@ class VariantEditorViewModel:
             project.variant_ready(add_visible)
 
         self.root_model.application.project_ready(if_project_ready)
+
+    def on_sub_variant_selected(self, name:str):
+        if not name:
+            return
+
+        sub_variants = self.get_sub_variants()
+        if not sub_variants:
+            return
+        
+        print(self.__class__.__name__, "on_sub_variant", name)
+        
+        sub_variant = sub_variants.get_sub_variant(name)
+        variant = self.get_active_variant()
+        if variant.active_sub_variant == sub_variant:
+            return
+        
+        variant.active_sub_variant = sub_variant
+
+        self.context.application.validator.validate(variant)
+    # Private Sub LB_SubVariantSelected(sender As Object, e As RoutedEventArgs)
+    #     Dim rb As RadioButton = sender
+    #     Dim wp As WrapPanel = rb.Content
+    #     Dim tb As TextBlock = wp.Children.Item(0)
+    #     If tb.Text = vbNullString Then Exit Sub
+
+    #     Dim v As CVariant = App.Model.ActiveProject.ActiveVariant
+    #     Dim sv As CSubVariant = v.SubVariants.GetSubVariant(tb.Text)
+    #     If v.ActiveSubVariant = sv Then Exit Sub
+    #     v.ActiveSubVariant = sv
+
+    #     'Debug.Print("variantSelected:" & v.Name)
+    #     App.Validator.Validate(v)
+    # End Sub

@@ -78,11 +78,7 @@ class VariantEditorEventHandler:
         for row_idx in range(len(variants) + 1):  # +1 for header row
             frame.rowconfigure(row_idx, weight=1)
 
-        if len(variants):
-            if not self.view_model.selected_variant:
-                self.view_model.selected_variant = variants[-1]
-
-            self.update_sub_variant_container(self.view_model.selected_variant.sub_variants)
+        self.view_model.ensure_active_variant()
 
 
     def populate_sub_variants(self, sub_variants:'SubVariants'):
@@ -93,18 +89,14 @@ class VariantEditorEventHandler:
         for widget in self.view.sub_variants_container.winfo_children():
             widget.destroy()
 
-        # for row in range(self.view.sub_variants_container.grid_size()[1]):
-        #     self.view.sub_variants_container.grid_rowconfigure(row, minsize=0)
-
     def on_switch_selected(self, switch:'Switch'):
-        if not switch:
-            return
         self.view_model.activate_switch(switch)
         # self.populate_sub_variants(variant.sub_variants)        
         # self.view.bind_variant_name_var()
     
     def on_option_selected(self, selected_option:str):
-        print(self.__class__.__name__, "on_option_selected", selected_option)
+        self.view_model.on_sub_variant_selected(selected_option)
+        # print(self.__class__.__name__, "on_option_selected", selected_option)
         # shared_option_var = self.context.vm_variant_editor.get_editing_state_var()
         # if not shared_option_var:
         #     self.context.application.status_message = "activate variant first"
@@ -166,7 +158,7 @@ class VariantEditorEventHandler:
             label.bind("<Leave>", lambda e, f=label: on_leave(e, f))
             label.bind("<Button-1>", lambda e, f=label, all_f=widgets, opt=option: on_click(e, f, all_f, opt))
 
-    def update_sub_variant_container(self, sub_variants:'SubVariants'):
+    def update_sub_variant_container(self): #, sub_variants:'SubVariants'):
         self.clear_sub_variant_container_widgets()
 
         outer_frame = ttk.Frame(self.view.sub_variants_container, style="Standard.TFrame")
@@ -195,20 +187,8 @@ class VariantEditorEventHandler:
         frame.rowconfigure(0, weight=0)
         self.view.switch_container = frame
         
-        if not sub_variants:
-            return
-        
-        # sv = sub_variants.parent.active_sub_variant
-        sv = sub_variants.parent.editing_sub_variant
-        if not sv:
-            return
-        self.context.application.status_message = f"updating actors {len(sv.switches)}"
-
-        self.update_switches_container(sv.switches)
-
-        if len(sub_variants):
-            if not self.view_model.selected_variant:
-                self.view_model.selected_variant = sub_variants[-1]
+        self.update_switches_container()
+        self.view_model.ensure_active_sub_variant()
 
         frame.update_idletasks()
 
@@ -220,7 +200,12 @@ class VariantEditorEventHandler:
             if grid_info.get('row') != 0:
                 widget.destroy()
 
-    def update_switches_container(self, switches:'Switches'):
+    def update_switches_container(self):#, switches:'Switches'):
+        switches = self.view_model.get_editing_switches()
+        if not switches:
+            return
+        
+        self.context.application.status_message = f"updating switches {len(switches)}"
         self.clear_switches_container_widgets()
 
         self.grid_rows = []  # To store the row widgets for dynamic updates
@@ -260,8 +245,5 @@ class VariantEditorEventHandler:
             # Store row widgets for future updates
             self.grid_rows.append((id_label, sub_type, sub_actor, sub_value))
 
-
-        if len(switches):
-            if not self.view_model.selected_variant.editing_sub_variant.active_switch:
-                self.view_model.selected_variant.editing_sub_variant.active_switch = switches[-1]
+        self.view_model.ensure_editing_switches()
         

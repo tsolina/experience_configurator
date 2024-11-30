@@ -250,7 +250,7 @@ class Look():
         return self
 
     def _add_look_from_switch(self, switch: 'Switch') -> 'Look':
-        def ready_action():
+        def ready_action(look_container_):
             for name, look_object in self.application.active_project.look_actors.items():
                 if look_object.target_override == "" and look_object.target_name == switch.name:
                     look_object.desired_look = switch.active_value

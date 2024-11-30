@@ -109,9 +109,9 @@ class VariantEditorView():
         self.sub_variants_container.rowconfigure(0, weight=1)
 
         # Sample data rows from view model
-        sub_variants = self.view_model.get_sub_variants()
+        # sub_variants = self.view_model.get_sub_variants()
         self.switch_container:ttk.Frame = None
-        self.event_handler.update_sub_variant_container(sub_variants)
+        self.event_handler.update_sub_variant_container()#sub_variants)
         return
 
     def add_variant_controls(self, root):

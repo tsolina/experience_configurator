@@ -108,7 +108,7 @@ class Validator():
     def activate_visible(self, i_variant: 'Variant', i_state: str, i_old: Optional[int] = None) -> 'Validator':
         def process_switch(s: 'Switch'):
             # Handle Visibility Type
-            if s.type == VariantType.Visibility:
+            if s.type_ == VariantType.Visibility:
                 if s.active_value == Tristate.OnState:
                     if i_old is not None:
                         _str = f"Name='{s.name}'"
@@ -188,7 +188,7 @@ class Validator():
                 flat_trg_off = FlatVariant(v, Tristate.OffState)
 
                 def handle_on_state():
-                    def process_on_state():
+                    def process_on_state(flat_trg_):
                         if self.is_state_different(flat_ref, flat_trg_on):
                             def process_off_state():
                                 if self.is_state_different(flat_ref, flat_trg_off):
@@ -230,7 +230,7 @@ class Validator():
         if flat_ref.count() == 0:
             return self
 
-        def process_flat_ref():
+        def process_flat_ref(flat_ref_):
             def process_variant(v: 'Variant'):
                 if v == i_variant or v.desired_state == Tristate.OnState:
                     return
@@ -238,7 +238,7 @@ class Validator():
                 on_ok = False
                 flat_trg = FlatVariant(v, Tristate.OnState)
 
-                def check_on_state():
+                def check_on_state(flat_ref__):
                     nonlocal on_ok
                     if flat_ref == flat_trg and flat_ref.count() == flat_trg.count():
                         v.desired_state = Tristate.OnState

@@ -112,7 +112,7 @@ class Variant():
         # if self.editing_sub_variant is None and not value is None:
         #     self.editing_sub_variant = value
 
-        self.application.context.view_variant_editor_event_handler.update_sub_variant_container(self.sub_variants)
+        self.application.context.view_variant_editor_event_handler.update_sub_variant_container()#self.sub_variants)
 
     @property
     def editing_sub_variant(self) -> 'SubVariant':
@@ -125,7 +125,7 @@ class Variant():
         if self._editing_sub_variant != value:
             self._editing_sub_variant = value
 
-            self.application.context.view_variant_editor_event_handler.update_sub_variant_container(self.sub_variants)
+            self.application.context.view_variant_editor_event_handler.update_sub_variant_container()#self.sub_variants)
 
     @property
     def switches(self):
