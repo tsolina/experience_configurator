@@ -75,7 +75,7 @@ class Projects(ObservableList['Project']):
                 # print(self.__class__.__name__, "activate", project)
             else:
                 self.application.active_project = project
-                project.variant_ready(lambda v: _set_active_project_variant(project, v))
+                # project.variant_ready(lambda v: _set_active_project_variant(project, v))
 
             self.application.title = project.name
 

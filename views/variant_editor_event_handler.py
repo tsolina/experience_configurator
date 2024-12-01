@@ -31,7 +31,7 @@ class VariantEditorEventHandler:
         
 
     def update_variant_container(self, variants:'Variants'):
-        if not variants:
+        if variants is None:
             return
         
         self.clear_variant_container_widgets()
