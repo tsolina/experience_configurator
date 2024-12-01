@@ -117,9 +117,10 @@ class Project:
 
     def loop_occurrences(self, occurrences: exp.VPMOccurrences):
         for occ in occurrences:
+            from application.occurrence_object import OccurenceObject
             occurrence_obj = OccurenceObject(occ)
-            if occurrence_obj.id() not in self._occurrences:
-                self._occurrences[occurrence_obj.id()] = occurrence_obj
+            if occurrence_obj.id not in self._occurrences:
+                self._occurrences[occurrence_obj.id] = occurrence_obj
             self.loop_occurrences(occ.occurrences())
 
     @property
@@ -134,6 +135,7 @@ class Project:
 
     def _initialize_root_occurrence(self):
         root_occurrence = self.application.catia.services().product_service().root_occurrence()
+        from application.occurrence_object import OccurenceObject
         root_obj = OccurenceObject(root_occurrence)
         if root_obj.id not in self._occurrences:
             self._occurrences[root_obj.id] = root_obj
@@ -177,7 +179,7 @@ class Project:
         ])
 
     def _add_missing_look_configuration(self, target):
-        found = any(c.active_look == target for c in self.configurations.configuration_collection)
+        found = any(c.active_look == target for c in self.configurations)
         if not found:
             new_config = self.configurations.add()
             new_config.name = target

@@ -31,6 +31,7 @@ class ApplicationContext:
         self.view_main_menu:'MainMenuView' = None
 
         self.application:'Application' = None
+        self.loaded:bool = False
 
     def __getattribute__(self, name):
         value = super().__getattribute__(name)

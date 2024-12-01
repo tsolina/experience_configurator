@@ -1,5 +1,6 @@
+from inspect import signature
 from threading import Thread
-from typing import Callable, List, Optional, TYPE_CHECKING
+from typing import Any, Callable, List, Optional, TYPE_CHECKING
 
 
 from application.log import Log
@@ -28,7 +29,8 @@ class Flags:
 class Application():
     VERSION = "Version 0.0.0.1"
 
-    def __init__(self, parent: 'MainWindowViewModel', catia_com = None):
+    # def __init__(self, parent: 'MainWindowViewModel', catia_com = None):
+    def __init__(self, catia_com = None):
         self.context:'ApplicationContext' = None
         self.util = Util(catia_com)
         self._catia = self.util.catia
@@ -42,7 +44,7 @@ class Application():
         self.registry: 'RegistryConfig' = RegistryConfig()
         self.flags = Flags()
         # self._shared = _3DxGeneral.App.CShared()
-        self._parent: 'MainWindowViewModel' = parent
+        self._parent: 'MainWindowViewModel' = None # = parent
         self._name: str = "3DExperience Configurator by TSolina"
         self._title: str = self._name
         self._guid: int = 0
@@ -64,9 +66,11 @@ class Application():
 
             # print(self.__class__.__name__, "active_project", self.active_project.configurations, self.active_project.variants)
             if self.context.view_look_editor:
-                self.active_project.configurations._notify_observers()
+                # self.active_project.configurations._notify_observers()
+                self.context.vm_look_editor.update_configurations(self.active_project.configurations)
             if self.context.view_variant_editor:
                 self.active_project.variants._notify_observers()
+            
 
 
     def add_active_project_observer(self, observer:Callable[['Project'], None]):
@@ -79,6 +83,10 @@ class Application():
     @property
     def parent(self):
         return self._parent
+    
+    @parent.setter
+    def parent(self, parent:'MainWindowViewModel'):
+        self._parent = parent
 
     @property
     def name(self) -> str:
@@ -132,17 +140,52 @@ class Application():
             else:
                 self.error_message = error_msg
 
-    def ready(self, cb: Callable, cb_fail: Optional[Callable[[str], None]] = None):
+    # def ready(self, cb: Callable, cb_fail: Optional[Callable[[str], None]] = None):
+    #     def failure_action(msg):
+    #         if cb_fail:
+    #             cb_fail(msg)
+    #         else:
+    #             self.status_message = msg
+        
+    #     self.catia_ready(
+    #         lambda: failure_action("Error: No project is currently active") if self.active_project is None else cb(self.active_project),
+    #         failure_action
+    #     )
+    def ready(self, cb: Callable[[Optional[Any]], None], cb_fail: Optional[Callable[[str], None]] = None):
+        """
+        Ensures the application is in a ready state before executing the provided callback,
+        handling callbacks with or without arguments.
+        """
+
+        def wrapped_cb(project):
+            """
+            Wraps the callback to dynamically adjust argument handling.
+            """
+            cb_params = signature(cb).parameters
+            if len(cb_params) == 0:
+                # Callback expects no arguments
+                cb()
+            else:
+                # Callback expects at least one argument
+                cb(project)
+
         def failure_action(msg):
+            """
+            Handles failure scenarios by invoking cb_fail or updating self.status_message.
+            """
             if cb_fail:
                 cb_fail(msg)
             else:
                 self.status_message = msg
-        
+
         self.catia_ready(
-            lambda: failure_action("Error: No project is currently active") if self.active_project is None else cb(self.active_project),
+            lambda: failure_action("Error: No project is currently active")
+            if self.active_project is None
+            else wrapped_cb(self.active_project),
             failure_action
         )
+
+
 
     def project_ready(self, callback:Callable[['Project'], None]):
         def on_status(message:str):

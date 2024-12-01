@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Callable, List, Optional
+from typing import TYPE_CHECKING, Callable, List, Optional, Union, overload
 from application.observable_list import ObservableList
 from application.eval_selected import EvalSelected
 import experience as exp
@@ -49,23 +49,75 @@ class Actors(ObservableList['Actor']):
         self.parent.active_actor = actor
         return actor
 
-    def select_actors(self) -> 'Actors':
-        sel = self.application.catia.active_editor().selection()
+    # def select_actors(self, cat_object:Union[exp.VPMOccurrence,exp.VPMRootOccurrence]) -> 'Actors':
+    #     sel = self.application.catia.active_editor().selection()
 
-        def process_item(item: exp.SelectedElement):
-            ok = EvalSelected(self.application, item.value())
-            if not self._is_actor_valid(ok):
-                return
+    #     def process_item(item: exp.SelectedElement):
+    #         ok = EvalSelected(self.application, item.value())
+    #         if not self._is_actor_valid(ok):
+    #             return
 
-            actor = self._create_actor(ok)
+    #         actor = self._create_actor(ok)
+    #         self.append(actor)
+    #         self.application.look_validator.validate(actor)
+
+    #     if sel.count():
+    #         sel.for_each(process_item)
+
+    #     if self:
+    #         self.parent.active_actor = self[-1]
+
+    #     return self
+    @overload
+    def select_actors(self, i_actor: exp.AnyObject) -> 'Actors':  # Single actor overload
+        ...
+
+    @overload
+    def select_actors(self) -> 'Actors':  # Multiple actors overload
+        ...
+
+    def select_actors(self, i_actor:exp.AnyObject=None):
+        if i_actor is not None:
+            # Single actor mode
+            ok = EvalSelected(self.application, i_actor)
+            from application.actor import Actor
+            actor = Actor(self, id=len(self) + 1, name=ok.name, type_=ok.type_, cat_object=ok.cat_obj, path=ok.path, err_message=ok.message)
+
+            # Assuming this is a thread-safe operation like Dispatcher in VB
+            # For simplicity, we'll directly append here
             self.append(actor)
-            self.application.look_validator.validate(actor)
+            self.active_actor = actor
 
-        if sel.count():
-            sel.for_each(process_item)
+        else:
+            # Multiple actors mode
+            def select_items(sel:exp.Selection):
+                if len(sel) > 0:
+                    for item in sel:
+                        ok = EvalSelected(self.application, item)
+                        if not ok.message:
+                            for a in self:
+                                if ok.message:
+                                    break
+                                if a.path == ok.path:
+                                    ok.message = f"Object already in list, {ok.name}"
+                                    break
 
-        if self:
-            self.parent.active_actor = self[-1]
+                            if ok.message:
+                                self.application.error_message = ok.message
+                                continue
+                            
+                            from application.actor import Actor
+                            actor = Actor(self, id = len(self)+1, name=ok.name, type_=ok.type_, cat_object=ok.cat_obj, path=ok.path)
+
+                            self.append(actor)
+                            self.application.look_validator.validate(actor)
+                        else:
+                            self.application.error_message = ok.message
+
+                    if len(self) > 0:
+                        self.active_actor = self[-1]
+
+            self.application.selection(select_items)
 
         return self
 

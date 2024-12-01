@@ -33,7 +33,8 @@ class VariantEditorViewModel:
     #     return self.context.application.active_project
     
     def get_variants(self) -> 'Variants':
-        return self.context.vm_main_window.get_active_project().variants
+        project = self.context.vm_main_window.get_active_project()
+        return project.variants if project else None
     
     def get_active_variant(self) -> 'Variant':
         project = self.context.vm_main_window.get_active_project()

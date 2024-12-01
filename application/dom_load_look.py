@@ -11,11 +11,13 @@ from application.actor_catia import ActorCatia
 from application.configuration import Configuration
 from application.look_container import LookContainer
 from application.look_object import LookObject
+from application.observable_list import ObservableList
 from application.occurrence_object import OccurenceObject
 from application.project import Project
 from application.task_model import TaskModel
 from xml.dom.minidom import parse, parseString
 from lxml import etree
+from application.tristate import Tristate
 import experience as exp
 
 if TYPE_CHECKING:
@@ -178,7 +180,7 @@ class DomLoadLook:
                 actor = actor.rsplit("_", 1)[0]
 
             if actor in occ:
-                _co.actor.cat_object = occ[actor].occurence
+                _co.actor.cat_object = occ[actor].occurrence
                 _co.actor.type_ = "Container"
                 _co.target_name = cfg.active_look
 
@@ -197,10 +199,10 @@ class DomLoadLook:
     def prompt_user(self, message: str, title: str) -> bool:
         return messagebox.askokcancel(title, message)
 
-    def inspect_xml_header(self, header: Optional[etree._Element], is_import: bool) -> bool:
+    def inspect_xml_header(self, header: etree._Element, is_import: bool) -> bool:
         """Inspect the XML header for validity and optional import check."""
         if header is None:
-            self.application.error_message = "no header found"
+            self.application.error_message = "No header found"
             return False
 
         # Extract the generator node text if it exists
@@ -208,11 +210,11 @@ class DomLoadLook:
         generator = generator[0] if generator else ""
 
         if not generator:
-            self.application.error_message = "document invalid, not look configurator document"
+            self.application.error_message = "Document invalid, not a look configurator document"
             return False
 
         if generator != "Look configurator by TSolina":
-            self.application.error_message = "document invalid, not look configurator document"
+            self.application.error_message = "Document invalid, not a look configurator document"
             return False
 
         if is_import:
@@ -223,11 +225,11 @@ class DomLoadLook:
             if doc_id != self.application.active_project.id:
                 # Prompt the user for confirmation
                 result = self.prompt_user(
-                    "xml of another file detected, sure to import?", 
-                    "3DExperience configurator | import look"
+                    "XML of another file detected. Are you sure you want to import?", 
+                    "3DExperience configurator | Import look"
                 )
                 if not result:
-                    self.application.error_message = "look import cancelled"
+                    self.application.error_message = "Look import cancelled"
                     return False
 
         return True
@@ -246,7 +248,7 @@ class DomLoadLook:
 
         # Select the header node using XPath
         header = self.XDoc.xpath("//model/header")
-        if not self.inspect_xml_header(header, is_import):
+        if not header or not self.inspect_xml_header(header[0], is_import):
             return
 
         # Select all configuration nodes using XPath
@@ -255,7 +257,6 @@ class DomLoadLook:
             self.application.error_message = "no configurations found"
             return
 
-        cnt = []  # Equivalent to ObservableCollection in Python, can be a list
         nCount = 1
         occ = project.occurrences
 
@@ -265,91 +266,32 @@ class DomLoadLook:
             sLook = config.xpath("./look/text()")[0]
             sState = config.xpath("./state/text()")[0]
 
-            _look = []
-            # Simulating Add() function for configurations (you can replace with actual logic)
-            c:Configuration = project.configurations.add(cnt)
-            c.name = sName
-            c.active_look_state = sState
-            c.active_look = sLook
+            c:Configuration = project.configurations.add(name=sName, active_look=sLook, active_state=sState, container=project.configurations)
 
-            if sState == "On":
+            _look = []
+            if sState == Tristate.OnState:
                 if sLook in project.dict_looks:
                     _look = project.dict_looks[sLook]
                 else:
                     _look = []
                     project.dict_looks[sLook] = _look
 
-                tasks = []
                 actors = config.xpath("./actors/actor")
                 for actor in actors:
                     actor_name = actor.text
                     _co = LookObject()
                     _co.actor = ActorCatia(path=actor.text)
 
-                    def task(actor_name=actor_name, _co=_co):
-                        self.select_reference(actor_name, _co, c, _look, occ)
-
-                    tasks.append(TaskModel(task))
-
-                self.application.parent.wait_tasks(tasks)
+                    self.select_reference(actor_name, _co, c, _look, occ)
 
 
             self.application.status_message = f"looks: {nCount} of {len(configs)} loaded: {c.name}"
             nCount += 1
 
-        # Updating the configurations collection
-        project.configurations.configuration_collection = cnt
-
-        def update_ui():
-            self.application.parent.vm_look_editor.selected_configuration = project.configurations.configuration_collection[0]
-            project.active_configuration = project.configurations.configuration_collection[0]
-        self.application.sta_thread(lambda: update_ui())
-
         if is_import:
             self.application.status_message = f"look configuration imported: {self._file_path}"
         else:
             self.application.status_message = f"configuration loaded: {self._file_name}"
-
-
-    def select_reference(self, actor: str, _co: 'LookObject', cfg: 'Configuration', _look: List['LookObject'], occ: Dict[str, 'OccurenceObject']) -> None:
-        # Remove the first two characters from the actor string
-        actor = actor[2:]
-
-        if "**" in actor:
-            s_path = actor[actor.find("**") + 2:]
-            actor = actor.replace(s_path, "").replace("*", "")
-            if "_" in actor:
-                actor = actor[:actor.rfind("_")]
-
-            if actor in occ:
-                vpm_ref = occ[actor].reference
-                _part = vpm_ref.rep_instances().item(1).reference_instance_of().part()
-
-                if s_path.startswith("b_"):
-                    self.select_body(actor, _co, cfg, _look, s_path, _part)
-                elif s_path.startswith("g_"):
-                    _sets = _part.hybrid_bodies
-                    self.select_set(actor, _co, cfg, _look, s_path, _sets)
-            else:
-                self.select_not_found(actor, "Container", cfg)
-        else:
-            if "_" in actor:
-                actor = actor[:actor.rfind("_")]
-
-            if actor in occ:
-                _co.actor.cat_object = occ[actor].occurence # catia item- cat_object:VPMOccurrence, VPMRootOccurrence
-                _co.actor.type_ = "Container"
-                _co.target_name = cfg.active_look
-
-                self.add_actor_if_is_new(_co, _look)
-
-                cfg.actors.select_actors(_co.actor.cat_object)
-                with threading.Lock():
-                    if _co.actor.path not in self.application.active_project.look_actors:
-                        self.application.active_project.look_actors[_co.actor.path] = _co
-            else:
-                self.select_not_found(actor, "Container", cfg)
-
 
 
 
@@ -359,14 +301,14 @@ class DomLoadLook:
             self.application.error_message = f"{self._file_path} not found"
             return self
         self.clean_look_configuration()
-        self.application.look_file.ready(lambda: self.evaluate_xml(False))
+        self.application.look_file.ready(lambda look_file: self.evaluate_xml(False))
         return self
 
     def clean_look_configuration(self):
         def clear_configuration(p:'Project'):
             if p.active_configuration is not None:
-                p.active_configuration.actors.actor_list.clear()
-                p.configurations.configuration_collection.clear()
+                p.active_configuration.actors.clear()
+                p.configurations.clear()
 
         self.application.project_ready(clear_configuration)
         return self
@@ -387,7 +329,7 @@ class DomLoadLook:
         self._file_path = self.open_dialog()
         if not self._file_path:
             return self
-        if self.application.active_project.configurations.configuration_collection:
+        if self.application.active_project.configurations:
             result = input("Do you want to add to existing configuration? (yes/no): ")
             if result.lower() != "yes":
                 self.clean_look_configuration()

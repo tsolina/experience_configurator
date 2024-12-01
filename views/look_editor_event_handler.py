@@ -41,6 +41,8 @@ class LookEditorEventHandler:
 
 
     def update_treeview(self, configurations:'Configurations'):
+        if not configurations:
+            return
         self.clear_treeview_widgets()
 
         self.view.configurations_container.columnconfigure(0, weight=1)

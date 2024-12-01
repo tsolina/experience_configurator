@@ -1,5 +1,6 @@
 from typing import TYPE_CHECKING, List
 
+from application.look_container import LookContainer
 from application.tristate import Tristate
 import tkinter as tk
 
@@ -12,17 +13,17 @@ if TYPE_CHECKING:
 
 
 class Configuration:
-    def __init__(self, parent: 'Configurations', id:int=None, name:str=None, look_states:List[str]=[]):
+    def __init__(self, parent: 'Configurations', id:int=None, name:str=None, look_states:List[str]=[], active_state:str="", active_look:str=""):
         self._parent = parent
         self.application = parent.application
         self._uID = self.application.guid       
         self._name = name or self.__class__.__name__
         self._id = id
         self._look_states: List[str] = look_states
-        self._active_look_state = ""
-        self._look_collection = []
-        self._active_look = ""
-        self._actors:Actors = None
+        self._active_look_state = active_state
+        self._look_collection:List[str] = []
+        self._active_look = active_look
+        self._actors:'Actors' = None
         self._init_helper()
         self._active_actor = None
         self._err_message = ""
@@ -41,6 +42,10 @@ class Configuration:
     def _init_helper(self):
         from application.actors import Actors
         self._actors = Actors(self)
+
+        def set_look_coolection(look_container:'LookContainer'):
+            self._look_collection = look_container.targets_list
+        self.application.look_file.ready(set_look_coolection)
 
     @property
     def parent(self) -> 'Configurations':

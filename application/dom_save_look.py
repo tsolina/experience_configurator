@@ -73,14 +73,14 @@ class DomSaveLook:
         return self
 
     def config_to_xml(self):
-        for config in self.application.active_project.configurations.configuration_collection:
+        for config in self.application.active_project.configurations:
             c_node = self.create_node("configuration", self.product_structure)
             self.create_text(config.name, self.create_node("name", c_node))
             self.create_text(config.active_look, self.create_node("look", c_node))
             self.create_text(config.active_look_state, self.create_node("state", c_node))
 
             c_actors = self.create_node("actors", c_node)
-            for actor in config.actors.actor_list:
+            for actor in config.actors:
                 self.create_text(actor.path, self.create_node("actor", c_actors))
         return self
 

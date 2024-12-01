@@ -69,7 +69,8 @@ class LookEditorViewModel:
     #     return self.root_model.application.active_project
     
     def get_configurations(self) -> 'Configurations':
-        return self.context.vm_main_window.get_active_project().configurations
+        project = self.context.vm_main_window.get_active_project()
+        return project.configurations if project else None
     
     def get_configuration_by_row_id(self, index:int) -> 'Configuration':
         return self.get_configurations()[index]

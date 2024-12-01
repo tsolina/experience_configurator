@@ -31,6 +31,9 @@ class VariantEditorEventHandler:
         
 
     def update_variant_container(self, variants:'Variants'):
+        if not variants:
+            return
+        
         self.clear_variant_container_widgets()
 
         self.view.variants_container.columnconfigure(0, weight=1)

@@ -45,7 +45,7 @@ class MainMenuView():
         look_editor.add_command(label='Apply Looks')
         look_editor.add_command(label='Look on selection')
         look_editor.add_separator()
-        look_editor.add_command(label='Save')
+        look_editor.add_command(label='Save', command=self.view_model.look_editor_save)
         look_editor.add_command(label='Load')
         look_editor.add_command(label='Export')
         look_editor.add_command(label='Save')

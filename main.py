@@ -6,6 +6,7 @@ from view_models.main_window_view_model import MainWindowViewModel
 from views.main_window_view import MainWindowView
 
 from application.experience_extensions import *
+from application.application import Application
 # perform_extensions
 # perform_extensions()
 
@@ -19,12 +20,15 @@ def start(catia_com = None):
     root.configure(bg="#C2D5E0")
 
     context = ApplicationContext()
+    context.application = Application(catia_com)
+    context.application.context = context
 
     # Initialize the ViewModel with the Model
-    view_model = MainWindowViewModel(root, context, catia_com)
+    view_model = MainWindowViewModel(root, context) #, catia_com)
 
     # Initialize the View with the ViewModel
     view = MainWindowView(root, context)
+    context.loaded = True
 
     root.mainloop()
 

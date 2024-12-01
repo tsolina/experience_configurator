@@ -53,3 +53,15 @@ class MainMenuViewModel:
 
 
         self.root_model.application.catia_ready(catia_ready)
+
+    def look_editor_save(self):
+        def save_config():
+            self.context.application.xml.save_look.save()
+
+        self.context.application.ready(save_config)
+
+    # Private Sub Mnu_LookEditor_Save(sender As Object, e As MouseButtonEventArgs)
+    #     App.Model.Ready(Sub()
+    #                         App.XML.SaveLook.Save()
+    #                     End Sub)
+    # End Sub

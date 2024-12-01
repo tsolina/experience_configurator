@@ -21,7 +21,7 @@ class EvalSelected:
     def __del__(self):
         self.cat_obj = None
 
-    def eval_selected(self, item: exp.AnyObject):
+    def eval_selected(self, item:exp.AnyObject):
         """Dispatch based on item type."""
         item_type = item.com_type() #type(item).__name__
 

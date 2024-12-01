@@ -57,20 +57,18 @@ class Configurations(ObservableList['Configuration']):
         ...
 
     @overload
-    def add(self, container: List['Configuration']):
+    def add(self, name:str="", active_state:str="", active_look:str="", container: Optional[ObservableList['Configuration']] = None) -> 'Configuration':
         ...
 
-    def add(self, container: Optional[List['Configuration']] = None) -> 'Configuration':
-        if not container:
+    def add(self, name:str="", active_state:str="", active_look:str="", container: Optional[ObservableList['Configuration']] = None) -> 'Configuration':
+        if container is None:
             return self.add_empty_config()
 
         from application.configuration import Configuration
         id = len(container) + 1
-        configuration = Configuration(parent=self, id=id, name=f"configuration.{id}", look_states=Tristate.to_toggle())
-        self.application.look_file.ready(lambda look: setattr(configuration, "look_collection", look.targets_list))
-
-        # Instead of managing container directly, use append
-        self.application.sta_thread(lambda: container.append(configuration))
+        configuration = Configuration(parent=self, id=id, name=name or f"configuration.{id}", look_states=Tristate.to_toggle(), active_state=active_state, active_look=active_look)
+        container.append(configuration)
+        
         return configuration
     
     def delete(self) -> 'Configurations':
