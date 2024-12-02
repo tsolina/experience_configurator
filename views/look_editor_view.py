@@ -29,7 +29,6 @@ class LookEditorView():
         self.add_look_controls(root)
 
         self.add_active_configuration()
-        # self.add_configuration_grid()
         self.create_actors_grid_header()
         self.add_configuration_controls(root)
 
@@ -128,30 +127,6 @@ class LookEditorView():
         self.config_name.pack(side="left", anchor="w")
         self.bind_config_name_var()
 
-    # def add_configuration_grid(self):
-    #     frame = ttk.Frame(self.look_editor_frame)
-    #     frame.grid(row=1, column=1, sticky="nsew")
-
-    #     # Define columns
-    #     columns = ("id", "actor", "type", "error")
-    #     self.actors_tree = ttk.Treeview(frame, columns=columns, show="headings")
-        
-    #     # Set column headers
-    #     self.actors_tree.heading("id", text="#")
-    #     self.actors_tree.heading("actor", text="Actor")
-    #     self.actors_tree.heading("type", text="Type")
-    #     self.actors_tree.heading("error", text="Error")
-
-    #     # Set column widths
-    #     self.actors_tree.column("id", width=10, anchor="center")
-    #     self.actors_tree.column("actor", minwidth=100, width=180)
-    #     self.actors_tree.column("type", minwidth=40, width=50)
-    #     self.actors_tree.column("error", width=50, anchor="center")
-
-    #     self.actors_tree.pack(fill="both", expand=True)
-
-    #     # Add a callback for selection change
-    #     self.actors_tree.bind("<<TreeviewSelect>>", self.event_handler.on_actors_selection_change)
 
     def create_actors_grid_header(self):
         frame = ttk.Frame(self.look_editor_frame, style="Standard.TFrame")

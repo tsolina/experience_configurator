@@ -269,20 +269,23 @@ class DomLoadLook:
             c:Configuration = project.configurations.add(name=sName, active_look=sLook, active_state=sState, container=project.configurations)
 
             _look = []
-            if sState == Tristate.OnState:
-                if sLook in project.dict_looks:
-                    _look = project.dict_looks[sLook]
-                else:
-                    _look = []
-                    project.dict_looks[sLook] = _look
+            # if sState == Tristate.OnState:
+            if sLook in project.dict_looks:
+                _look = project.dict_looks[sLook]
+            else:
+                _look = []
+                project.dict_looks[sLook] = _look
 
-                actors = config.xpath("./actors/actor")
-                for actor in actors:
-                    actor_name = actor.text
-                    _co = LookObject()
-                    _co.actor = ActorCatia(path=actor.text)
+            actors = config.xpath("./actors/actor")
+            for actor in actors:
+                actor_name = actor.text
+                _co = LookObject()
+                _co.actor = ActorCatia(path=actor.text)
 
-                    self.select_reference(actor_name, _co, c, _look, occ)
+                self.select_reference(actor_name, _co, c, _look, occ)
+
+            # else:
+
 
 
             self.application.status_message = f"looks: {nCount} of {len(configs)} loaded: {c.name}"
