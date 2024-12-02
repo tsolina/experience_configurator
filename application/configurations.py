@@ -25,7 +25,7 @@ class Configurations(ObservableList['Configuration']):
         if not self.application.parent or not self.application.context.vm_look_editor:
             return 
         # print(self.__class__.__name__, "Configuration collection updated:", len(new_list))
-        self.application.context.vm_look_editor.update_configurations(new_list)
+        self.application.context.vm_look_editor.update_configurations()#new_list)
 
     @property
     def parent(self) -> 'Project':

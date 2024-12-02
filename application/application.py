@@ -68,10 +68,10 @@ class Application():
             # print(__name__, self.context.view_look_editor)
             if self.context.view_look_editor:
                 # self.active_project.configurations._notify_observers()
-                self.context.vm_look_editor.update_configurations(self.active_project.configurations)
+                self.context.vm_look_editor.update_configurations()#self.active_project.configurations)
             if self.context.view_variant_editor:
                 # self.active_project.variants._notify_observers()
-                self.context.vm_variant_editor.update_variants(self.active_project.variants)
+                self.context.vm_variant_editor.update_variants()#self.active_project.variants)
             
 
 

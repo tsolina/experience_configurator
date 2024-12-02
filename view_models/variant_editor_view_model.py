@@ -96,8 +96,8 @@ class VariantEditorViewModel:
             return False
         return editing_sub_variant.name == name
     
-    def update_variants(self, variants:'Variants'):
-        self.context.view_variant_editor_event_handler.update_variant_container(variants)
+    def update_variants(self):#, variants:'Variants'):
+        self.context.view_variant_editor_event_handler.update_variant_container()#variants)
 
     def update_sub_variants(self):
         self.context.view_variant_editor_event_handler.update_sub_variant_container()

@@ -87,7 +87,7 @@ class LookEditorViewModel:
         config = self.get_active_configuration()
         return config.name_var if config else None
     
-    def update_configurations(self, configurations:'Configurations'):
+    def update_configurations(self):#, configurations:'Configurations'):
         self.context.view_look_editor_event_handler.update_treeview() #configurations)
 
     def activate_configuration(self, configuration:'Configuration'):

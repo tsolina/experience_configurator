@@ -39,7 +39,7 @@ class Variant():
         self.name = self.name_var.get()
 
     def _update_active_state_from_var(self, *args):
-        print(self.__class__.__name__, "update_active_state_var", self.active_state_var.get())
+        # print(self.__class__.__name__, "update_active_state_var", self.active_state_var.get())
         self.property_true_value_selection = True
         self.active_state = self.active_state_var.get()
 

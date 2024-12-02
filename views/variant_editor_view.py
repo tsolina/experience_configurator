@@ -1,8 +1,9 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 import tkinter as tk
 from tkinter import ttk
 
 from application.observable_list import ObservableList
+from application.tristate import Tristate
 from application.variant import Variant
 from view_models.application_context import ApplicationContext
 from view_models.variant_editor_view_model import VariantEditorViewModel
@@ -48,9 +49,28 @@ class VariantEditorView():
         self.variants_container.grid(row=1, column=0, sticky="nsew")
 
         # Sample data rows from view model
-        variants = self.view_model.get_variants()
-        self.event_handler.update_variant_container(variants)
-        return
+        # variants = self.view_model.get_variants()
+        # self.event_handler.update_variant_container(variants)
+        # return
+
+        self.variants_container.columnconfigure(0, weight=1)
+        frame = ttk.Frame(self.variants_container, style="Standard.TFrame")
+        frame.grid(row=1, column=0, sticky="nsew", padx=(6, 3))
+        self.variant_frame = frame
+
+        # Define column headers
+        headers = [("#", 25), ("Variant Set", 200), ("Current Variant", 88)]
+        for col_idx, (header, width) in enumerate(headers):
+            label = ttk.Label(frame, text=header, anchor="center", relief="raised")
+            label.grid(row=0, column=col_idx, sticky="nsew", padx=1, pady=1)
+
+            frame.grid_columnconfigure(col_idx, minsize=width)
+
+        # Configure column weights
+        frame.columnconfigure(0, weight=0)  # Adjust column weights as needed
+        frame.columnconfigure(1, weight=1)
+        frame.columnconfigure(2, weight=0)
+
     
     def bind_variant_name_var(self):
         name_var = self.view_model.get_active_variant_var()
@@ -102,17 +122,109 @@ class VariantEditorView():
         self.variant_name.pack(side="left", anchor="w")
         self.bind_variant_name_var()
 
+
+    def on_option_selected(self, selected_option:str):
+        print(__name__, "on_option_selected", selected_option)
+        self.view_model.on_sub_variant_selected(selected_option)
+
+    def _add_options(self, frame: ttk.Frame):
+        def on_enter(event, widget:ttk.Label):
+            if not self.view_model.is_editing_sub_variant(widget.cget("text")):
+                widget.configure(style="Hover.Option.TLabel")
+                self.context.application.status_message = "on enter"
+
+        def on_leave(event, widget:ttk.Label):
+            if not self.view_model.is_editing_sub_variant(widget.cget("text")):
+                widget.configure(style="Option.TLabel")
+                self.context.application.status_message = "on leave"
+
+        def on_click(event, widget:ttk.Label, all_widgets:List[ttk.Label], option:str):
+            for w in all_widgets:
+                w.configure(style="Option.TLabel")
+            widget.configure(style="Selected.Option.TLabel")
+            self.view_model.activate_editing_sub_variant(option)
+
+        # shared_option = self.context.vm_variant_editor.get_active_state_var()
+        shared_option = self.context.vm_variant_editor.get_active_state_var() or tk.StringVar(value="")
+
+        options_frame = ttk.Frame(frame, style="Standard.TFrame")
+        options_frame.grid(row=0, column=0, sticky="nsew")
+        options_frame.rowconfigure(0, weight=1)
+        options_frame.columnconfigure(0, weight=1)
+
+        options = Tristate.to_list()
+
+        widgets = []
+        self.option_widgets = {}
+        for option in options:
+            # Create a container frame for each option
+            container = ttk.Frame(options_frame, style="Option.TFrame")
+            container.grid(sticky="ew", padx=0, pady=0)
+            container.columnconfigure(1, weight=1)  # Make the label stretch
+
+            # Add the radiobutton
+            var = tk.StringVar(value=shared_option.get())
+            rb = ttk.Radiobutton(
+                container,
+                text="",
+                value=option,
+                variable=var,
+                style="Standard.TRadiobutton",
+                command=lambda opt=option: self.on_option_selected(opt)
+            )
+            rb.grid(row=0, column=0, padx=0)  # Circle only
+
+            label = ttk.Label(container, text=option, anchor="w", style=self.view_model.get_sub_variant_label_style(option))
+            label.grid(row=0, column=1, sticky="ew", padx=1, pady=0)
+            widgets.append(label)
+
+            # Bind clicks on the label
+            label.bind("<Enter>", lambda e, f=label: on_enter(e, f))
+            label.bind("<Leave>", lambda e, f=label: on_leave(e, f))
+            label.bind("<Button-1>", lambda e, f=label, all_f=widgets, opt=option: on_click(e, f, all_f, opt))
+
+            self.option_widgets[option] = {
+                "radiobutton": rb,
+                "label": label,
+                "var": var     
+            }
+
     def add_variant_grid(self):
         self.sub_variants_container = ttk.Frame(self.variant_editor_frame, style="Standard.TFrame")
         self.sub_variants_container.grid(row=1, column=1, sticky="nsew")
         self.sub_variants_container.columnconfigure(0, weight=1)
         self.sub_variants_container.rowconfigure(0, weight=1)
 
-        # Sample data rows from view model
-        # sub_variants = self.view_model.get_sub_variants()
-        self.switch_container:ttk.Frame = None
-        self.event_handler.update_sub_variant_container()#sub_variants)
-        return
+        # self.switch_container:ttk.Frame = None
+        # self.event_handler.update_sub_variant_container()#sub_variants)
+        # return
+
+        outer_frame = ttk.Frame(self.sub_variants_container, style="Standard.TFrame")
+        outer_frame.grid(row=0, column=0, sticky="nsew", padx=(3, 6))
+        outer_frame.columnconfigure(0, weight=1)
+        outer_frame.rowconfigure(0, weight=0)
+        outer_frame.rowconfigure(1, weight=1)
+
+        self._add_options(outer_frame)
+
+        frame = ttk.Frame(outer_frame, style="Standard.TFrame")
+        frame.grid(row=1, column=0, sticky="nsew")
+        self.switch_container = frame
+
+        # Define column headers
+        headers = [("#", 25), ("Type", 120), ("Actor", 160), ("Value", 120)]
+        for col_idx, (header, width) in enumerate(headers):
+            label = ttk.Label(frame, text=header, anchor="center", relief="raised")
+            label.grid(row=0, column=col_idx, sticky="nsew", padx=0, pady=2)
+
+            frame.grid_columnconfigure(col_idx, minsize=width)
+
+        frame.columnconfigure(0, weight=0)  # Adjust column weights as needed
+        frame.columnconfigure(1, weight=1)
+        frame.columnconfigure(2, weight=2)
+        frame.columnconfigure(3, weight=1)
+        frame.rowconfigure(0, weight=0)
+        
 
     def add_variant_controls(self, root):
         outer_frame = tk.Frame(self.variant_editor_frame, background=root['bg'], height=30)

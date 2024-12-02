@@ -24,7 +24,7 @@ class Variants(ObservableList['Variant']):
         if not self.application.parent or not self.application.context.vm_variant_editor:
             return 
         # print(self.__class__.__name__, "Configuration collection updated:", len(new_list))
-        self.application.context.vm_variant_editor.update_variants(new_list)
+        self.application.context.vm_variant_editor.update_variants()#new_list)
 
     @property
     def parent(self) -> 'Project':

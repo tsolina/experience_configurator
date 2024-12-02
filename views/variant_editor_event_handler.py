@@ -19,9 +19,23 @@ class VariantEditorEventHandler:
         self.view = context.view_variant_editor
         self.view_model = context.vm_variant_editor
 
+    def clear_container_widgets(self, container:ttk.Frame):
+        for widget in container.winfo_children():
+            grid_info = widget.grid_info()
+
+            if grid_info.get('row') != 0:
+                widget.destroy()
+
     def clear_variant_container_widgets(self):
-        for widget in self.view.variants_container.winfo_children():
+        self.clear_container_widgets(self.view.variant_frame)
+        # for widget in self.view.variants_container.winfo_children():
+        #     widget.destroy()
+
+    def clear_sub_variant_container_widgets(self):
+        for widget in self.view.sub_variants_container.winfo_children():
             widget.destroy()
+
+    # switch_container
 
     def on_variant_selected(self, variant:'Variant'):
         if not variant:
@@ -30,29 +44,16 @@ class VariantEditorEventHandler:
         self.view.bind_variant_name_var()
         
 
-    def update_variant_container(self, variants:'Variants'):
+    def update_variant_container(self):#, variants:'Variants'):
+        self.clear_variant_container_widgets()
+
+        variants = self.view_model.get_variants()
         if variants is None:
             return
         
-        self.clear_variant_container_widgets()
+        # self.clear_variant_container_widgets()
 
-        self.view.variants_container.columnconfigure(0, weight=1)
-        frame = ttk.Frame(self.view.variants_container, style="Standard.TFrame")
-        frame.grid(row=1, column=0, sticky="nsew", padx=(6, 3))
-
-        # Define column headers
-        headers = [("#", 25), ("Variant Set", 200), ("Current Variant", 88)]
-        for col_idx, (header, width) in enumerate(headers):
-            label = ttk.Label(frame, text=header, anchor="center", relief="raised")
-            label.grid(row=0, column=col_idx, sticky="nsew", padx=1, pady=1)
-
-            frame.grid_columnconfigure(col_idx, minsize=width)
-
-        # Configure column weights
-        frame.columnconfigure(0, weight=0)  # Adjust column weights as needed
-        frame.columnconfigure(1, weight=1)
-        frame.columnconfigure(2, weight=0)
-
+        frame = self.view.variant_frame
         self.grid_rows = []  # To store the row widgets for dynamic updates
 
         # Populate grid rows
@@ -88,112 +89,128 @@ class VariantEditorEventHandler:
         pass   
 
 
-    def clear_sub_variant_container_widgets(self):
-        for widget in self.view.sub_variants_container.winfo_children():
-            widget.destroy()
+
 
     def on_switch_selected(self, switch:'Switch'):
         self.view_model.activate_switch(switch)
         # self.populate_sub_variants(variant.sub_variants)        
         # self.view.bind_variant_name_var()
     
-    def on_option_selected(self, selected_option:str):
-        self.view_model.on_sub_variant_selected(selected_option)
-        # print(self.__class__.__name__, "on_option_selected", selected_option)
-        # shared_option_var = self.context.vm_variant_editor.get_editing_state_var()
-        # if not shared_option_var:
-        #     self.context.application.status_message = "activate variant first"
-        #     return 
+    # def on_option_selected(self, selected_option:str):
+    #     self.view_model.on_sub_variant_selected(selected_option)
+    #     # print(self.__class__.__name__, "on_option_selected", selected_option)
+    #     # shared_option_var = self.context.vm_variant_editor.get_editing_state_var()
+    #     # if not shared_option_var:
+    #     #     self.context.application.status_message = "activate variant first"
+    #     #     return 
         
-        # print("val", shared_option_var.get())
+    #     # print("val", shared_option_var.get())
 
 
 
-    def _add_options(self, frame: ttk.Frame):
-        def on_enter(event, widget:ttk.Label):
-            if not self.view_model.is_editing_sub_variant(widget.cget("text")):
-                widget.configure(style="Hover.Option.TLabel")
-                self.context.application.status_message = "on enter"
+    # def _add_options(self, frame: ttk.Frame):
+    #     def on_enter(event, widget:ttk.Label):
+    #         if not self.view_model.is_editing_sub_variant(widget.cget("text")):
+    #             widget.configure(style="Hover.Option.TLabel")
+    #             self.context.application.status_message = "on enter"
 
-        def on_leave(event, widget:ttk.Label):
-            if not self.view_model.is_editing_sub_variant(widget.cget("text")):
-                widget.configure(style="Option.TLabel")
-                self.context.application.status_message = "on leave"
+    #     def on_leave(event, widget:ttk.Label):
+    #         if not self.view_model.is_editing_sub_variant(widget.cget("text")):
+    #             widget.configure(style="Option.TLabel")
+    #             self.context.application.status_message = "on leave"
 
-        def on_click(event, widget:ttk.Label, all_widgets:List[ttk.Label], option:str):
-            for w in all_widgets:
-                w.configure(style="Option.TLabel")
-            widget.configure(style="Selected.Option.TLabel")
-            self.view_model.activate_editing_sub_variant(option)
+    #     def on_click(event, widget:ttk.Label, all_widgets:List[ttk.Label], option:str):
+    #         for w in all_widgets:
+    #             w.configure(style="Option.TLabel")
+    #         widget.configure(style="Selected.Option.TLabel")
+    #         self.view_model.activate_editing_sub_variant(option)
 
-        options_frame = ttk.Frame(frame, style="Standard.TFrame")
-        options_frame.grid(row=0, column=0, sticky="nsew")
-        options_frame.rowconfigure(0, weight=1)
-        options_frame.columnconfigure(0, weight=1)
+    #     options_frame = ttk.Frame(frame, style="Standard.TFrame")
+    #     options_frame.grid(row=0, column=0, sticky="nsew")
+    #     options_frame.rowconfigure(0, weight=1)
+    #     options_frame.columnconfigure(0, weight=1)
 
+    #     shared_option = self.context.vm_variant_editor.get_active_state_var()
+    #     options = Tristate.to_list()
+
+    #     widgets = []
+    #     for option in options:
+    #         # Create a container frame for each option
+    #         container = ttk.Frame(options_frame, style="Option.TFrame")
+    #         container.grid(sticky="ew", padx=0, pady=0)
+    #         container.columnconfigure(1, weight=1)  # Make the label stretch
+
+    #         # Add the radiobutton
+    #         rb = ttk.Radiobutton(
+    #             container,
+    #             text="",
+    #             value=option,
+    #             variable=shared_option,
+    #             style="Standard.TRadiobutton",
+    #             command=lambda opt=option: self.on_option_selected(opt)
+    #         )
+    #         rb.grid(row=0, column=0, padx=0)  # Circle only
+
+    #         label = ttk.Label(container, text=option, anchor="w", style=self.view_model.get_sub_variant_label_style(option))
+    #         label.grid(row=0, column=1, sticky="ew", padx=1, pady=0)
+    #         widgets.append(label)
+
+    #         # Bind clicks on the label
+    #         label.bind("<Enter>", lambda e, f=label: on_enter(e, f))
+    #         label.bind("<Leave>", lambda e, f=label: on_leave(e, f))
+    #         label.bind("<Button-1>", lambda e, f=label, all_f=widgets, opt=option: on_click(e, f, all_f, opt))
+
+    def update_options(self):
         shared_option = self.context.vm_variant_editor.get_active_state_var()
-        options = Tristate.to_list()
+        if shared_option is None:
+            return
+        
+        for option, widgets in self.view.option_widgets.items():
+            # rb:ttk.Radiobutton = widgets["radiobutton"]
+            shared_option_var:tk.StringVar = widgets["var"]
+            shared_option_var.set(shared_option.get())
+            # print(__name__, shared_option_var)
+                
 
-        widgets = []
-        for option in options:
-            # Create a container frame for each option
-            container = ttk.Frame(options_frame, style="Option.TFrame")
-            container.grid(sticky="ew", padx=0, pady=0)
-            container.columnconfigure(1, weight=1)  # Make the label stretch
+            # Update the Label's style dynamically
+            label:ttk.Label = widgets["label"]
+            style = self.view_model.get_sub_variant_label_style(option)
+            label.configure(style=style)
 
-            # Add the radiobutton
-            rb = ttk.Radiobutton(
-                container,
-                text="",
-                value=option,
-                variable=shared_option,
-                style="Standard.TRadiobutton",
-                command=lambda opt=option: self.on_option_selected(opt)
-            )
-            rb.grid(row=0, column=0, padx=0)  # Circle only
-
-            label = ttk.Label(container, text=option, anchor="w", style=self.view_model.get_sub_variant_label_style(option))
-            label.grid(row=0, column=1, sticky="ew", padx=1, pady=0)
-            widgets.append(label)
-
-            # Bind clicks on the label
-            label.bind("<Enter>", lambda e, f=label: on_enter(e, f))
-            label.bind("<Leave>", lambda e, f=label: on_leave(e, f))
-            label.bind("<Button-1>", lambda e, f=label, all_f=widgets, opt=option: on_click(e, f, all_f, opt))
 
     def update_sub_variant_container(self): #, sub_variants:'SubVariants'):
-        self.clear_sub_variant_container_widgets()
+        # self.clear_sub_variant_container_widgets()
 
-        outer_frame = ttk.Frame(self.view.sub_variants_container, style="Standard.TFrame")
-        outer_frame.grid(row=0, column=0, sticky="nsew", padx=(3, 6))
-        outer_frame.columnconfigure(0, weight=1)
-        outer_frame.rowconfigure(0, weight=0)
-        outer_frame.rowconfigure(1, weight=1)
+        # outer_frame = ttk.Frame(self.view.sub_variants_container, style="Standard.TFrame")
+        # outer_frame.grid(row=0, column=0, sticky="nsew", padx=(3, 6))
+        # outer_frame.columnconfigure(0, weight=1)
+        # outer_frame.rowconfigure(0, weight=0)
+        # outer_frame.rowconfigure(1, weight=1)
 
-        self._add_options(outer_frame)
+        # self._add_options(outer_frame)
 
-        frame = ttk.Frame(outer_frame, style="Standard.TFrame")
-        frame.grid(row=1, column=0, sticky="nsew")
+        # frame = ttk.Frame(outer_frame, style="Standard.TFrame")
+        # frame.grid(row=1, column=0, sticky="nsew")
 
-        # Define column headers
-        headers = [("#", 25), ("Type", 120), ("Actor", 160), ("Value", 120)]
-        for col_idx, (header, width) in enumerate(headers):
-            label = ttk.Label(frame, text=header, anchor="center", relief="raised")
-            label.grid(row=0, column=col_idx, sticky="nsew", padx=0, pady=2)
+        # # Define column headers
+        # headers = [("#", 25), ("Type", 120), ("Actor", 160), ("Value", 120)]
+        # for col_idx, (header, width) in enumerate(headers):
+        #     label = ttk.Label(frame, text=header, anchor="center", relief="raised")
+        #     label.grid(row=0, column=col_idx, sticky="nsew", padx=0, pady=2)
 
-            frame.grid_columnconfigure(col_idx, minsize=width)
+        #     frame.grid_columnconfigure(col_idx, minsize=width)
 
-        frame.columnconfigure(0, weight=0)  # Adjust column weights as needed
-        frame.columnconfigure(1, weight=1)
-        frame.columnconfigure(2, weight=2)
-        frame.columnconfigure(3, weight=1)
-        frame.rowconfigure(0, weight=0)
-        self.view.switch_container = frame
-        
+        # frame.columnconfigure(0, weight=0)  # Adjust column weights as needed
+        # frame.columnconfigure(1, weight=1)
+        # frame.columnconfigure(2, weight=2)
+        # frame.columnconfigure(3, weight=1)
+        # frame.rowconfigure(0, weight=0)
+        # self.view.switch_container = frame
+        self.update_options()
         self.update_switches_container()
         self.view_model.ensure_active_sub_variant()
 
-        frame.update_idletasks()
+        # frame.update_idletasks()
 
 
     def clear_switches_container_widgets(self):
@@ -204,12 +221,12 @@ class VariantEditorEventHandler:
                 widget.destroy()
 
     def update_switches_container(self):#, switches:'Switches'):
+        self.clear_switches_container_widgets()
         switches = self.view_model.get_editing_switches()
         if not switches:
             return
         
         self.context.application.status_message = f"updating switches {len(switches)}"
-        self.clear_switches_container_widgets()
 
         self.grid_rows = []  # To store the row widgets for dynamic updates
 
