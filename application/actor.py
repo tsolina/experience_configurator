@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING
 from application.actor_catia import ActorCatia
 from application.eval_selected import EvalSelected
 import experience as exp
+import tkinter as tk
 
 if TYPE_CHECKING:
     from .actors import Actors
@@ -22,6 +23,27 @@ class Actor:
 
         if cat_object:
             self.evaluated = EvalSelected(self.application, self.cat_object)
+
+        self.name_var = tk.StringVar(value=self._name)
+        self.type_var = tk.StringVar(value=self._type)
+        self.error_message_var = tk.StringVar(value=self._err_message)
+        
+
+        self.name_var.trace_add("write", self._update_name_from_var)
+        self.type_var.trace_add("write", self._update_type_from_var)
+        self.error_message_var.trace_add("write", self._update_error_message_from_var)
+
+    def _update_name_from_var(self, *args):
+        # Synchronize name with name_var
+        self.name = self.name_var.get()
+
+    def _update_type_from_var(self, *args):
+        # Synchronize name with name_var
+        self.type_ = self.type_var.get()
+
+    def _update_error_message_from_var(self, *args):
+        # Synchronize name with name_var
+        self.err_message = self.error_message_var.get()
 
     @property
     def parent(self) -> 'Actors':

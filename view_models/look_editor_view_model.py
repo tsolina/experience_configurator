@@ -72,6 +72,10 @@ class LookEditorViewModel:
         project = self.context.vm_main_window.get_active_project()
         return project.configurations if project else None
     
+    def get_actors(self) -> 'Actors':
+        configuration = self.get_active_configuration()
+        return configuration.actors if configuration else None
+    
     def get_configuration_by_row_id(self, index:int) -> 'Configuration':
         return self.get_configurations()[index]
     
@@ -84,13 +88,16 @@ class LookEditorViewModel:
         return config.name_var if config else None
     
     def update_configurations(self, configurations:'Configurations'):
-        self.context.view_look_editor_event_handler.update_treeview(configurations)
+        self.context.view_look_editor_event_handler.update_treeview() #configurations)
 
     def activate_configuration(self, configuration:'Configuration'):
         self.context.application.active_project.active_configuration = configuration
 
     def update_actors(self, actors:'Actors'):
-        self.context.view_look_editor_event_handler.populate_actors(actors)
+        self.context.view_look_editor_event_handler.populate_actors() # actors)
+
+    def activate_actor(self, actor:'Actor'):
+        self.context.application.active_project.active_configuration.active_actor = actor
 
     def get_actor_from_id(self, id:int):
         config = self.get_active_configuration()
@@ -104,4 +111,22 @@ class LookEditorViewModel:
             return
         
         self.get_active_configuration().actors.add_actor_to_selection(actor)
+
+    def ensure_active_configuration(self):
+        configurations = self.get_configurations()
+        if not configurations:
+            return
+        
+        if not self.selected_configuration:
+            self.selected_configuration = configurations[-1]
+
+        # self.update_actors()
+
+    def ensure_active_actor(self):
+        actors = self.get_actors()
+        if not actors:
+            return
+        
+        if not self.selected_configuration.active_actor:
+            self.selected_configuration.active_actor = actors[-1]
         

@@ -15,7 +15,7 @@ from application.application import Application
 def start(catia_com = None):
     root = tk.Tk()
     root.title("3DExperience Configurator")
-    root.geometry("800x450")
+    root.geometry("1000x450")
     # root.configure(bg="SystemButtonFace")
     root.configure(bg="#C2D5E0")
 
