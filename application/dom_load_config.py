@@ -1,5 +1,5 @@
 from tkinter import filedialog, messagebox
-from typing import Optional, Callable, TYPE_CHECKING
+from typing import List, Optional, Callable, TYPE_CHECKING
 from lxml import etree
 import os
 
@@ -29,26 +29,27 @@ class DomLoadConfig:
     def _file_name(self) -> str:
         return f"cfg_{self.application.active_project.id}.xml"
 
-    def create_switch(self, iVariant: 'Variant', iType: str, iActor: str, iValue: str, iState: str) -> None:
+# self.create_switch(v, sType[0] if sType else "", sActor[0] if sActor else "", sValue[0] if sValue else "", stateValue[0])
+    def create_switch(self, iVariant: 'Variant', iType:str="", iActor:str="", iValue:str="", iState:str="") -> None:
         s: Optional['Switch'] = None
         iVariant.active_sub_variant = iVariant.sub_variants.get_sub_variant(iState)
         if iType == "Look":
             s = iVariant.active_sub_variant.switches.add_look()
-            s.name = iActor
+            s.name_var.set(iActor)
         elif iType == "CodeState":
-            s = iVariant.active_sub_variant.switches.add_style_code()
-            s.name = iActor
+            s = iVariant.active_sub_variant.switches.add_code_style()
+            s.name_var.set(iActor)
             s.actor_collection = [s.name]
         elif iType == "Visibility":
             s = iVariant.active_sub_variant.switches.add_visible()
-            s.name = iActor
+            s.name_var.set(iActor)
             s.actor_collection = [s.name]
         else:
             print(iType)
             s = iVariant.active_sub_variant.switches.add_visible()
             s.actor_collection = [s.name]
 
-        s.active_value = iValue
+        s.active_value_var.set(iValue)
 
     def evaluate_xml(self, is_import: bool) -> None:
         self.XDoc = etree.ElementTree()
@@ -86,51 +87,51 @@ class DomLoadConfig:
                 else:  # User clicked 'OK'
                     self.application.status_message = "Importing variant configuration."
 
-        configs = self.XDoc.xpath("//model/configurator/variant")
+        configs:List[etree.Element] = self.XDoc.xpath("//model/configurator/variant")
         if len(configs) == 0:
             self.application.status_message = "no configurations found"
             return
 
         self.application.flags.no_status_messages = True
-        cnt = []
+        # cnt = []
         nCount = 1
         for config in configs:
-            sName = config.xpath("./name/text()")
-            sActive = config.xpath("./activeState/text()")
+            sName = config.xpath("./name/text()")[0]
+            sActive = config.xpath("./activeState/text()")[0].strip() or ""
 
             v:Variant = None
-            v = self.application.active_project.variants.add(cnt)
-            v.name = sName[0] if sName else ""
+            # v = self.application.active_project.variants.add(cnt)
+            v = self.application.active_project.variants.add(name=sName, active_state=sActive, container=self.application.active_project.variants)
 
             states = config.xpath("./state")
             for state in states:
-                stateValue = state.xpath("./value/text()")
+                stateValue = state.xpath("./value/text()")[0]
                 if not stateValue:
                     continue
-                v.active_state = stateValue[0]
+                v.active_state_var.set(stateValue)
 
                 switches = state.xpath("./switches/switch")
                 for switch in switches:
-                    sType = switch.xpath("./type/text()")
-                    sActor = switch.xpath("./actor/text()")
-                    sValue = switch.xpath("./value/text()")
+                    sType = switch.xpath("./type/text()")[0]
+                    sActor = switch.xpath("./actor/text()")[0]
+                    sValue = switch.xpath("./value/text()")[0]
 
-                    self.create_switch(v, sType[0] if sType else "", sActor[0] if sActor else "", sValue[0] if sValue else "", stateValue[0])
+                    # self.create_switch(v, sType[0] if sType else "", sActor[0] if sActor else "", sValue[0] if sValue else "", stateValue[0])
+                    self.create_switch(v, sType, sActor, sValue, stateValue)
 
-            v.active_state = sActive[0] if sActive else ""
-            v.editing_state = sActive[0] if sActive else ""
+            v.active_state = v.editing_state = sActive
 
             self.application.status_message = f"variants: {nCount} of {len(configs)} loaded: {sName[0]}"
             nCount += 1
 
         self.application.flags.no_status_messages = False
 
-        self.application.active_project.variants.variant_collection = cnt
+        # self.application.active_project.variants = cnt
 
-        def assign_item():
-            self.application.parent.vm_variant_editor.selected_variant = self.application.active_project.variants.variant_collection[0]
+        # def assign_item():
+        #     self.application.context.vm_variant_editor.selected_variant = self.application.active_project.variants[0]
 
-        self.application.sta_thread(assign_item)
+        # self.application.sta_thread(assign_item)
 
         if is_import:
             self.application.status_message = f"look configuration imported: {self._filePath}"
@@ -185,7 +186,7 @@ class DomLoadConfig:
         return file_path
 
     def clean_variant(self) -> 'DomLoadConfig':
-        self.application.project_ready(lambda p: p.variant_ready(lambda v: v.switches.switch_collection.clear() or p.variants.variant_collection.clear()))
+        self.application.project_ready(lambda p: p.variant_ready(lambda v: v.switches.clear() or p.variants.clear()))
         return self
 
     def import_config(self) -> 'DomLoadConfig':

@@ -9,12 +9,12 @@ if TYPE_CHECKING:
     from application.variants import Variants
 
 class Variant():
-    def __init__(self, parent: 'Variants', id:str="", name:str=""):
+    def __init__(self, parent: 'Variants', id:str="", name:str="", active_state:str=""):
         self._parent = parent
         self.application = parent.application
         self._uID = self.application.guid
         
-        self._active_state = Tristate.UnknownState
+        self._active_state = active_state or Tristate.UnknownState
         self._name = name or self.__class__.__name__
         self._rttUID = ""
         self._id = id

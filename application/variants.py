@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Callable, List, Optional
+from typing import TYPE_CHECKING, Callable, List, Optional, overload
 from application.observable_list import ObservableList
 from application.tristate import Tristate
 
@@ -55,21 +55,55 @@ class Variants(ObservableList['Variant']):
         self.application.sta_thread(add_variant)        
         return new_variant
 
+    # def add(self) -> 'Variant':
+    #     new_variant = self.add_empty_variant()
+
+    #     self.application.status_message = f"{new_variant.name} added"
+    #     return new_variant
+
+    # def add_to_container(self, container: list['Variant']) -> 'Variant':
+    #     from application.variant import Variant
+
+    #     id = len(container) + 1
+    #     new_variant = Variant(self, id=id, name=f"variant.{id}")
+    #     # new_variant.editing_state = new_variant.active_state
+
+    #     container.append(new_variant)
+    #     return new_variant
+
+    @overload
     def add(self) -> 'Variant':
-        new_variant = self.add_empty_variant()
+        ...
 
-        self.application.status_message = f"{new_variant.name} added"
-        return new_variant
+    @overload
+    def add(self, name:str, active_state:str, container: list['Variant']) -> 'Variant':
+        ...
 
-    def add_to_container(self, container: list['Variant']) -> 'Variant':
-        from application.variant import Variant
+    def add(self, name:str="", active_state:str="", container: Optional[list['Variant']] = None) -> 'Variant':
+        """
+        Adds a new variant to the application or a specified container.
 
-        id = len(container) + 1
-        new_variant = Variant(self, id=id, name=f"variant.{id}")
-        # new_variant.editing_state = new_variant.active_state
+        Args:
+            container (Optional[list[Variant]]): The collection to add the variant to. If None, the variant
+                                                 is added to the default application workflow.
 
-        container.append(new_variant)
-        return new_variant
+        Returns:
+            Variant: The created and added variant.
+        """
+        if container is None:
+            # Default add behavior
+            variant = self.add_empty_variant()
+
+            self.application.status_message = f"{variant.name} added"
+            return variant
+        else:
+            id = id=len(container)+1
+
+            from application.variant import Variant
+            variant = Variant(self, id=id, name=name or f"variant.{id}", active_state=active_state)
+
+            container.append(variant)
+            return variant
 
     def clone(self) -> 'Variants':
         def clone_variant(v: 'Variant'):

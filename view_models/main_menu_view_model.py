@@ -60,8 +60,15 @@ class MainMenuViewModel:
 
         self.context.application.ready(save_config)
 
-    # Private Sub Mnu_LookEditor_Save(sender As Object, e As MouseButtonEventArgs)
-    #     App.Model.Ready(Sub()
-    #                         App.XML.SaveLook.Save()
-    #                     End Sub)
-    # End Sub
+
+    def variant_editor_save(self):
+        def save_config():
+            self.context.application.xml.save_config.save()
+
+        self.context.application.ready(save_config)
+
+    def variant_editor_load(self):
+        def load_config():
+            self.context.application.xml.load_config.load()
+
+        self.context.application.ready(load_config)
