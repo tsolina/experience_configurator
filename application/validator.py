@@ -52,6 +52,7 @@ class Validator():
         for variant in self.application.active_project.variants:
             # Uncomment the next line to debug output in Python if necessary:
             # print(f"{variant.name}_{variant.active_state}")
+            print(__name__, "current state", variant.name, f">{variant.active_state}<")
             variant.desired_state = variant.active_state
 
         # Reset target overrides for LookActors
@@ -86,7 +87,7 @@ class Validator():
             # Uncomment the next line for debugging output in Python if needed:
             # print(f"states0: {variant.name} -> {variant.active_state} -> {variant.desired_state}")
             if variant.desired_state != variant.active_state:
-                variant.active_state = variant.desired_state
+                variant.active_state_var.set(variant.desired_state)
             # Uncomment the next line for debugging output in Python:
             # print(f"states1: {variant.name} -> {variant.active_state} -> {variant.desired_state}")
 
@@ -176,53 +177,6 @@ class Validator():
         return _result
     
 
-    # def deactivate_different(self, i_variant: 'Variant') -> 'Validator':
-    #     flat_ref = FlatVariant(i_variant, i_variant.desired_state)
-
-    #     def process_flat_ref(context:'FlatVariant'):
-    #         def process_variant(v: 'Variant'):
-    #             if v == i_variant or v.desired_state == Tristate.UnknownState:
-    #                 return
-
-    #             flat_trg_on = FlatVariant(v, Tristate.OnState)
-    #             flat_trg_off = FlatVariant(v, Tristate.OffState)
-
-    #             def handle_on_state():
-    #                 def process_on_state(ctx:'FlatVariant'):
-    #                     if self.is_state_different(flat_ref, flat_trg_on):
-    #                         def process_off_state(ctx:'FlatVariant'):
-    #                             if self.is_state_different(flat_ref, flat_trg_off):
-    #                                 v.desired_state = Tristate.UnknownState
-    #                             else:
-    #                                 v.desired_state = Tristate.OffState
-
-    #                         flat_trg_off.ready(process_off_state, lambda: setattr(v, "desired_state", Tristate.OffState))
-
-    #                 flat_trg_on.ready(process_on_state, lambda: flat_trg_off.ready(
-    #                     lambda: setattr(v, "desired_state", Tristate.OffState) if not self.is_state_different(flat_ref, flat_trg_off)
-    #                     else setattr(v, "desired_state", Tristate.UnknownState),
-    #                     lambda: setattr(v, "desired_state", Tristate.UnknownState)
-    #                 ))
-
-    #             def handle_off_state():
-    #                 if not v.desired_switches:
-    #                     return
-
-    #                 def process_off_state():
-    #                     if self.is_state_different(flat_ref, flat_trg_off):
-    #                         v.desired_state = Tristate.UnknownState
-
-    #                 flat_trg_off.ready(process_off_state, lambda: setattr(v, "desired_state", Tristate.UnknownState))
-
-    #             if v.desired_state == Tristate.OnState:
-    #                 handle_on_state()
-    #             elif v.desired_state == Tristate.OffState:
-    #                 handle_off_state()
-
-    #         i_variant.parent.for_each(process_variant)
-
-    #     flat_ref.ready(process_flat_ref)
-    #     return self
     def deactivate_different(self, i_variant: 'Variant') -> 'Validator':
         flat_ref = FlatVariant(i_variant, i_variant.desired_state)
 

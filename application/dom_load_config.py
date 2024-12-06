@@ -41,6 +41,7 @@ class DomLoadConfig:
             s.name_var.set(iActor)
             s.actor_collection = [s.name]
         elif iType == "Visibility":
+            print(__name__, "create switch", iActor, iValue, iState)
             s = iVariant.active_sub_variant.switches.add_visible()
             s.name_var.set(iActor)
             s.actor_collection = [s.name]
@@ -97,7 +98,7 @@ class DomLoadConfig:
         nCount = 1
         for config in configs:
             sName = config.xpath("./name/text()")[0]
-            sActive = config.xpath("./activeState/text()")[0].strip() or ""
+            sActive = config.xpath("./activeState/text()")[0] #.strip() or ""
 
             v:Variant = None
             # v = self.application.active_project.variants.add(cnt)

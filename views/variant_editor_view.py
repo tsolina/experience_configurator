@@ -48,11 +48,6 @@ class VariantEditorView():
         self.variants_container = ttk.Frame(self.variant_editor_frame, style="Standard.TFrame")
         self.variants_container.grid(row=1, column=0, sticky="nsew")
 
-        # Sample data rows from view model
-        # variants = self.view_model.get_variants()
-        # self.event_handler.update_variant_container(variants)
-        # return
-
         self.variants_container.columnconfigure(0, weight=1)
         frame = ttk.Frame(self.variants_container, style="Standard.TFrame")
         frame.grid(row=1, column=0, sticky="nsew", padx=(6, 3))
@@ -123,8 +118,7 @@ class VariantEditorView():
         self.bind_variant_name_var()
 
 
-    def on_option_selected(self, selected_option:str):
-        print(__name__, "on_option_selected", selected_option)
+    def on_option_selected(self, selected_option:str, var:tk.StringVar):
         self.view_model.on_sub_variant_selected(selected_option)
 
     def _add_options(self, frame: ttk.Frame):
@@ -144,7 +138,6 @@ class VariantEditorView():
             widget.configure(style="Selected.Option.TLabel")
             self.view_model.activate_editing_sub_variant(option)
 
-        # shared_option = self.context.vm_variant_editor.get_active_state_var()
         shared_option = self.context.vm_variant_editor.get_active_state_var() or tk.StringVar(value="")
 
         options_frame = ttk.Frame(frame, style="Standard.TFrame")
@@ -163,14 +156,14 @@ class VariantEditorView():
             container.columnconfigure(1, weight=1)  # Make the label stretch
 
             # Add the radiobutton
-            var = tk.StringVar(value=shared_option.get())
+            # var = tk.StringVar(value=shared_option.get())
             rb = ttk.Radiobutton(
                 container,
                 text="",
                 value=option,
-                variable=var,
+                variable=shared_option,
                 style="Standard.TRadiobutton",
-                command=lambda opt=option: self.on_option_selected(opt)
+                command=lambda opt=option: self.on_option_selected(opt, shared_option)
             )
             rb.grid(row=0, column=0, padx=0)  # Circle only
 
@@ -186,7 +179,7 @@ class VariantEditorView():
             self.option_widgets[option] = {
                 "radiobutton": rb,
                 "label": label,
-                "var": var     
+                "var": shared_option     
             }
 
     def add_variant_grid(self):

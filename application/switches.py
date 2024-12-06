@@ -48,6 +48,7 @@ class Switches(ObservableList['Switch']):
                 
 
                 def evaluate_item(item:exp.SelectedElement):
+                    print(__name__, "add_visible.evaluate_item", item)
                     nonlocal new_switch
                     new_switch = Switch(self, id=len(self)+1, type_=VariantType.Visibility, name=item.value(exp.AnyObject).name(), selected_item=item)
                     self.append(new_switch)
@@ -61,7 +62,18 @@ class Switches(ObservableList['Switch']):
                     if not self.application.flags:
                         self.application.status_message = "New visibility switch added"
 
-                sel.for_each(lambda item:evaluate_item(item))
+                if sel.count():
+                    sel.for_each(lambda item:evaluate_item(item))
+                else:
+                    nonlocal new_switch
+                    if not new_switch:
+                        new_switch = Switch(self, id=len(self)+1, type_=VariantType.Visibility)
+                        self.append(new_switch)
+
+                    self.parent.active_switch = new_switch
+                    
+                    if not self.application.flags:
+                        self.application.status_message = "New visibility switch added"
 
             self.application.selection_simple(on_selection)
 

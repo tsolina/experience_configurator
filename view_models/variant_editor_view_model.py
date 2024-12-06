@@ -207,27 +207,14 @@ class VariantEditorViewModel:
         if not sub_variants:
             return
         
-        print(self.__class__.__name__, "on_sub_variant", name)
+        # print(__name__, "on_sub_variant", name)
         
         sub_variant = sub_variants.get_sub_variant(name)
         variant = self.get_active_variant()
+        # print(__name__, "on_sub_variant_selected", variant.active_sub_variant.name, sub_variant.name)
         if variant.active_sub_variant == sub_variant:
             return
         
-        variant.active_sub_variant = sub_variant
+        variant.active_state_var.set(name)# = name
 
         self.context.application.validator.validate(variant)
-    # Private Sub LB_SubVariantSelected(sender As Object, e As RoutedEventArgs)
-    #     Dim rb As RadioButton = sender
-    #     Dim wp As WrapPanel = rb.Content
-    #     Dim tb As TextBlock = wp.Children.Item(0)
-    #     If tb.Text = vbNullString Then Exit Sub
-
-    #     Dim v As CVariant = App.Model.ActiveProject.ActiveVariant
-    #     Dim sv As CSubVariant = v.SubVariants.GetSubVariant(tb.Text)
-    #     If v.ActiveSubVariant = sv Then Exit Sub
-    #     v.ActiveSubVariant = sv
-
-    #     'Debug.Print("variantSelected:" & v.Name)
-    #     App.Validator.Validate(v)
-    # End Sub

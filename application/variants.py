@@ -164,15 +164,45 @@ class Variants(ObservableList['Variant']):
             callback(variant)
         return self
 
-    def get_variant(self, name: str) -> Optional['Variant']:
-        return next((variant for variant in self if variant.name == name), None)
+    # def get_variant(self, name: str) -> Optional['Variant']:
+    #     return next((variant for variant in self if variant.name == name), None)
 
-    def get_variant_with_callback(self, name: str, callback: Callable[['Variant'], None]):
+    # def get_variant_with_callback(self, name: str, callback: Callable[['Variant'], None]):
+    #     variant = self.get_variant(name)
+    #     if variant is None:
+    #         self.application.error_message = f"Variant {name} not found"
+    #     else:
+    #         callback(variant)
+
+    @overload
+    def get_variant(self, name:str) -> Optional['Variant']:
+        ...
+
+    @overload
+    def get_variant(self, name:str, callback:Callable[['Variant'], None]):
+        ...
+
+    def get_variant(self, name:str, callback:Callable[['Variant'], None]=None) -> Optional['Variant']:
+        if callback is None:
+            return next((variant for variant in self if variant.name == name), None)
+        
         variant = self.get_variant(name)
-        if variant is None:
-            self.application.error_message = f"Variant {name} not found"
-        else:
+        if variant:
             callback(variant)
+        else:
+            self.application.error_message = f"Variant {name} not found"
 
-    # def __del__(self):
-    #     self.clear()
+
+    # Public Function GetVariant(iName As String) As CVariant
+    #     Return Me.VariantCollection.ToList.Find(Function(s) iName = s.Name)
+    # End Function
+    # Public Sub GetVariant(iName As String, cb As Action(Of CVariant))
+    #     Dim v As CVariant = Me.VariantCollection.ToList.Find(Function(s) iName = s.Name)
+    #     If v Is Nothing Then
+    #         App.ErrorMessage = "variant " & iName & " not found"
+    #     Else
+    #         cb.Invoke(v)
+    #     End If
+    # End Sub
+
+

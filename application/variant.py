@@ -39,9 +39,14 @@ class Variant():
         self.name = self.name_var.get()
 
     def _update_active_state_from_var(self, *args):
-        # print(self.__class__.__name__, "update_active_state_var", self.active_state_var.get())
+        # print(__name__, "update_active_state_var 0", self.active_state_var.get())
         self.property_true_value_selection = True
-        self.active_state = self.active_state_var.get()
+        new_value = self.active_state_var.get()
+        # print(__name__, "update_active_state_var 1", self._active_state, new_value)
+        if self._active_state != new_value:
+            self.active_state = new_value
+        # self.active_state = self.active_state_var.get()
+            self.application.context.view_variant_editor_event_handler.update_sub_variant_container()
 
     def _update_editing_state_from_var(self, *args):
         self.editing_state = self.editing_state_var.get()
@@ -112,7 +117,7 @@ class Variant():
         # if self.editing_sub_variant is None and not value is None:
         #     self.editing_sub_variant = value
 
-        self.application.context.view_variant_editor_event_handler.update_sub_variant_container()#self.sub_variants)
+        # self.application.context.view_variant_editor_event_handler.update_sub_variant_container()#self.sub_variants)
 
     @property
     def editing_sub_variant(self) -> 'SubVariant':
@@ -137,6 +142,7 @@ class Variant():
 
     @property
     def desired_switches(self):
+        # print(__name__, "desired_state", self.name, f">{self.desired_state}<")
         return self._sub_variants.get_sub_variant(self._desired_state).switches
 
     @desired_switches.setter
@@ -149,12 +155,15 @@ class Variant():
 
     @active_state.setter
     def active_state(self, value:str):
+        # print(__name__, "setting active state", self.name, value)
         if self._active_state != value:
             self._active_state = value
             # print(self.__class__.__name__, "active_state changed", value)
             # self.sub_variants.active_sub_variant = self.sub_variants.get_sub_variant(value)
             self.active_sub_variant = self.sub_variants.get_sub_variant(value)
-            print(self.__class__.__name__, "active_state", value)
+            # print(__name__, "active_state", value)
+            # if self.active_sub_variant.name == Tristate.OnState:
+            self.application.validator.validate(self)
 
     @property
     def desired_state(self):
