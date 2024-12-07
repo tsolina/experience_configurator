@@ -41,7 +41,7 @@ class DomLoadConfig:
             s.name_var.set(iActor)
             s.actor_collection = [s.name]
         elif iType == "Visibility":
-            print(__name__, "create switch", iActor, iValue, iState)
+            # print(__name__, "create switch", iActor, iValue, iState)
             s = iVariant.active_sub_variant.switches.add_visible()
             s.name_var.set(iActor)
             s.actor_collection = [s.name]
@@ -176,6 +176,14 @@ class DomLoadConfig:
             return self
 
         self.evaluate_xml(False)
+        
+        def print_active_states():
+            def print_info(variant:'Variant'):
+                # print(__name__, "variant_info", variant, variant.name, variant.active_state, variant.editing_state)
+                variant.active_state_var.set(variant.active_state)
+
+            self.application.active_project.variants.for_each(print_info)
+        print_active_states()
         return self
     
     def open_dialog(self) -> str:

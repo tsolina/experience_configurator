@@ -143,7 +143,7 @@ class Switch:
 
     @property
     def search_list(self) -> List['exp.SelectedElement']:
-        if self._search_list is None:
+        if not self._search_list:
             self.application.selection(lambda sel: self._initialize_search_list(sel))
         return self._search_list
 

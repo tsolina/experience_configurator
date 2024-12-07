@@ -1,4 +1,4 @@
-from typing import Callable, Optional, overload, TYPE_CHECKING, Protocol
+from typing import Callable, List, Optional, overload, TYPE_CHECKING, Protocol
 from types import MethodType
 from application.util import Util
 import experience as exp
@@ -91,6 +91,13 @@ if not hasattr(exp, "_extensions_applied"):
         exp.Selection.search_sel = search_sel
         exp.Selection.search_sel.__annotations__ = {'self': exp.Selection, 'search_string':str}
 
+        def to_list(self:exp.Selection) -> List[exp.SelectedElement]:
+            result:List[exp.SelectedElement] = []
+
+            self.for_each(lambda item: result.append(item))
+            return result
+        exp.Selection.to_list = to_list
+        exp.Selection.to_list.__annotations__ = {'self': exp.Selection}
 
     if hasattr(exp, 'HybridBodies'):
         # Overload for the method with no callbacks
