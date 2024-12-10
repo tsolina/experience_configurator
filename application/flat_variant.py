@@ -69,16 +69,19 @@ class FlatVariant:
 
             if switch.type_ == VariantType.CodeState:
                 sub_variant = variant.parent.get_variant(switch.name)
+
                 if not sub_variant:
                     self.flatten_ok = False
                     return
 
-                if state and sub_variant.desired_state == state:
+                if state is not None:
                     self.flatten_variant(sub_variant, switch.active_value)
-                elif not state:
-                    self.flatten_variant(sub_variant)
                 else:
-                    self.flatten_ok = False
+                    if sub_variant.desired_state == switch.active_value:
+                        self.flatten_variant(sub_variant)
+                    else:
+                        self.flatten_ok = False
+                        return
             else:
                 if switch.name in self._flat_variant:
                     if self._flat_variant[switch.name] != switch.active_value:
@@ -88,7 +91,6 @@ class FlatVariant:
                     self._flat_variant[switch.name] = switch.active_value
 
         if state:
-            # variant.sub_variants.get_sub_variant(state, lambda sv: [process_switch(s) for s in sv.desired_switches])
             variant.sub_variants.get_sub_variant(state, lambda sv: [process_switch(s) for s in sv.switches])
         else:
             for switch in variant.desired_switches:

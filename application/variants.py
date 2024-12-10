@@ -191,6 +191,7 @@ class Variants(ObservableList['Variant']):
             callback(variant)
         else:
             self.application.error_message = f"Variant {name} not found"
+            print(__name__, "get_variant", f"Variant {name} not found")
 
 
     # Public Function GetVariant(iName As String) As CVariant

@@ -108,6 +108,8 @@ class Validator():
     
     def activate_visible(self, i_variant: 'Variant', i_state: str, i_old: Optional[int] = None) -> 'Validator':
         def process_switch(s: 'Switch'):
+            print(__name__, "activate_visible.process_switch", s.name, s.type_)
+
             # Handle Visibility Type
             if s.type_ == VariantType.Visibility:
                 # print(__name__, "processing visibility", s.name, s.active_value, s.search_list)
@@ -132,18 +134,23 @@ class Validator():
 
             # Handle CodeState Type
             elif s.type_ == VariantType.CodeState:
+                print(__name__, "processing codestate switch", s.name, s.active_value)
                 i_variant.parent.get_variant(
                     s.name, 
-                    lambda v: self._process_code_state(v, s.active_value)
+                    lambda v: _process_code_state(v, s.active_value)
                 )
+        
+        def _process_code_state(variant: 'Variant', active_value: str):
+            self.activate_visible(variant, active_value)
+            variant.desired_state = active_value
         
         # Process all switches for the given subvariant
         i_variant.sub_variants.get_sub_variant(i_state).switches.for_each(process_switch)
         return self
 
-    def _process_code_state(self, variant: 'Variant', active_value: str):
-        self.activate_visible(variant, active_value)
-        variant.desired_state = active_value
+    # def _process_code_state(self, variant: 'Variant', active_value: str):
+    #     self.activate_visible(variant, active_value)
+    #     variant.desired_state = active_value
 
     def activate_look(self, i_variant: 'Variant', i_state: str) -> 'Validator':
         def process_subvariant(sv: 'SubVariant'):
@@ -337,16 +344,20 @@ class Validator():
     
     def _validate(self, item: Union['Variant', 'Switch']) -> 'Validator':
         def _validate_variant(i_variant: 'Variant') -> 'Validator':
+            # print(__name__, "validate.is_unknown", i_variant.name, f">{i_variant.desired_state}<")
             if i_variant.desired_state == Tristate.UnknownState:
                 return self
-
+            # print(__name__, "validate.deactivate_different", i_variant.name)
             self.deactivate_different(i_variant)
+            # print(__name__, "validate.activate_same", i_variant.name)
             self.activate_same(i_variant).deactivate_parents(i_variant)
+            # print(__name__, "validate.activate_visible and look", i_variant.name)
             self.activate_visible(i_variant, i_variant.desired_state).activate_look(i_variant, i_variant.desired_state)
             
             return self
         
         def _validate_switch(i_switch: 'Switch') -> 'Validator':
+            print(__name__, "_validate._validate_switch", i_switch.name, i_switch.type_)
             if not i_switch.name.strip() or not i_switch.active_value.strip():
                 return self
             
@@ -380,10 +391,10 @@ class Validator():
         
 
     def perform_visibility_actions(self) -> 'Validator':
-        if self._to_show:
-            print(__name__, "perform visibility", "show", self._to_show_list, self._to_show)
-        if self._to_hide:
-            print(__name__, "perform visibility", "hide", self._to_hide_list, self._to_hide)
+        # if self._to_show:
+        #     print(__name__, "perform visibility", "show", self._to_show_list, self._to_show)
+        # if self._to_hide:
+        #     print(__name__, "perform visibility", "hide", self._to_hide_list, self._to_hide)
         def _handle_visibility(sel:exp.Selection):
         # def _handle_visibility(sel:SelectionEx):
             if self._to_hide_list:
@@ -474,6 +485,7 @@ class Validator():
 
         self._init_validation()
 
+        # print(__name__, "validate.is_instance", item.parent.name, item.name, type(item))
         if isinstance(item, Variant):
             ref_flat = FlatVariant(item, item.active_state)
             
@@ -482,10 +494,12 @@ class Validator():
             
             def on_invalid():
                 item.active_state = Tristate.UnknownState
+                # print(__name__, "validate.is_instance", f"Variant {item.name} invalid")
                 self.application.status_message = f"Variant {item.name} invalid"
             
             ref_flat.ready(on_ready, on_invalid)
         else:
+            # print(__name__, "validate.is_instance.switch", item.name)
             self._validate(item)
 
         self.apply_overrides()
