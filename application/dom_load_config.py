@@ -103,6 +103,7 @@ class DomLoadConfig:
             v:Variant = None
             # v = self.application.active_project.variants.add(cnt)
             v = self.application.active_project.variants.add(name=sName, active_state=sActive, container=self.application.active_project.variants)
+            v.load_state = sActive
 
             states = config.xpath("./state")
             for state in states:
@@ -180,7 +181,7 @@ class DomLoadConfig:
         def print_active_states():
             def print_info(variant:'Variant'):
                 # print(__name__, "variant_info", variant, variant.name, variant.active_state, variant.editing_state)
-                variant.active_state_var.set(variant.active_state)
+                variant.active_state_var.set(variant.load_state)
 
             self.application.active_project.variants.for_each(print_info)
         print_active_states()

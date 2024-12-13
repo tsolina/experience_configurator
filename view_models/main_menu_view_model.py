@@ -69,6 +69,8 @@ class MainMenuViewModel:
 
     def variant_editor_load(self):
         def load_config():
+            self.context.application.is_loading = True
             self.context.application.xml.load_config.load()
+            self.context.application.is_loading = False
 
         self.context.application.ready(load_config)

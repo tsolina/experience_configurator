@@ -46,6 +46,11 @@ class Switch:
 
     def _update_active_value_from_var(self, *args):
         self.active_value = self.active_value_var.get()
+        # print(__name__, "update_active_value_from_var", self.name, self.active_value)
+        # self.application.validator.validate(self.parent.parent.parent.parent)
+        self.property_true_value_selection = True
+        self.application.validator.validate(self)
+        self.property_true_value_selection = False
 
     @property
     def parent(self):

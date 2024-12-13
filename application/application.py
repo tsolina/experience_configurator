@@ -53,6 +53,7 @@ class Application():
         self.xml = XML(self)
         self._projects = Projects(self)
         self._active_project_observers:List[Callable[['Project'], None]] = []
+        self.is_loading = False
 
     @property
     def active_project(self) -> 'Project':

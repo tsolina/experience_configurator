@@ -26,6 +26,7 @@ class Variant():
         self._desired_state = Tristate.UnknownState
         self._editing_state = self._active_state # Tristate.UnknownState
         self.property_true_value_selection = False
+        self.load_state = False
 
         self.name_var = tk.StringVar(value=self._name)
         self.active_state_var = tk.StringVar(value=self._active_state)

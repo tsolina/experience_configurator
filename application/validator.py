@@ -357,7 +357,7 @@ class Validator():
             return self
         
         def _validate_switch(i_switch: 'Switch') -> 'Validator':
-            print(__name__, "_validate._validate_switch", i_switch.name, i_switch.type_)
+            # print(__name__, "_validate._validate_switch", i_switch.name, i_switch.type_)
             if not i_switch.name.strip() or not i_switch.active_value.strip():
                 return self
             
@@ -366,10 +366,14 @@ class Validator():
 
             if i_switch.type_ == VariantType.Visibility:
                 if i_switch.active_value == Tristate.OnState:
-                    self._to_show.append(f"Name='{i_switch.name}'")
-                    print(__name__, "_validate_switch", "to_show", f"Name='{i_switch.name}'")
+                    # self._to_show.append(f"Name='{i_switch.name}'")
+                    # print(__name__, "_validate_switch", "to_show", f"Name='{i_switch.name}'", "items:", i_switch.search_list)
+                    for sel_item in i_switch.search_list:
+                        self._to_show_list.append(sel_item)
                 else:
-                    self._to_hide.append(f"Name='{i_switch.name}'")
+                    # self._to_hide.append(f"Name='{i_switch.name}'")
+                    for sel_item in i_switch.search_list:
+                        self._to_hide_list.append(sel_item)
             elif i_switch.type_ == VariantType.CodeState:
                 i_switch.parent_variant().parent.get_variant(i_switch.name, lambda v: _validate_variant(v))
             elif i_switch.type_ == VariantType.Look:
@@ -407,6 +411,7 @@ class Validator():
                 sel.clear()
                 for item in self._to_show_list:
                     sel.add(item.value())
+                # print(__name__, "perform_visibility_actions.show.items.count", sel.count())
                 sel.show().clear()
 
         self.application.selection_simple(_handle_visibility)
