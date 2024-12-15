@@ -16,14 +16,8 @@ from view_models.variant_editor_view_model import VariantEditorViewModel
 from views.sta_dispatcher import StaDispatcher
 
 class MainWindowViewModel:
-    BASE_TITLE = "3DExperience Configurator"
-
-    # def __init__(self, view_root:tk.Tk, model: 'MainWindowModel', catia_com = None):
     def __init__(self, view_root:tk.Tk, context:ApplicationContext):#, catia_com = None):
         self.context = context
-        # self.application = Application(self, catia_com)
-        # self.context.application = self.application
-        # self.application.context = context
         self.application = self.context.application
         self.application.parent = self
         self.context.vm_main_window = self
@@ -34,37 +28,13 @@ class MainWindowViewModel:
         self.dispatcher: StaDispatcher = None
         self.task_executor: TaskExecutor = TaskExecutor()
         self.task_list = []
-        self._title = self.BASE_TITLE
-        self._title_observers = []
 
-        self._status_message = tk.StringVar()
-        self.status_reset()
+        self.title_var = self.context.services.status.title_var
+        self.title_var.trace_add("write", self._update_title_from_var)
 
-    @property
-    def status_message(self):
-        return self._status_message
     
-    def status_update(self, message:str):
-        self._status_message.set(message)
-
-    def status_reset(self):
-        self._status_message.set("Ready")
-
-    @property
-    def title(self) -> str:
-        return self._title
-    
-    @title.setter
-    def title(self, value: str):
-        new_title = f"{self.BASE_TITLE} {value}"
-        # print(self.__class__.__name__, "title:", new_title)
-        if self._title != new_title:
-            self._title = new_title
-            for callback in self._title_observers:
-                callback(new_title)
-
-    def add_title_observer(self, callback:Callable[[str], None]):
-        self._title_observers.append(callback)
+    def _update_title_from_var(self, *args):
+        self.view_root.title(self.title_var.get())
 
     def sta_thread(self, callback:Callable):
         # time.sleep(2)
@@ -90,15 +60,6 @@ class MainWindowViewModel:
         for future in as_completed(futures):
             future.result()  # This will block until the task is complete
 
-    # def get_active_project(self) -> 'Project':
-    #     project = self.application.active_project
-    #     if not project:
-    #         after(self.context.loaded):
-    #             self.application.projects.activate()
-    #             project = self.application.active_project
-    #         # print(self.__class__.__name__, "get_active_project", project)
-    #     return project
-    
     def get_active_project(self) -> 'Project':
         project = self.application.active_project
 

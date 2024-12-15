@@ -42,8 +42,8 @@ class MainMenuView():
 
         look_editor = tk.Menu(self.menubar, tearoff=0)
         look_editor.add_command(label='Activate', command=self.view_model.look_editor_activate)
-        look_editor.add_command(label='Apply Looks')
-        look_editor.add_command(label='Look on selection')
+        look_editor.add_command(label='Apply Looks', command=self.view_model.look_editor_apply_looks)
+        look_editor.add_command(label='Look on selection', command=self.view_model.look_editor_look_on_selection)
         look_editor.add_separator()
         look_editor.add_command(label='Save', command=self.view_model.look_editor_save)
         look_editor.add_command(label='Load')
@@ -59,7 +59,7 @@ class MainMenuView():
 
         variant_editor = tk.Menu(self.menubar, tearoff=0)
         variant_editor.add_command(label='Activate', command=self.view_model.variant_editor_activate)
-        variant_editor.add_command(label='Apply Variant')
+        variant_editor.add_command(label='Apply Variant', command=self.view_model.variant_editor_apply_variant)
         variant_editor.add_separator()
         variant_editor.add_command(label='Save', command=self.view_model.variant_editor_save)
         variant_editor.add_command(label='Load', command=self.view_model.variant_editor_load)
@@ -72,6 +72,7 @@ class MainMenuView():
         windows_menu = tk.Menu(self.menubar, tearoff=0)
         sub_windows_menu = tk.Menu(file_menu, tearoff=0)
         windows_menu.add_command(label='Activate', command=lambda: self.view_model.windows_activate(sub_windows_menu))
+        self.view_model.windows_activate(sub_windows_menu)
         
         windows_menu.add_cascade(label='Projects', menu=sub_windows_menu)
 

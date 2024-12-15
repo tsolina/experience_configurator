@@ -19,8 +19,18 @@ class MainMenuViewModel:
     def look_editor_activate(self):
         self.context.view_main_window.toggle_editors("look_editor")
 
+    def look_editor_apply_looks(self):
+        self.context.application.apply_looks()
+
+    def look_editor_look_on_selection(self):
+        self.context.application.get_applied_material()
+
     def variant_editor_activate(self):
         self.context.view_main_window.toggle_editors("variant_editor")
+
+    def variant_editor_apply_variant(self):
+        self.context.application.apply_variant()
+
         
     def change_default_saving_location(self):
         app = self.root_model.application
@@ -31,28 +41,20 @@ class MainMenuViewModel:
         )
 
         if selected_path:
-            self.root_model.status_update(f"folder {selected_path} selected")
+            self.context.services.status.status_update(f"folder {selected_path} selected")
             app.registry.base_path = selected_path
         else:
-            self.root_model.status_update(f"folder selection failed")
+            self.context.services.status.status_update(f"folder selection failed")
+
 
     def windows_activate(self, sub_windows_menu:tk.Menu):
-        print("windows activated")
+        sub_windows_menu.delete(0, tk.END)
 
-        def activate_window(window:exp.Window):
-            window.activate()
-            # print(self.__class__.__name__, window.name(), "activated")
-            self.root_model.application.projects.activate()
+        def for_each_window(window:exp.Window, activate_window:Callable[['exp.Window'], None]):        
+            sub_windows_menu.add_command(label=window.name(), command=lambda w=window: activate_window(w))
+            
+        self.context.application.process_project_windows(for_each_window)
 
-        def catia_ready():
-            sub_windows_menu.delete(0, tk.END)
-            for window in self.root_model.application.catia.windows():
-                if window.com_type() == "SpecsAndGeomWindow":
-                    if not window.name().startswith("VIZ_LOOK_LIBRARY"):
-                        sub_windows_menu.add_command(label=window.name(), command=lambda w=window: activate_window(w))
-
-
-        self.root_model.application.catia_ready(catia_ready)
 
     def look_editor_save(self):
         def save_config():

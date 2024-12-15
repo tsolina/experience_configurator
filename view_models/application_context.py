@@ -1,5 +1,7 @@
 from typing import TYPE_CHECKING
 
+from services.services import Services
+
 
 
 if TYPE_CHECKING:
@@ -17,7 +19,7 @@ if TYPE_CHECKING:
 
 
 class ApplicationContext:
-    def __init__(self):
+    def __init__(self, catia_com):
         self.vm_main_window:'MainWindowViewModel' = None
         self.vm_look_editor:'LookEditorViewModel' = None
         self.vm_variant_editor:'VariantEditorViewModel' = None
@@ -32,6 +34,8 @@ class ApplicationContext:
 
         self.application:'Application' = None
         self.loaded:bool = False
+
+        self.services = Services(self.application, catia_com=catia_com)
 
     def __getattribute__(self, name):
         value = super().__getattribute__(name)

@@ -12,7 +12,7 @@ from application.projects import Projects
 from application.registry_config import RegistryConfig
 from application.util import Util
 from application.validator import Validator
-import application.experience_extensions # to load once all extensions
+# import application.experience_extensions # to load once all extensions
 from application.xml import XML
 import experience as exp
 
@@ -21,6 +21,7 @@ import experience as exp
 if TYPE_CHECKING:
     from view_models.main_window_view_model import MainWindowViewModel
     from view_models.application_context import ApplicationContext
+    from application.get_applied_material import GetAppliedMaterial
 
 class Flags:
     def __init__(self):
@@ -101,22 +102,27 @@ class Application():
 
     @property
     def status_message(self) -> str:
-        return self.parent.status_message
+        # return self.parent.status_message
+        return self.context.services.status.status_message
 
     @status_message.setter
     def status_message(self, value: str):
-        self.parent.status_update(value)
+        # self.parent.status_update(value)
+        self.context.services.status.status_update(value)
 
     @property
     def error_message(self) -> None:
-        return self.parent.status_message
+        # return self.parent.status_message
+        return self.context.services.status.status_message
 
     @error_message.setter
     def error_message(self, value:str = ""):
         if value.startswith("Error:"):
-            self.parent.status_update(value)
+            # self.parent.status_update(value)
+            self.context.services.status.status_update(value)
         else:
-            self.parent.status_update(f"Error: {value}")
+            # self.parent.status_update(f"Error: {value}")
+            self.context.services.status.status_update(f"Error: {value}")
 
     @property
     def catia(self) -> exp.Application:
@@ -279,3 +285,40 @@ class Application():
 
     def __del__(self):
         self.dispose()
+
+
+
+    # - UI -
+    def apply_looks(self):
+        def apply_all(project:'Project'):
+            self.status_message = "Applying Looks"
+            self.look.apply_look_to_all(project)
+            self.status_message = "Ready"
+
+        self.project_ready(apply_all)
+
+    def apply_variant(self):
+        def apply_variant(project:'Project'):
+            self.xml.load_config.activate()
+
+        self.project_ready(apply_variant)
+
+    def get_applied_material(self):
+        from application.get_applied_material import GetAppliedMaterial
+        GetAppliedMaterial(self)
+
+    def activate_window(self, window:exp.Window):
+        window.activate()
+        self.projects.activate()
+
+    def process_project_windows(self, callback:Callable[['exp.Window', Callable[['exp.Window'], None]], None]) -> None:
+        def on_ready():
+            for window in self.catia.windows():                
+                if window.com_type() == "SpecsAndGeomWindow":
+                    if not window.name().startswith("VIZ_LOOK_LIBRARY"):
+                        callback(window, self.activate_window)
+        
+        def on_fail():
+            self.status_message = "processing project windows failed"
+
+        self.catia_ready(on_ready, on_fail)

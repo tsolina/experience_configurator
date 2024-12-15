@@ -108,7 +108,7 @@ class Validator():
     
     def activate_visible(self, i_variant: 'Variant', i_state: str, i_old: Optional[int] = None) -> 'Validator':
         def process_switch(s: 'Switch'):
-            print(__name__, "activate_visible.process_switch", s.name, s.type_)
+            # print(__name__, "activate_visible.process_switch", s.name, s.type_)
 
             # Handle Visibility Type
             if s.type_ == VariantType.Visibility:

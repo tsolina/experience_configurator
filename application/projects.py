@@ -77,6 +77,7 @@ class Projects(ObservableList['Project']):
                 self.application.active_project = project
                 # project.variant_ready(lambda v: _set_active_project_variant(project, v))
 
-            self.application.title = project.name
+            # self.application.title = project.name
+            self.application.context.services.status.title = project.name
 
         self.application.catia_ready(lambda: _activate_project())

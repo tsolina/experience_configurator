@@ -38,11 +38,7 @@ class MainWindowView():
         self.add_variant_editor(root)
         self.add_look_editor(root)
 
-        self.view_model.add_title_observer(self.update_root_title)
-        self.root.title(self.view_model.title)
-
-    def update_root_title(self, new_title:str):
-        self.root.title(new_title)
+        self.root.title(self.context.services.status.title)
 
     def add_main_menu(self, root):
         self.main_menu = MainMenuView(root, self.context)
@@ -69,7 +65,7 @@ class MainWindowView():
         status_title = ttk.Label(self.status_frame, text='Status:', anchor='w', padding=5)
         status_title.pack(side='left')
 
-        self.status_text = ttk.Label(self.status_frame, text='Ready', padding=5, textvariable=self.view_model.status_message)
+        self.status_text = ttk.Label(self.status_frame, text='Ready', padding=5, textvariable=self.context.services.status.status_message)
         self.status_text.pack(side='left', fill='x', expand=True)
 
         self.version = ttk.Label(self.status_frame, text='0.0.0.1', padding=5) # main.newFeature.internalEdit.bug
@@ -91,7 +87,7 @@ class MainWindowView():
         if editor_name in self.editors:
             self.editors[editor_name].pack(fill="both", expand=True)
         else:
-            self.context.vm_main_window.status_update(f"Editor with name: '{editor_name}' not found")
+            self.context.services.status.status_update(f"Editor with name: '{editor_name}' not found")
 
     def sta_thread(self, callback:Callable):
         # time.sleep(2)

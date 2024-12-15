@@ -4,6 +4,7 @@ from application.actor import Actor
 from application.look_container import LookContainer
 from application.look_object import LookObject
 from application.look_override import LookOverride
+from application.project import Project
 from application.switch import Switch
 from application.tristate import Tristate
 import experience as exp
@@ -285,11 +286,12 @@ class Look():
         self.application.project_ready(lambda p: self.application.look_file.ready(look_ready))
         return self
 
-    def apply_look_to_all(self):
+    def apply_look_to_all(self, project:'Project'):
         def ready_action():
-            for variant in self.application.active_project.variants.variant_collection:
+            for variant in project.variants:
                 if variant.active_state == Tristate.OffState:
                     continue
+
                 for switch in variant.active_sub_variant.switches:
                     self.add_look(switch)
 

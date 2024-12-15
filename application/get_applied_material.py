@@ -3,8 +3,8 @@ from application.eval_selected import EvalSelected
 import experience as exp
 
 class GetAppliedMaterial:
-    def __init__(self, parent):
-        self.application: Application = parent.application
+    def __init__(self, parent:'Application'):
+        self.application: Application = parent
         self._process_selection()
 
     def _check_look(self, evaluate:EvalSelected):
@@ -24,7 +24,7 @@ class GetAppliedMaterial:
             self._error_callback("selection empty")
             return
 
-        evaluate = EvalSelected(sel.first().value())
+        evaluate = EvalSelected(self.application, sel.first().value())
         self.application.look_file.ready(lambda look: self._check_look(evaluate))
 
     def _error_callback(self, msg):
