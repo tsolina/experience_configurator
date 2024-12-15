@@ -1,4 +1,4 @@
-from typing import Callable, Optional
+from typing import Any, Callable, Optional
 import experience as exp
 
 class CatiaService:
@@ -44,6 +44,41 @@ class CatiaService:
                 self.error_message = error_msg
 
         return self
+    
+
+    # def ready(self, cb: Callable[[Optional[Any]], None], cb_fail: Optional[Callable[[str], None]] = None):
+    #     """
+    #     Ensures the application is in a ready state before executing the provided callback,
+    #     handling callbacks with or without arguments.
+    #     """
+
+    #     def wrapped_cb(project):
+    #         """
+    #         Wraps the callback to dynamically adjust argument handling.
+    #         """
+    #         cb_params = signature(cb).parameters
+    #         if len(cb_params) == 0:
+    #             # Callback expects no arguments
+    #             cb()
+    #         else:
+    #             # Callback expects at least one argument
+    #             cb(project)
+
+    #     def failure_action(msg):
+    #         """
+    #         Handles failure scenarios by invoking cb_fail or updating self.status_message.
+    #         """
+    #         if cb_fail:
+    #             cb_fail(msg)
+    #         else:
+    #             self.status_message = msg
+
+    #     self.catia_ready(
+    #         lambda: failure_action("Error: No project is currently active")
+    #         if self.active_project is None
+    #         else wrapped_cb(self.active_project),
+    #         failure_action
+    #     )
 
 
     def _set_catia_off(self):

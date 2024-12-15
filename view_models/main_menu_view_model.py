@@ -57,22 +57,27 @@ class MainMenuViewModel:
 
 
     def look_editor_save(self):
-        def save_config():
-            self.context.application.xml.save_look.save()
+        # def save_config():
+        #     self.context.application.xml.save_look.save()
 
-        self.context.application.ready(save_config)
+        # self.context.application.ready(save_config)
+        self.context.services.config.save_look()
 
 
     def variant_editor_save(self):
-        def save_config():
-            self.context.application.xml.save_config.save()
+        # def save_config():
+        #     self.context.application.xml.save_config.save()
 
-        self.context.application.ready(save_config)
+        # self.context.application.ready(save_config)
+        self.context.services.config.save_variant()
+
+    # def variant_editor_load(self):
+    #     def load_config():
+    #         self.context.application.is_loading = True
+    #         self.context.application.xml.load_config.load()
+    #         self.context.application.is_loading = False
+
+    #     self.context.application.ready(load_config)
 
     def variant_editor_load(self):
-        def load_config():
-            self.context.application.is_loading = True
-            self.context.application.xml.load_config.load()
-            self.context.application.is_loading = False
-
-        self.context.application.ready(load_config)
+        self.context.services.config.load_variant()
