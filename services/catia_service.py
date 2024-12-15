@@ -45,6 +45,8 @@ class CatiaService:
 
         return self
     
+    def ready(self, cb: Callable, cb_fail: Optional[Callable[[str], None]] = None) -> 'CatiaService':
+        return self.catia_ready(cb, cb_fail)
 
     # def ready(self, cb: Callable[[Optional[Any]], None], cb_fail: Optional[Callable[[str], None]] = None):
     #     """

@@ -64,16 +64,12 @@ class Application():
     def active_project(self, value:'Project'):
         if self._active_project != value:
             self._active_project = value
-            self.parent.title = self.active_project.name
+            # self.parent.title = self.active_project.name
 
-            # print(self.__class__.__name__, "active_project", self.active_project.configurations, self.active_project.variants)
-            # print(__name__, self.context.view_look_editor)
             if self.context.view_look_editor:
-                # self.active_project.configurations._notify_observers()
-                self.context.vm_look_editor.update_configurations()#self.active_project.configurations)
+                self.context.vm_look_editor.update_configurations()
             if self.context.view_variant_editor:
-                # self.active_project.variants._notify_observers()
-                self.context.vm_variant_editor.update_variants()#self.active_project.variants)
+                self.context.vm_variant_editor.update_variants()
             
 
 
@@ -291,17 +287,21 @@ class Application():
     # - UI -
     def apply_looks(self):
         def apply_all(project:'Project'):
-            self.status_message = "Applying Looks"
+            # self.status_message = "Applying Looks"
+            self.context.services.status.status_update("Applying Looks")
             self.look.apply_look_to_all(project)
-            self.status_message = "Ready"
+            # self.status_message = "Ready"
+            self.context.services.status.status_update("Ready")
 
-        self.project_ready(apply_all)
+        # self.project_ready(apply_all)
+        self.context.services.project.ready(apply_all)
 
     def apply_variant(self):
         def apply_variant(project:'Project'):
             self.xml.load_config.activate()
 
-        self.project_ready(apply_variant)
+        # self.project_ready(apply_variant)
+        self.context.services.project.ready(apply_variant)
 
     def get_applied_material(self):
         from application.get_applied_material import GetAppliedMaterial
@@ -319,6 +319,8 @@ class Application():
                         callback(window, self.activate_window)
         
         def on_fail():
-            self.status_message = "processing project windows failed"
+            # self.status_message = "processing project windows failed"
+            self.context.services.status.status_update_error("processing project windows failed")
 
-        self.catia_ready(on_ready, on_fail)
+        # self.catia_ready(on_ready, on_fail)
+        self.context.services.catia.catia_ready(on_ready, on_fail)
