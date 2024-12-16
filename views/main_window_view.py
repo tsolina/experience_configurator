@@ -68,7 +68,7 @@ class MainWindowView():
 
         self.status_text = ttk.Label(self.status_frame, text='Ready', padding=5, textvariable=self.context.services.status.status_message)
         self.status_text.pack(side='left', fill='x', expand=True)
-        self.context.services.status.status_message.trace_add("write", self.status_text.update_idletasks)
+        self.context.services.status.status_message.trace_add("write", lambda *args: self.status_text.update_idletasks())
 
         self.version = ttk.Label(self.status_frame, text='0.0.0.1', padding=5) # main.newFeature.internalEdit.bug
         self.version.pack(side='left')
