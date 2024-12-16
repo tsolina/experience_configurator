@@ -60,19 +60,10 @@ class MainWindowViewModel:
         for future in as_completed(futures):
             future.result()  # This will block until the task is complete
 
+    
     def get_active_project(self) -> 'Project':
-        project = self.application.active_project
+        return self.context.services.project.get_active_project(self.context.view_main_window.root)
 
-        if not project:
-            self.context.view_main_window.root.after(1000, self.activate_and_get_project)
-
-        return project
-
-    def activate_and_get_project(self):
-        self.application.projects.activate()
-        project = self.application.active_project
-
-        # print(self.__class__.__name__, "activate", f"Active project after activation: {project}")
 
     def update_project(self, projects:'Projects'):
         pass

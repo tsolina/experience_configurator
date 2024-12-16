@@ -80,6 +80,7 @@ class Projects(ObservableList['Project']):
 
             # self.application.title = project.name
             self.application.context.services.status.title = project.name
+            self.application.context.services.status.status_update(f"Project loaded: {project.name}")
 
         # self.application.catia_ready(lambda: _activate_project())
         self.application.context.services.catia.ready(lambda: _activate_project())

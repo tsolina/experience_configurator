@@ -7,6 +7,7 @@ from views.main_window_view import MainWindowView
 
 from application.experience_extensions import *
 from application.application import Application
+import sys
 # perform_extensions
 # perform_extensions()
 
@@ -18,7 +19,7 @@ def start(catia_com = None):
     root.configure(bg="#C2D5E0")
 
     context = ApplicationContext(catia_com)
-    context.application = Application(catia_com)
+    context.application = Application()
     context.application.context = context
 
     # Initialize the ViewModel with the Model
@@ -31,4 +32,5 @@ def start(catia_com = None):
     root.mainloop()
 
 if __name__ == "__main__":
+    sys.stderr = open("error.log", "w")
     start()
