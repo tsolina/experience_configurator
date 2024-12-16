@@ -33,18 +33,7 @@ class MainMenuViewModel:
 
         
     def change_default_saving_location(self):
-        app = self.root_model.application
-
-        selected_path = filedialog.askdirectory(
-            title="Select the directory that you want to use as the default",
-            initialdir=app.registry.base_path
-        )
-
-        if selected_path:
-            self.context.services.status.status_update(f"folder {selected_path} selected")
-            app.registry.base_path = selected_path
-        else:
-            self.context.services.status.status_update(f"folder selection failed")
+        self.context.services.config.change_default_saving_location()
 
 
     def windows_activate(self, sub_windows_menu:tk.Menu):

@@ -1,6 +1,7 @@
 from typing import Callable
 from application.application import Application
 from application.project import Project
+from tkinter import filedialog
 
 
 class ConfigService:
@@ -35,3 +36,17 @@ class ConfigService:
             load_method()
         finally:
             self.application.is_loading = False
+
+    def change_default_saving_location(self):
+        app = self.application
+
+        selected_path = filedialog.askdirectory(
+            title="Select the directory that you want to use as the default",
+            initialdir=app.registry.base_path
+        )
+
+        if selected_path:
+            self.application.context.services.status.status_update(f"folder {selected_path} selected")
+            app.registry.base_path = selected_path
+        else:
+            self.application.context.services.status.status_update(f"folder selection failed")

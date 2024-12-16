@@ -42,14 +42,14 @@ class Projects(ObservableList['Project']):
         return None
 
     def clean_empty_project(self) -> 'Projects':
-        self.application.ready(lambda p: self._process_project_variants(p))
+        self.application.context.services.project.ready(lambda p: self._process_project_variants(p))
         return self
 
     def _process_project_variants(self, project: 'Project'):
         if len(project.variants) == 0:
             project.active_variant = None
         else:
-            self.application.status_message = f"activeProject: {project.name}.{project.active_variant.name}"
+            self.application.context.services.status.status_update(f"activeProject: {project.name}.{project.active_variant.name}")
             self.application.context.vm_variant_editor.selected_variant = project.active_variant
 
     def activate(self):
