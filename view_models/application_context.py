@@ -35,7 +35,17 @@ class ApplicationContext:
         self.application:'Application' = None
         self.loaded:bool = False
 
-        self.services = Services(self.application, catia_com=catia_com)
+        self._services:Services = None
+        self._catia_com = None
+
+    @property
+    def services(self):
+        if self._services is None:
+            if self.application is None:
+                raise ValueError("Application must be initialized before accessing services.")
+            self._services = Services(self.application, catia_com=self._catia_com)
+        return self._services
+
 
     def __getattribute__(self, name):
         value = super().__getattribute__(name)

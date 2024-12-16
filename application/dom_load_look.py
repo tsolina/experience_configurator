@@ -313,7 +313,7 @@ class DomLoadLook:
                 p.active_configuration.actors.clear()
                 p.configurations.clear()
 
-        self.application.project_ready(clear_configuration)
+        self.application.context.services.project.ready(clear_configuration)
         return self
 
     def open_dialog(self):

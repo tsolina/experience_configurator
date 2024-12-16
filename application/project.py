@@ -110,7 +110,7 @@ class Project:
             self.application.context.view_variant_editor_event_handler.on_variant_selected(self.active_variant)
 
     def ready(self, cb: callable, cb_fail: callable):
-        self.application.catia_ready(
+        self.application.context.services.catia.ready(
             lambda: cb(self) if self._id == self.application.catia.services().product_service().root_occurrence().plm_entity().id() else cb_fail("Error: root is different"),
             lambda msg: cb_fail(msg)
         )
@@ -125,8 +125,8 @@ class Project:
 
     @property
     def occurrences(self) -> Dict[str, 'OccurenceObject']:
-        self.application.status_message = "Enumerating occurrences"
-        self.application.catia_ready(lambda: self._initialize_root_occurrence())
+        self.application.context.services.status.status_update("Enumerating occurrences")
+        self.application.context.services.catia.ready(lambda: self._initialize_root_occurrence())
         return self._occurrences
 
     @occurrences.setter
@@ -159,17 +159,17 @@ class Project:
             if cb_fail:
                 cb_fail("Error: no active variant is found")
             else:
-                self.application.error_message = "no active variant is found"
+                self.application.context.services.status.status_update_error("no active variant is found")
         else:
             cb(self.active_variant)
 
     def config_ready(self, cb: Callable[['Configuration'], None], cb_fail: Optional[callable] = None):
         if self.active_configuration is None:
-            message = "Error: no active look configuration is found"
+            message = "no active look configuration is found"
             if cb_fail:
                 cb_fail(message)
             else:
-                self.application.status_message = message
+                self.application.context.services.status.status_update_error(message)
         else:
             cb(self.active_configuration)
 

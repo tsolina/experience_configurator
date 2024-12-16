@@ -57,21 +57,21 @@ class DomLoadConfig:
         try:
             self.XDoc.parse(self._filePath)
         except etree.XMLSyntaxError:
-            self.application.error_message = "corrupted .xml document"
+            self.application.context.services.status.status_update_error("corrupted .xml document")
             return
 
         header = self.XDoc.xpath("//model/header")
         if not header:
-            self.application.error_message = "no header found"
+            self.application.context.services.status.status_update_error("no header found")
             return
 
         header = header[0]
         sGenerator = header.xpath("./generator/text()")
         if not sGenerator:
-            self.application.error_message = "document invalid, not variant configurator document"
+            self.application.context.services.status.status_update_error("document invalid, not variant configurator document")
             return
         if sGenerator[0] != "Configurator by TSolina":
-            self.application.error_message = "document invalid, not variant configurator document"
+            self.application.context.services.status.status_update_error("document invalid, not variant configurator document")
             return
 
         if is_import:
@@ -83,14 +83,14 @@ class DomLoadConfig:
                     message="XML of another file detected. Are you sure you want to import?"
                 )
                 if not result:  # User clicked 'Cancel'
-                    self.application.error_message = "Look import cancelled."
+                    self.application.context.services.status.status_update_error("Look import cancelled.")
                     return
                 else:  # User clicked 'OK'
-                    self.application.status_message = "Importing variant configuration."
+                    self.application.context.services.status.status_update("Importing variant configuration.")
 
         configs:List[etree.Element] = self.XDoc.xpath("//model/configurator/variant")
         if len(configs) == 0:
-            self.application.status_message = "no configurations found"
+            self.application.context.services.status.status_update("no configurations found")
             return
 
         self.application.flags.no_status_messages = True
@@ -123,7 +123,7 @@ class DomLoadConfig:
 
             v.active_state = v.editing_state = sActive
 
-            self.application.status_message = f"variants: {nCount} of {len(configs)} loaded: {sName[0]}"
+            self.application.context.services.status.status_update(f"variants: {nCount} of {len(configs)} loaded: {sName[0]}")
             nCount += 1
 
         self.application.flags.no_status_messages = False
@@ -136,9 +136,9 @@ class DomLoadConfig:
         # self.application.sta_thread(assign_item)
 
         if is_import:
-            self.application.status_message = f"look configuration imported: {self._filePath}"
+            self.application.context.services.status.status_update(f"look configuration imported: {self._filePath}")
         else:
-            self.application.status_message = f"configuration loaded: {self._file_name}"
+            self.application.context.services.status.status_update(f"configuration loaded: {self._file_name}")
 
 
     def activate(self) -> None:
@@ -163,7 +163,7 @@ class DomLoadConfig:
 
             self.application.look_file.ready(assign_looks)
 
-        self.application.project_ready(lambda p: activate_project)
+        self.application.context.services.project.ready(lambda p: activate_project)
 
         self.application.catia.start_command("Apply customized view")
         self.application.catia.refresh_display(True).hso_synchronized(True)
@@ -173,7 +173,7 @@ class DomLoadConfig:
         self._filePath = os.path.join(self.application.registry.base_path, self._file_name)
 
         if not os.path.exists(self._filePath):
-            self.application.error_message = f"{self._filePath} not found"
+            self.application.context.services.status.status_update_error(f"{self._filePath} not found")
             return self
 
         self.evaluate_xml(False)
@@ -196,7 +196,7 @@ class DomLoadConfig:
         return file_path
 
     def clean_variant(self) -> 'DomLoadConfig':
-        self.application.project_ready(lambda p: p.variant_ready(lambda v: v.switches.clear() or p.variants.clear()))
+        self.application.context.services.project.ready(lambda p: p.variant_ready(lambda v: v.switches.clear() or p.variants.clear()))
         return self
 
     def import_config(self) -> 'DomLoadConfig':

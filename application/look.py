@@ -283,7 +283,7 @@ class Look():
 
             self.add_look(look_object)
 
-        self.application.project_ready(lambda p: self.application.look_file.ready(look_ready))
+        self.application.context.services.project.ready(lambda p: self.application.look_file.ready(look_ready))
         return self
 
     def apply_look_to_all(self, project:'Project'):
@@ -295,7 +295,7 @@ class Look():
                 for switch in variant.active_sub_variant.switches:
                     self.add_look(switch)
 
-        self.application.ready(ready_action)
+        self.application.context.services.catia.ready(ready_action)
         self.application.catia.start_command("Apply customized view")
         return self
 

@@ -37,7 +37,7 @@ class LookEditorViewModel:
 
             self.root_model.sta_thread(on_thread)
 
-        self.root_model.application.project_ready(add_new_configuration)
+        self.context.services.project.ready(add_new_configuration)
 
     def clone_configuration(self):
         self.root_model.application.status_message = "Clone is not implemented yet"
@@ -45,10 +45,8 @@ class LookEditorViewModel:
     def delete_configuration(self):
         def delete_configuration(project:'Project'):
             project.configurations.delete()
-            # project.active_configuration = None
-            # self.selected_configuration = None
 
-        self.root_model.application.project_ready(delete_configuration)
+        self.context.services.project.ready(delete_configuration)
 
     def activate_project(self):
         app = self.root_model.application

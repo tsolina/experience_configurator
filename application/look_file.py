@@ -110,7 +110,7 @@ class LookFile():
                             self.extract_covering_materials()
                             cb(self._look)
 
-                    self._parent.catia_ready(on_ready, cb_fail)
+                    self.application.context.services.catia.ready(on_ready, cb_fail)
                 else:
                     cb(self._look)
         else:

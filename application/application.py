@@ -34,17 +34,13 @@ class Application():
     def __init__(self, catia_com = None):
         self.context:'ApplicationContext' = None
         self.util = Util(catia_com)
-        self._catia = self.util.catia
         self.log = Log(self)
         self.look = Look(self)
         self.look_file = LookFile(self)
         self.look_validator = LookValidator(self)
         self.validator = Validator(self)
-        # self.context_menu = CContextMenu(self)
-        # self.editors = CEditors(self)
         self.registry: 'RegistryConfig' = RegistryConfig()
         self.flags = Flags()
-        # self._shared = _3DxGeneral.App.CShared()
         self._parent: 'MainWindowViewModel' = None # = parent
         self._name: str = "3DExperience Configurator by TSolina"
         self._title: str = self._name
@@ -96,33 +92,33 @@ class Application():
     def name(self, value: str):
         self._name = value
 
-    @property
-    def status_message(self) -> str:
-        # return self.parent.status_message
-        return self.context.services.status.status_message
+    # @property
+    # def status_message(self) -> str:
+    #     # return self.parent.status_message
+    #     return self.context.services.status.status_message
 
-    @status_message.setter
-    def status_message(self, value: str):
-        # self.parent.status_update(value)
-        self.context.services.status.status_update(value)
+    # @status_message.setter
+    # def status_message(self, value: str):
+    #     # self.parent.status_update(value)
+    #     self.context.services.status.status_update(value)
 
-    @property
-    def error_message(self) -> None:
-        # return self.parent.status_message
-        return self.context.services.status.status_message
+    # @property
+    # def error_message(self) -> None:
+    #     # return self.parent.status_message
+    #     return self.context.services.status.status_message
 
-    @error_message.setter
-    def error_message(self, value:str = ""):
-        if value.startswith("Error:"):
-            # self.parent.status_update(value)
-            self.context.services.status.status_update(value)
-        else:
-            # self.parent.status_update(f"Error: {value}")
-            self.context.services.status.status_update(f"Error: {value}")
+    # @error_message.setter
+    # def error_message(self, value:str = ""):
+    #     if value.startswith("Error:"):
+    #         # self.parent.status_update(value)
+    #         self.context.services.status.status_update(value)
+    #     else:
+    #         # self.parent.status_update(f"Error: {value}")
+    #         self.context.services.status.status_update(f"Error: {value}")
 
     @property
     def catia(self) -> exp.Application:
-        return self._catia
+        return self.context.services.catia.catia
     
     @property
     def projects(self) -> 'Projects':
@@ -132,77 +128,7 @@ class Application():
     def projects(self, value:'Projects'):
         self._projects = value
     
-    def catia_ready(self, cb: Callable, cb_fail: Optional[Callable[[str], None]] = None):
-        if self.util.spec_window_ready():
-            cb()
-        else:
-            if self.catia is None:
-                error_msg = "Error: 3Dx is not active"
-            else:
-                error_msg = "Error: 3Dx has no design window active"
-            if cb_fail:
-                cb_fail(error_msg)
-            else:
-                self.error_message = error_msg
 
-    # def ready(self, cb: Callable, cb_fail: Optional[Callable[[str], None]] = None):
-    #     def failure_action(msg):
-    #         if cb_fail:
-    #             cb_fail(msg)
-    #         else:
-    #             self.status_message = msg
-        
-    #     self.catia_ready(
-    #         lambda: failure_action("Error: No project is currently active") if self.active_project is None else cb(self.active_project),
-    #         failure_action
-    #     )
-    def ready(self, cb: Callable[[Optional[Any]], None], cb_fail: Optional[Callable[[str], None]] = None):
-        """
-        Ensures the application is in a ready state before executing the provided callback,
-        handling callbacks with or without arguments.
-        """
-
-        def wrapped_cb(project):
-            """
-            Wraps the callback to dynamically adjust argument handling.
-            """
-            cb_params = signature(cb).parameters
-            if len(cb_params) == 0:
-                # Callback expects no arguments
-                cb()
-            else:
-                # Callback expects at least one argument
-                cb(project)
-
-        def failure_action(msg):
-            """
-            Handles failure scenarios by invoking cb_fail or updating self.status_message.
-            """
-            if cb_fail:
-                cb_fail(msg)
-            else:
-                self.status_message = msg
-
-        self.catia_ready(
-            lambda: failure_action("Error: No project is currently active")
-            if self.active_project is None
-            else wrapped_cb(self.active_project),
-            failure_action
-        )
-
-
-
-    def project_ready(self, callback:Callable[['Project'], None]):
-        def on_status(message:str):
-            self.status_message=message
-
-        def on_ready(project:'Project'):
-            if self.active_project is None:
-                self.error_message = "No project is currently active"
-            else:
-                callback(self.active_project)
-        
-        self.ready(on_ready, on_status)
 
     @property
     def title(self) -> str:
@@ -219,7 +145,7 @@ class Application():
             if cb_fail:
                 cb_fail("No Active design app")
             else:
-                self.status_message = "No Active design app"    
+                self.context.services.status.status_update_error("No Active design app" )
 
     def selection_simple(self, cb: Callable[[exp.Selection], None], cb_fail: Optional[Callable[[str], None]] = None):
         if self.util.spec_window_ready():
@@ -228,23 +154,10 @@ class Application():
             if cb_fail:
                 cb_fail("No Active design app")
             else:
-                self.status_message = "No Active design app"    
+                self.context.services.status.status_update_error("No Active design app" )
+ 
 
-    # def selection(self, 
-    #             cb: Callable[[exp.Selection], None], 
-    #             cb_fail: Optional[Callable[[str], None]] = None, 
-    #             use_cat_select: bool = True):
-    #     if self.util.spec_window_ready():
-    #         if use_cat_select:
-    #             self.util.cat_select(lambda: cb(self.catia.active_editor().selection()))
-    #         else:
-    #             cb(self.catia.active_editor().selection())
-    #     else:
-    #         if cb_fail:
-    #             cb_fail("No Active design app")
-    #         else:
-    #             self.status_message = "No Active design app"
-            
+
     @property
     def guid(self) -> int:
         self._guid += 1

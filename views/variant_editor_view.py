@@ -77,10 +77,10 @@ class VariantEditorView():
 
     def add_tooltip(self, widget: tk.Widget, text: str):
         def on_enter(event):
-            self.context.vm_main_window.status_update(text)
+            self.context.services.status.status_update(text)
 
         def on_leave(event):
-            self.context.vm_main_window.status_reset()
+            self.context.services.status.status_reset()
 
         widget.bind("<Enter>", on_enter)
         widget.bind("<Leave>", on_leave)
@@ -233,4 +233,4 @@ class VariantEditorView():
         self.create_button(button_frame, "Delete", "delete selected switch", self.view_model.delete_switch)
 
     def not_implemented(self):
-        self.context.application.status_message = "Not implemented yet"
+        self.context.services.status.status_update("Not implemented yet")

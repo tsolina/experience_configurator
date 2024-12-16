@@ -77,7 +77,7 @@ class Switches(ObservableList['Switch']):
 
             self.application.selection_simple(on_selection)
 
-        self.application.project_ready(on_project_ready)
+        self.application.context.services.project.ready(on_project_ready)
         return new_switch
 
 
@@ -100,9 +100,9 @@ class Switches(ObservableList['Switch']):
             self.parent.active_switch = new_switch
 
             if not self.application.flags:
-                self.application.status_message = "new look switch added"
+                self.application.context.services.status.status_update("new look switch added")
 
-        self.application.project_ready(on_project_ready)
+        self.application.context.services.project.ready(on_project_ready)
         return new_switch
 
     def add_code_style(self) -> 'Switch':
@@ -118,20 +118,20 @@ class Switches(ObservableList['Switch']):
             self.parent.active_switch = new_switch
 
             if not self.application.flags.no_status_messages:
-                self.application.status_message = "new styleCode switch added"
+                self.application.context.services.status.status_update("new styleCode switch added")
 
-        self.application.project_ready(on_project_ready)
+        self.application.context.services.project.ready(on_project_ready)
         return new_switch
 
     def delete(self) -> 'Switches':
         """Deletes the currently active switch."""
         active_switch = self.parent.active_switch
         if active_switch is None:
-            self.application.error_message = "Delete unsuccessful, no switch selected"
+            self.application.context.services.status.status_update_error("Delete unsuccessful, no switch selected")
             return self
 
         active_id = active_switch.id
-        self.application.status_message = "Switch deleted"
+        self.application.context.services.status.status_update("Switch deleted")
 
         self.remove(active_switch)
         self.parent.active_switch = None

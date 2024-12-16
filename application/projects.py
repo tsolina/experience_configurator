@@ -58,8 +58,9 @@ class Projects(ObservableList['Project']):
             project.active_variant = variant
 
         def _activate_project():
-            self.application.status_message = "Activating Project"
-            ent = self.application.catia.services().product_service().root_occurrence().plm_entity()
+            # self.application.status_message = "Activating Project"
+            self.application.context.services.status.status_update("Activating Project")
+            ent = self.application.context.services.catia.catia.services().product_service().root_occurrence().plm_entity()
             project = self.get_project(ent.id())
             # print(self.__class__.__name__, "activate", ent.id(), project)
 
@@ -80,4 +81,5 @@ class Projects(ObservableList['Project']):
             # self.application.title = project.name
             self.application.context.services.status.title = project.name
 
-        self.application.catia_ready(lambda: _activate_project())
+        # self.application.catia_ready(lambda: _activate_project())
+        self.application.context.services.catia.ready(lambda: _activate_project())

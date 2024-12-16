@@ -144,21 +144,21 @@ class LookEditorEventHandler:
         self.view_model.ensure_active_actor()
 
     def btn_select_actors(self):
-        self.context.application.project_ready(
+        self.context.services.project.ready(
             lambda p: p.config_ready(
                 lambda c: c.actors.select_actors()
                 )
             )
         
     def btn_deselect_actors(self):
-        self.context.application.project_ready(
+        self.context.services.project.ready(
             lambda p: p.config_ready(
                 lambda c: c.actors.deselect_actors()
                 )
             )
 
     def btn_delete_actor(self):
-        self.context.application.project_ready(
+        self.context.services.project.ready(
             lambda p: p.config_ready(
                 lambda c: c.actors.delete_actor()
                 )
