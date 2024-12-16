@@ -141,19 +141,19 @@ class VariantEditorViewModel:
 
             self.root_model.sta_thread(on_thread)
 
-        self.root_model.application.project_ready(add_new_variant)
+        self.context.services.project.ready(add_new_variant)
 
     def clone_variant(self):
         def clone_variant(project:'Project'):
             project.variants.clone()
 
-        self.context.application.project_ready(clone_variant)
+        self.context.services.project.ready(clone_variant)
 
     def delete_variant(self):
         def delete_variant(project:'Project'):
             project.variants.delete()
 
-        self.root_model.application.project_ready(delete_variant)
+        self.context.services.project.ready(delete_variant)
 
     def create_new_visibility_switch(self):
         def if_project_ready(project:'Project'):
@@ -161,10 +161,10 @@ class VariantEditorViewModel:
                 if not variant.editing_sub_variant is None:
                     variant.editing_sub_variant.switches.add_visible()
                 else:
-                    self.context.application.error_message("no active sub variant")
+                    self.context.services.status.status_update_error("no active sub variant")
             project.variant_ready(add_visible)
 
-        self.root_model.application.project_ready(if_project_ready)
+        self.context.services.project.ready(if_project_ready)
         
     def create_new_look_switch(self):
         def if_project_ready(project:'Project'):
@@ -172,10 +172,10 @@ class VariantEditorViewModel:
                 if not variant.editing_sub_variant is None:
                     variant.editing_sub_variant.switches.add_look()
                 else:
-                    self.context.application.error_message("no active sub variant")
+                    self.context.services.status.status_update_error("no active sub variant")
             project.variant_ready(add_visible)
 
-        self.root_model.application.project_ready(if_project_ready)
+        self.context.services.project.ready(if_project_ready)
         
     def new_code_state_switch(self):
         def if_project_ready(project:'Project'):
@@ -183,10 +183,10 @@ class VariantEditorViewModel:
                 if not variant.editing_sub_variant is None:
                     variant.editing_sub_variant.switches.add_code_style()
                 else:
-                    self.context.application.error_message("no active sub variant")
+                    self.context.services.status.status_update_error("no active sub variant")
             project.variant_ready(add_visible)
 
-        self.root_model.application.project_ready(if_project_ready)
+        self.context.services.project.ready(if_project_ready)
 
     def delete_switch(self):
         def if_project_ready(project:'Project'):
@@ -194,10 +194,10 @@ class VariantEditorViewModel:
                 if not variant.editing_sub_variant is None:
                     variant.editing_sub_variant.switches.delete()
                 else:
-                    self.context.application.error_message("no active sub variant")
+                    self.context.services.status.status_update_error("no active sub variant")
             project.variant_ready(add_visible)
 
-        self.root_model.application.project_ready(if_project_ready)
+        self.context.services.project.ready(if_project_ready)
 
     def on_sub_variant_selected(self, name:str):
         if not name:
