@@ -7,6 +7,7 @@ from application.tristate import Tristate
 from models.look_editor_model import LookEditorModel
 import tkinter as tk
 from tkinter import ttk
+import experience as exp
 
 
 if TYPE_CHECKING:
@@ -97,6 +98,8 @@ class LookEditorViewModel:
     def activate_actor(self, actor:'Actor'):
         self.context.application.active_project.active_configuration.active_actor = actor
 
+        self.context.services.selection.select_actor(actor.cat_object)
+
     def get_actor_from_id(self, id:int):
         config = self.get_active_configuration()
         if not config:
@@ -108,7 +111,8 @@ class LookEditorViewModel:
         if not actor:
             return
         
-        self.get_active_configuration().actors.add_actor_to_selection(actor)
+        # self.get_active_configuration().actors.add_actor_to_selection(actor)
+        self.context.services.selection.select_actor(actor.cat_object)
 
     def ensure_active_configuration(self):
         configurations = self.get_configurations()
