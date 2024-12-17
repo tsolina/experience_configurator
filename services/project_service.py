@@ -16,30 +16,31 @@ class ProjectService:
             self._status = self.application.context.services.status
         return self._status
 
-    def ready(self, callback:Callable[['Project'], None]) -> None:
-        def on_status(message:str):
-            self.application.context.services.status.status_update(message)
-
+    def ready(self, callback: Callable[['Project'], None]) -> None:
         def on_ready():
-            if self.application.active_project is None:
-                self.application.context.services.status.status_update_error("No project is currently active")
-            else:
+            if self.application.active_project is not None:
                 callback(self.application.active_project)
         
-        self.application.context.services.catia.ready(on_ready, on_status)
+        self.application.context.services.catia.ready(on_ready, "No project is currently active")
 
-    # def ready(self, callback: Callable[['Project'], None]) -> None:
-    #     """Ensures the project is ready before executing the callback."""
-    #     if self.application.active_project is None:
-    #         self.application.context.services.status.status_update_error("No project is currently active")
-    #         return
+    # def ready(
+    #     self, 
+    #     callback: Callable[['Project'], None], 
+    #     cb_fail: Optional[Union[Callable[[str], None], str]] = None
+    # ) -> None:
+    #     def on_ready():
+    #         if self.application.active_project is not None:
+    #             callback(self.application.active_project)
+    #         else:
+    #             # Pass failure directly to catia_ready
+    #             self.application.context.services.catia.ready(lambda: None, "No project is currently active")
+        
+    #     # Delegate to catia_ready
+    #     self.application.context.services.catia.ready(on_ready, cb_fail)
 
-    #     def on_status(message: str):
-    #         self.application.context.services.status.status_update(message)
 
-    #     self.application.context.services.catia.catia_ready(lambda _: callback(self.application.active_project), on_status)
 
-    
+
     def activate_and_get_project(self, on_fail: Callable = None) -> Optional['Project']:
         if not self.application.active_project:
             # Retry after 1 second if no active project

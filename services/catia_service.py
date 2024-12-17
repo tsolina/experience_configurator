@@ -1,4 +1,4 @@
-from typing import Any, Callable, Optional
+from typing import Any, Callable, Optional, Union
 import experience as exp
 from services.status_service import StatusService
 
@@ -29,8 +29,21 @@ class CatiaService:
 
         return False
 
-    def catia_ready(self, cb: Callable, cb_fail: Optional[Callable[[str], None]] = None) -> 'CatiaService':
-        if self._spec_window_ready():
+    # def catia_ready(self, cb: Callable, cb_fail: Optional[Callable[[str], None]] = None) -> 'CatiaService':
+    #     if self._spec_window_ready():
+    #         cb()
+    #     else:
+    #         if self.catia is None:
+    #             error_msg = "Error: 3Dx is not active"
+    #         else:
+    #             error_msg = "Error: 3Dx has no design window active"
+
+    #         (cb_fail or self.status.status_update_error)(error_msg)
+
+    #     return self
+
+    def catia_ready(self, cb: Callable, cb_fail: Optional[Union[Callable[[str], None], str]] = None) -> 'CatiaService':
+        if cb and self._spec_window_ready():
             cb()
         else:
             if self.catia is None:
@@ -38,11 +51,16 @@ class CatiaService:
             else:
                 error_msg = "Error: 3Dx has no design window active"
 
+            if isinstance(cb_fail, str):  # Use cb_fail as a message
+                error_msg = cb_fail
+                cb_fail = None
+
             (cb_fail or self.status.status_update_error)(error_msg)
 
         return self
+
     
-    def ready(self, cb: Callable, cb_fail: Optional[Callable[[str], None]] = None) -> 'CatiaService':
+    def ready(self, cb:Callable, cb_fail:Optional[Union[Callable[[str], None], str]] = None) -> 'CatiaService':
         return self.catia_ready(cb, cb_fail)
 
 
