@@ -92,29 +92,6 @@ class Application():
     def name(self, value: str):
         self._name = value
 
-    # @property
-    # def status_message(self) -> str:
-    #     # return self.parent.status_message
-    #     return self.context.services.status.status_message
-
-    # @status_message.setter
-    # def status_message(self, value: str):
-    #     # self.parent.status_update(value)
-    #     self.context.services.status.status_update(value)
-
-    # @property
-    # def error_message(self) -> None:
-    #     # return self.parent.status_message
-    #     return self.context.services.status.status_message
-
-    # @error_message.setter
-    # def error_message(self, value:str = ""):
-    #     if value.startswith("Error:"):
-    #         # self.parent.status_update(value)
-    #         self.context.services.status.status_update(value)
-    #     else:
-    #         # self.parent.status_update(f"Error: {value}")
-    #         self.context.services.status.status_update(f"Error: {value}")
 
     @property
     def catia(self) -> exp.Application:
@@ -137,25 +114,6 @@ class Application():
     @title.setter
     def title(self, value: str):
         self._title = f"{self._name} | {value}"
-
-    def selection(self, cb: Callable[[exp.Selection], None], cb_fail: Optional[Callable[[str], None]] = None):
-        if self.util.spec_window_ready():
-            self.util.cat_select(lambda: cb(self.catia.active_editor().selection()))
-        else:
-            if cb_fail:
-                cb_fail("No Active design app")
-            else:
-                self.context.services.status.status_update_error("No Active design app" )
-
-    def selection_simple(self, cb: Callable[[exp.Selection], None], cb_fail: Optional[Callable[[str], None]] = None):
-        if self.util.spec_window_ready():
-            cb(self.catia.active_editor().selection())
-        else:
-            if cb_fail:
-                cb_fail("No Active design app")
-            else:
-                self.context.services.status.status_update_error("No Active design app" )
- 
 
 
     @property

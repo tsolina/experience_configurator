@@ -19,6 +19,9 @@ class Switches(ObservableList['Switch']):
         self.application = parent.application
         self._name = self.__class__.__name__
 
+        self._status_update = self.application.context.services.status.status_update
+        self._status_update_error = self.application.context.services.status.status_update_error
+
         self.add_observer(self._on_switches_changed)
 
     def _on_switches_changed(self, new_list: List['Switch']):
@@ -27,6 +30,11 @@ class Switches(ObservableList['Switch']):
 
         self.application.context.vm_variant_editor.update_switches_container(new_list)
 
+    def status_update(self, value:str) -> None:
+        self._status_update(value)
+
+    def status_update_error(self, value:str) -> None:
+        self._status_update_error(value)
 
     @property
     def parent(self) -> 'SubVariant':
@@ -45,10 +53,9 @@ class Switches(ObservableList['Switch']):
         new_switch:Optional['Switch'] = None
         def on_project_ready(project:'Project'):
             def on_selection(sel:exp.Selection):
-                
 
                 def evaluate_item(item:exp.SelectedElement):
-                    print(__name__, "add_visible.evaluate_item", item)
+                    # print(__name__, "add_visible.evaluate_item", item)
                     nonlocal new_switch
                     new_switch = Switch(self, id=len(self)+1, type_=VariantType.Visibility, name=item.value(exp.AnyObject).name(), selected_item=item)
                     self.append(new_switch)
@@ -60,7 +67,7 @@ class Switches(ObservableList['Switch']):
                     self.parent.active_switch = new_switch
                     
                     if not self.application.flags:
-                        self.application.status_message = "New visibility switch added"
+                        self.status_update("New visibility switch added")
 
                 if sel.count():
                     sel.for_each(lambda item:evaluate_item(item))
@@ -73,9 +80,9 @@ class Switches(ObservableList['Switch']):
                     self.parent.active_switch = new_switch
                     
                     if not self.application.flags:
-                        self.application.status_message = "New visibility switch added"
+                        self.status_update("New visibility switch added")
 
-            self.application.selection_simple(on_selection)
+            self.application.context.services.selection.selection_simple(on_selection)
 
         self.application.context.services.project.ready(on_project_ready)
         return new_switch
@@ -100,7 +107,7 @@ class Switches(ObservableList['Switch']):
             self.parent.active_switch = new_switch
 
             if not self.application.flags:
-                self.application.context.services.status.status_update("new look switch added")
+                self.status_update("new look switch added")
 
         self.application.context.services.project.ready(on_project_ready)
         return new_switch
@@ -118,7 +125,7 @@ class Switches(ObservableList['Switch']):
             self.parent.active_switch = new_switch
 
             if not self.application.flags.no_status_messages:
-                self.application.context.services.status.status_update("new styleCode switch added")
+                self.status_update("new styleCode switch added")
 
         self.application.context.services.project.ready(on_project_ready)
         return new_switch
@@ -127,11 +134,11 @@ class Switches(ObservableList['Switch']):
         """Deletes the currently active switch."""
         active_switch = self.parent.active_switch
         if active_switch is None:
-            self.application.context.services.status.status_update_error("Delete unsuccessful, no switch selected")
+            self.status_update_error("Delete unsuccessful, no switch selected")
             return self
 
         active_id = active_switch.id
-        self.application.context.services.status.status_update("Switch deleted")
+        self.status_update("Switch deleted")
 
         self.remove(active_switch)
         self.parent.active_switch = None

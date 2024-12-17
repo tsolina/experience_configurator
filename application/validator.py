@@ -414,7 +414,7 @@ class Validator():
                 # print(__name__, "perform_visibility_actions.show.items.count", sel.count())
                 sel.show().clear()
 
-        self.application.selection_simple(_handle_visibility)
+        self.application.context.services.selection.selection_simple(_handle_visibility)
         return self
 
     def extract_overrides(self) -> 'Validator':

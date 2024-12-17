@@ -8,10 +8,6 @@ from application.variant import Variant
 from application.variant_type import VariantType
 import experience as exp
 
-    # AddVisible = New CSwitch(Me) With {.Id = Me.SwitchCollection.Count + 1, .Type = EVariantType.Visibility, .ValuesCollection = New ObservableCollection(Of String)(MTristate.ToToggle)}
-    # AddVisible.Name = item.Value.Name
-    # AddVisible.ActorCollection = New ObservableCollection(Of String) From {AddVisible.Name}
-
 class Switch:
     def __init__(self, parent: 'Switches', id:int=None, type_:VariantType=VariantType.Unknown, values_collection: Optional[List[str]] = None, 
                  name:str="", selected_item:exp.SelectedElement=None):
@@ -46,8 +42,7 @@ class Switch:
 
     def _update_active_value_from_var(self, *args):
         self.active_value = self.active_value_var.get()
-        # print(__name__, "update_active_value_from_var", self.name, self.active_value)
-        # self.application.validator.validate(self.parent.parent.parent.parent)
+
         self.property_true_value_selection = True
         self.application.validator.validate(self)
         self.property_true_value_selection = False
@@ -149,7 +144,7 @@ class Switch:
     @property
     def search_list(self) -> List['exp.SelectedElement']:
         if not self._search_list:
-            self.application.selection(lambda sel: self._initialize_search_list(sel))
+            self.application.context.services.selection.selection(lambda sel: self._initialize_search_list(sel))
         return self._search_list
 
     @search_list.setter

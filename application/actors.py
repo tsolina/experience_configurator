@@ -14,6 +14,8 @@ class Actors(ObservableList['Actor']):
         self._parent = parent
         self.application = parent.application
         self._name = self.__class__.__name__
+        self.status_update_error:Callable[[str], None] = self.application.context.services.status.status_update_error
+        self.status_update:Callable[[str], None] = self.application.context.services.status.status_update
 
         self.add_observer(self._on_actors_changed)
 
@@ -75,7 +77,7 @@ class Actors(ObservableList['Actor']):
                             break
 
                     if ok.message:
-                        self.application.context.services.status.status_update_error(ok.message)
+                        self.status_update_error(ok.message)
                         continue
                     
                     from application.actor import Actor
@@ -84,23 +86,23 @@ class Actors(ObservableList['Actor']):
                     self.append(actor)
                     self.application.look_validator.validate(actor)
                 else:
-                    self.application.context.services.status.status_update_error(ok.message)
+                    self.status_update_error(ok.message)
 
             if len(self) > 0:
                 self.parent.active_actor = self[-1]
 
-        self.application.context.services.selection.active_selection(select_items, self.application.context.services.status.status_update)
+        self.application.context.services.selection.active_selection(select_items, self.status_update)
 
         return self
 
     def _is_actor_valid(self, ok: EvalSelected) -> bool:
         if ok.message:
-            self.application.context.services.status.status_update_error(ok.message)
+            self.status_update_error(ok.message)
             return False
 
         for actor in self:
             if actor.path == ok.path:
-                self.application.context.services.status.status_update_error(f"Object already in list, {ok.name}")
+                self.status_update_error(f"Object already in list, {ok.name}")
                 return False
 
         return True
@@ -124,12 +126,12 @@ class Actors(ObservableList['Actor']):
 
         ok = EvalSelected(self.application, selection.cat_object)
         if ok.message:
-            self.application.context.services.status.status_update_error(ok.message)
+            self.status_update_error(ok.message)
             return self
 
         for actor in self:
             if actor.path == ok.path:
-                self.application.context.services.status.status_update_error(f"Object already in list, {ok.name}")
+                self.status_update_error(f"Object already in list, {ok.name}")
                 return self
 
         actor = self.parent.active_actor
@@ -143,14 +145,14 @@ class Actors(ObservableList['Actor']):
         return self
 
     def check_actor_error(self):
-        self.application.context.services.status.status_update_error("E" if any(actor.err_message for actor in self) else "")
+        self.status_update_error("E" if any(actor.err_message for actor in self) else "")
 
     def deselect_actors(self) -> 'Actors':
         def process_selection(sel: exp.Selection):
             def process_item(item: exp.SelectedElement):
                 ok = EvalSelected(self.application, item.value())
                 if ok.message:
-                    self.application.context.services.status.status_update(ok.message)
+                    self.status_update(ok.message)
                     return
 
                 actor_to_remove = next((actor for actor in self if actor.path == ok.path), None)
@@ -166,7 +168,7 @@ class Actors(ObservableList['Actor']):
     def delete_actor(self) -> 'Actors':
         active_actor = self.parent.active_actor
         if not active_actor:
-            self.application.context.services.status.status_update("Delete failed, no actor selected")
+            self.status_update("Delete failed, no actor selected")
             return self
 
         active_id = active_actor.id
@@ -184,12 +186,4 @@ class Actors(ObservableList['Actor']):
     def for_each(self, callback: Callable[['Actor'], None]):
         for actor in self:
             callback(actor)
-
-
-    # def add_actor_to_selection(self, actor:'Actor') -> 'Actors':
-    #     def select_actor(sel:exp.Selection):
-    #         sel.clear().add(actor.cat_object)
-
-    #     self.application.selection(select_actor)
-    #     return self
 

@@ -163,10 +163,3 @@ class LookEditorEventHandler:
                 lambda c: c.actors.delete_actor()
                 )
             )
-
-
-    # def on_actors_selection_change(self, event:tk.Event):
-    #     selected = self.context.view_look_editor.actors_tree.selection()
-    #     if selected:
-    #         row_id = self.context.view_look_editor.actors_tree.index(selected[0])
-    #         self.context.vm_look_editor.select_actor_from_view(row_id)
