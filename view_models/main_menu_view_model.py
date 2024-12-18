@@ -48,8 +48,12 @@ class MainMenuViewModel:
     def look_editor_save(self):
         self.context.services.config.save_look()
 
+    def look_editor_remove_looks(self):
+        self.context.application.look.look_editor_remove_looks()
+
     def variant_editor_save(self):
         self.context.services.config.save_variant()
 
     def variant_editor_load(self):
         self.context.services.config.load_variant()
+

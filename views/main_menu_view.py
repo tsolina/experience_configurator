@@ -49,7 +49,7 @@ class MainMenuView():
         look_editor.add_command(label='Load')
         look_editor.add_command(label='Export')
         look_editor.add_command(label='Save')
-        look_editor.add_command(label='Remove Looks')
+        look_editor.add_command(label='Remove Looks', command=self.view_model.look_editor_remove_looks)
         look_editor.add_command(label='Instantiate missing targets')
         look_editor.add_separator()
         look_editor.add_command(label='Clear')

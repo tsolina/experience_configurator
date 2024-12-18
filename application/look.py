@@ -1,4 +1,4 @@
-from typing import Union, overload, TYPE_CHECKING
+from typing import List, Union, overload, TYPE_CHECKING
 from application.actor import Actor
 
 from application.look_container import LookContainer
@@ -96,7 +96,7 @@ class Look():
 
         self.trg_part = self.get_part_from_object(self._actor.cat_object)
         if self.trg_part is None:
-            self.application.status_message = f"Element invalid, material cannot be added, {self._actor.path}"
+            self.application.context.services.status.status_update(f"Element invalid, material cannot be added, {self._actor.path}")
             return False
         return True
 
@@ -183,7 +183,7 @@ class Look():
 
             self.remove_look(look_object)
 
-        self.application.project_ready(lambda p: self.application.look_file.ready(look_ready))
+        self.application.context.services.project.ready(lambda p: self.application.look_file.ready(look_ready))
         return self
     
 
@@ -305,3 +305,31 @@ class Look():
         self._look = None
         self.look_overrides.clear()
         self.look_overrides = None
+
+
+    def look_editor_remove_looks(self):
+        def on_project_ready(project:'Project'):
+            materials:List[exp.AppliedMaterial] = []
+
+            def perform_selection(sel:exp.Selection):
+                if sel.clear().search_all("..Name=Materials").count():
+                    def perform_selected(item:exp.SelectedElement):
+                        materials.append(item.value()) if item.value(exp.AnyObject).com_type() == 'AppliedMaterial' else None
+
+                    sel.search_sel(".").for_each(perform_selected).clear()
+
+                    for mat in materials:
+                        sel.add(mat)
+
+                    try:
+                        sel.delete()
+                    except Exception as ex:
+                        self.application.context.services.status.status_update_error("Selection cannot be cleared")
+                sel.clear()
+
+                materials.clear()
+
+            self.application.context.services.selection.selection(perform_selection)
+
+        self.application.context.services.project.ready(on_project_ready)
+
