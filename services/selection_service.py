@@ -18,7 +18,8 @@ class SelectionService:
             enable: If True, restore the stored states; if False, disable states and store them.
         """
         if enable:
-            self.catia.refresh_display(self._refresh_state).hso_synchronized(self._hso_state)
+            # self.catia.refresh_display(self._refresh_state).hso_synchronized(self._hso_state)
+            self.catia.refresh_display(True).hso_synchronized(True)
         else:
             self._hso_state = self.catia.hso_synchronized()
             self._refresh_state = self.catia.refresh_display()
@@ -32,6 +33,7 @@ class SelectionService:
     
 
     def selection(self, cb: Callable[[exp.Selection], None], cb_fail: Optional[Callable[[str], None]] = None) -> 'SelectionService':
+        print(cb)
         self.catia_service.ready(
             lambda: self.cat_select(lambda: cb(self.catia.active_editor().selection())),
             cb_fail
@@ -58,4 +60,7 @@ class SelectionService:
     
 
     def select_actor(self, actor: 'exp.AnyObject') -> 'SelectionService':
+        if not actor:
+            return self
+
         return self.selection(lambda sel: sel.clear().add(actor))

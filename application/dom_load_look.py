@@ -45,11 +45,11 @@ class DomLoadLook:
             _co (LookObject): The look object to add.
             _look (List[LookObject]): The list of look objects.
         """
-        with threading.Lock():  # Equivalent of SyncLock in VB.NET
+        # with threading.Lock():  # Equivalent of SyncLock in VB.NET
             # Check if _co is already in the list
-            _to = next((a for a in _look if a == _co), None)
-            if _to is None:
-                _look.append(_co)
+        _to = next((a for a in _look if a == _co), None)
+        if _to is None:
+            _look.append(_co)
 
 
 
@@ -66,9 +66,11 @@ class DomLoadLook:
             _part (Part): The part object that contains bodies.
         """
         path = path[2:]
+        # print(__name__, "select_body.path", path)
 
         if _part.bodies().contains(path):
             b = _part.bodies().item(path)
+            # print(__name__, "select_body.b", b._com)
 
             _co.actor.cat_object = b
             _co.actor.type_ = "Body"
@@ -78,9 +80,9 @@ class DomLoadLook:
 
             cfg.actors.select_actors(b)
 
-            with threading.Lock():
-                if _co.actor.path not in self.application.active_project.look_actors:
-                    self.application.active_project.look_actors[_co.actor.path] = _co
+            # with threading.Lock():
+            if _co.actor.path not in self.application.active_project.look_actors:
+                self.application.active_project.look_actors[_co.actor.path] = _co
         else:
             self.select_not_found(actor, "Body", cfg)
 
@@ -263,8 +265,10 @@ class DomLoadLook:
         for config in configs:
             # Extract the values using XPath and .text to get inner text
             sName = config.xpath("./name/text()")[0]
-            sLook = config.xpath("./look/text()")[0]
-            sState = config.xpath("./state/text()")[0]
+            sLookBase = config.xpath("./look/text()")
+            sLook = sLookBase[0] if sLookBase else None
+            sStateBase = config.xpath("./state/text()")
+            sState = sStateBase[0] if sStateBase else None
 
             c:Configuration = project.configurations.add(name=sName, active_look=sLook, active_state=sState, container=project.configurations)
 

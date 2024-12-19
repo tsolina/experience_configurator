@@ -46,6 +46,7 @@ class Actors(ObservableList['Actor']):
 
     def select_actor(self, i_actor:exp.AnyObject) -> 'Actor':
         ok = EvalSelected(self.application, i_actor)
+        # print(__name__, "select_actor.ok", ok, ok.message, ok.name, ok.path, ok.type_)
         actor = self._create_actor(ok)
         self.append(actor)
         self.parent.active_actor = actor
@@ -60,7 +61,8 @@ class Actors(ObservableList['Actor']):
     def select_actors(self) -> 'Actors':  # Multiple actors overload
         ...
 
-    def select_actors(self, i_actor:exp.AnyObject=None):        
+    def select_actors(self, i_actor:exp.AnyObject=None):   
+        # print(__name__, "select_actors.is_ok", i_actor is not None)     
         if i_actor is not None:
             self.select_actor(i_actor)
             return self

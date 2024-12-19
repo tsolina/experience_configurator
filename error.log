@@ -1,0 +1,262 @@
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Tom\AppData\Local\Programs\Python\Python313\Lib\tkinter\__init__.py", line 2068, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "d:\myDocs\myScript\python\experience_configurator\views\look_editor_event_handler.py", line 125, in <lambda>
+    actor_name.bind("<Button-1>", lambda e, conf=actor: self.on_actor_selected(conf))
+                                                        ~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "d:\myDocs\myScript\python\experience_configurator\views\look_editor_event_handler.py", line 104, in on_actor_selected
+    self.view_model.activate_actor(actor)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "d:\myDocs\myScript\python\experience_configurator\view_models\look_editor_view_model.py", line 101, in activate_actor
+    self.context.services.selection.select_actor(actor.cat_object)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "d:\myDocs\myScript\python\experience_configurator\services\selection_service.py", line 61, in select_actor
+    return self.selection(lambda sel: sel.clear().add(actor))
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "d:\myDocs\myScript\python\experience_configurator\services\selection_service.py", line 35, in selection
+    self.catia_service.ready(
+    ~~~~~~~~~~~~~~~~~~~~~~~~^
+        lambda: self.cat_select(lambda: cb(self.catia.active_editor().selection())),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        cb_fail
+        ^^^^^^^
+    )
+    ^
+  File "d:\myDocs\myScript\python\experience_configurator\services\catia_service.py", line 64, in ready
+    return self.catia_ready(cb, cb_fail)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "d:\myDocs\myScript\python\experience_configurator\services\catia_service.py", line 47, in catia_ready
+    cb()
+    ~~^^
+  File "d:\myDocs\myScript\python\experience_configurator\services\selection_service.py", line 36, in <lambda>
+    lambda: self.cat_select(lambda: cb(self.catia.active_editor().selection())),
+            ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "d:\myDocs\myScript\python\experience_configurator\services\selection_service.py", line 29, in cat_select
+    cb()
+    ~~^^
+  File "d:\myDocs\myScript\python\experience_configurator\services\selection_service.py", line 36, in <lambda>
+    lambda: self.cat_select(lambda: cb(self.catia.active_editor().selection())),
+                                    ~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "d:\myDocs\myScript\python\experience_configurator\services\selection_service.py", line 61, in <lambda>
+    return self.selection(lambda sel: sel.clear().add(actor))
+                                      ~~~~~~~~~~~~~~~^^^^^^^
+  File "D:\3DExperience\python\experience\experience\inf_interfaces\selection.py", line 36, in add
+    self.selection.Add(i_object._com)
+                       ^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute '_com'
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Tom\AppData\Local\Programs\Python\Python313\Lib\tkinter\__init__.py", line 2068, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "d:\myDocs\myScript\python\experience_configurator\application\configuration.py", line 172, in _update_active_look_state_from_var
+    self.active_look_state = self.active_look_state_var.get()
+    ^^^^^^^^^^^^^^^^^^^^^^
+  File "d:\myDocs\myScript\python\experience_configurator\application\configuration.py", line 92, in active_look_state
+    self.application.look_validator.validate(self)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "d:\myDocs\myScript\python\experience_configurator\application\look_validator.py", line 50, in validate
+    return self._validate_configuration(arg, i_apply)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "d:\myDocs\myScript\python\experience_configurator\application\look_validator.py", line 75, in _validate_configuration
+    self.apply_look(i_config)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "d:\myDocs\myScript\python\experience_configurator\application\look_validator.py", line 155, in apply_look
+    self.application.look.add_look(actor)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "d:\myDocs\myScript\python\experience_configurator\application\look.py", line 236, in add_look
+    return self._add_look_from_actor(arg)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "d:\myDocs\myScript\python\experience_configurator\application\look.py", line 286, in _add_look_from_actor
+    self.application.context.services.project.ready(lambda p: self.application.look_file.ready(look_ready))
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "d:\myDocs\myScript\python\experience_configurator\services\project_service.py", line 24, in ready
+    self.application.context.services.catia.ready(on_ready, "No project is currently active")
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "d:\myDocs\myScript\python\experience_configurator\services\catia_service.py", line 64, in ready
+    return self.catia_ready(cb, cb_fail)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "d:\myDocs\myScript\python\experience_configurator\services\catia_service.py", line 47, in catia_ready
+    cb()
+    ~~^^
+  File "d:\myDocs\myScript\python\experience_configurator\services\project_service.py", line 22, in on_ready
+    callback(self.application.active_project)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "d:\myDocs\myScript\python\experience_configurator\application\look.py", line 286, in <lambda>
+    self.application.context.services.project.ready(lambda p: self.application.look_file.ready(look_ready))
+                                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "d:\myDocs\myScript\python\experience_configurator\application\look_file.py", line 117, in ready
+    cb(self._look)
+    ~~^^^^^^^^^^^^
+  File "d:\myDocs\myScript\python\experience_configurator\application\look.py", line 284, in look_ready
+    self.add_look(look_object)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "d:\myDocs\myScript\python\experience_configurator\application\look.py", line 232, in add_look
+    return self._add_look_from_look_object(arg)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "d:\myDocs\myScript\python\experience_configurator\application\look.py", line 246, in _add_look_from_look_object
+    if not self.is_trg_part_ok():
+           ~~~~~~~~~~~~~~~~~~~^^
+  File "d:\myDocs\myScript\python\experience_configurator\application\look.py", line 97, in is_trg_part_ok
+    self.trg_part = self.get_part_from_object(self._actor.cat_object)
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "d:\myDocs\myScript\python\experience_configurator\application\look.py", line 52, in get_part_from_object
+    elif obj_type == obj.parent().com_type():
+                     ~~~~~~~~~~~~~~~~~~~~~^^
+  File "D:\3DExperience\python\experience\experience\system\any_object.py", line 57, in com_type
+    return self.application().system_service().evaluate(vba_code, CATScriptLanguage.CATVBALanguage, vba_function_name, [self._com])
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\3DExperience\python\experience\experience\system\system_service.py", line 26, in evaluate
+    return self.system_service.Evaluate(i_script_text, int(i_language), i_function_name, i_parameters)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<COMObject <unknown>>", line 2, in Evaluate
+  File "C:\Users\Tom\AppData\Local\Programs\Python\Python313\Lib\site-packages\win32com\client\dynamic.py", line 355, in _ApplyTypes_
+    result = self._oleobj_.InvokeTypes(
+        *(dispid, LCID, wFlags, retType, argTypes) + args
+    )
+pywintypes.com_error: (-2147352567, 'Exception occurred.', (0, None, 'ExecuteScript(Evaluate, \n        Public Function com_type(obj As AnyObject) as String\n            com_type = typename(obj)\n        End Function\n        , com_type)\nInternal error\n', None, 0, -2147467259), None)
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Tom\AppData\Local\Programs\Python\Python313\Lib\tkinter\__init__.py", line 2068, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "d:\myDocs\myScript\python\experience_configurator\views\look_editor_event_handler.py", line 147, in btn_select_actors
+    self.context.services.project.ready(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        lambda p: p.config_ready(
+        ^^^^^^^^^^^^^^^^^^^^^^^^^
+            lambda c: c.actors.select_actors()
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            )
+            ^
+        )
+        ^
+  File "d:\myDocs\myScript\python\experience_configurator\services\project_service.py", line 24, in ready
+    self.application.context.services.catia.ready(on_ready, "No project is currently active")
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "d:\myDocs\myScript\python\experience_configurator\services\catia_service.py", line 64, in ready
+    return self.catia_ready(cb, cb_fail)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "d:\myDocs\myScript\python\experience_configurator\services\catia_service.py", line 47, in catia_ready
+    cb()
+    ~~^^
+  File "d:\myDocs\myScript\python\experience_configurator\services\project_service.py", line 22, in on_ready
+    callback(self.application.active_project)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "d:\myDocs\myScript\python\experience_configurator\views\look_editor_event_handler.py", line 148, in <lambda>
+    lambda p: p.config_ready(
+              ~~~~~~~~~~~~~~^
+        lambda c: c.actors.select_actors()
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        )
+        ^
+  File "d:\myDocs\myScript\python\experience_configurator\application\project.py", line 174, in config_ready
+    cb(self.active_configuration)
+    ~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "d:\myDocs\myScript\python\experience_configurator\views\look_editor_event_handler.py", line 149, in <lambda>
+    lambda c: c.actors.select_actors()
+              ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "d:\myDocs\myScript\python\experience_configurator\application\actors.py", line 94, in select_actors
+    self.application.context.services.selection.active_selection(select_items, self.status_update)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "d:\myDocs\myScript\python\experience_configurator\services\selection_service.py", line 56, in active_selection
+    return self.selection(process_active_selection)
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "d:\myDocs\myScript\python\experience_configurator\services\selection_service.py", line 35, in selection
+    self.catia_service.ready(
+    ~~~~~~~~~~~~~~~~~~~~~~~~^
+        lambda: self.cat_select(lambda: cb(self.catia.active_editor().selection())),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        cb_fail
+        ^^^^^^^
+    )
+    ^
+  File "d:\myDocs\myScript\python\experience_configurator\services\catia_service.py", line 64, in ready
+    return self.catia_ready(cb, cb_fail)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "d:\myDocs\myScript\python\experience_configurator\services\catia_service.py", line 47, in catia_ready
+    cb()
+    ~~^^
+  File "d:\myDocs\myScript\python\experience_configurator\services\selection_service.py", line 36, in <lambda>
+    lambda: self.cat_select(lambda: cb(self.catia.active_editor().selection())),
+            ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "d:\myDocs\myScript\python\experience_configurator\services\selection_service.py", line 29, in cat_select
+    cb()
+    ~~^^
+  File "d:\myDocs\myScript\python\experience_configurator\services\selection_service.py", line 36, in <lambda>
+    lambda: self.cat_select(lambda: cb(self.catia.active_editor().selection())),
+                                    ~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "d:\myDocs\myScript\python\experience_configurator\services\selection_service.py", line 51, in process_active_selection
+    cb(sel)
+    ~~^^^^^
+  File "d:\myDocs\myScript\python\experience_configurator\application\actors.py", line 87, in select_items
+    self.application.look_validator.validate(actor)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "d:\myDocs\myScript\python\experience_configurator\application\look_validator.py", line 48, in validate
+    return self._validate_actor(arg)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "d:\myDocs\myScript\python\experience_configurator\application\look_validator.py", line 59, in _validate_actor
+    self.validate(i_actor.parent.parent)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "d:\myDocs\myScript\python\experience_configurator\application\look_validator.py", line 50, in validate
+    return self._validate_configuration(arg, i_apply)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "d:\myDocs\myScript\python\experience_configurator\application\look_validator.py", line 75, in _validate_configuration
+    self.apply_look(i_config)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "d:\myDocs\myScript\python\experience_configurator\application\look_validator.py", line 155, in apply_look
+    self.application.look.add_look(actor)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "d:\myDocs\myScript\python\experience_configurator\application\look.py", line 236, in add_look
+    return self._add_look_from_actor(arg)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "d:\myDocs\myScript\python\experience_configurator\application\look.py", line 286, in _add_look_from_actor
+    self.application.context.services.project.ready(lambda p: self.application.look_file.ready(look_ready))
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "d:\myDocs\myScript\python\experience_configurator\services\project_service.py", line 24, in ready
+    self.application.context.services.catia.ready(on_ready, "No project is currently active")
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "d:\myDocs\myScript\python\experience_configurator\services\catia_service.py", line 64, in ready
+    return self.catia_ready(cb, cb_fail)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "d:\myDocs\myScript\python\experience_configurator\services\catia_service.py", line 47, in catia_ready
+    cb()
+    ~~^^
+  File "d:\myDocs\myScript\python\experience_configurator\services\project_service.py", line 22, in on_ready
+    callback(self.application.active_project)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "d:\myDocs\myScript\python\experience_configurator\application\look.py", line 286, in <lambda>
+    self.application.context.services.project.ready(lambda p: self.application.look_file.ready(look_ready))
+                                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "d:\myDocs\myScript\python\experience_configurator\application\look_file.py", line 117, in ready
+    cb(self._look)
+    ~~^^^^^^^^^^^^
+  File "d:\myDocs\myScript\python\experience_configurator\application\look.py", line 284, in look_ready
+    self.add_look(look_object)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "d:\myDocs\myScript\python\experience_configurator\application\look.py", line 232, in add_look
+    return self._add_look_from_look_object(arg)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "d:\myDocs\myScript\python\experience_configurator\application\look.py", line 246, in _add_look_from_look_object
+    if not self.is_trg_part_ok():
+           ~~~~~~~~~~~~~~~~~~~^^
+  File "d:\myDocs\myScript\python\experience_configurator\application\look.py", line 97, in is_trg_part_ok
+    self.trg_part = self.get_part_from_object(self._actor.cat_object)
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "d:\myDocs\myScript\python\experience_configurator\application\look.py", line 52, in get_part_from_object
+    elif obj_type == obj.parent().com_type():
+                     ~~~~~~~~~~~~~~~~~~~~~^^
+  File "D:\3DExperience\python\experience\experience\system\any_object.py", line 57, in com_type
+    return self.application().system_service().evaluate(vba_code, CATScriptLanguage.CATVBALanguage, vba_function_name, [self._com])
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\3DExperience\python\experience\experience\system\system_service.py", line 26, in evaluate
+    return self.system_service.Evaluate(i_script_text, int(i_language), i_function_name, i_parameters)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<COMObject <unknown>>", line 2, in Evaluate
+  File "C:\Users\Tom\AppData\Local\Programs\Python\Python313\Lib\site-packages\win32com\client\dynamic.py", line 355, in _ApplyTypes_
+    result = self._oleobj_.InvokeTypes(
+        *(dispid, LCID, wFlags, retType, argTypes) + args
+    )
+pywintypes.com_error: (-2147352567, 'Exception occurred.', (0, None, 'ExecuteScript(Evaluate, \n        Public Function com_type(obj As AnyObject) as String\n            com_type = typename(obj)\n        End Function\n        , com_type)\nInternal error\n', None, 0, -2147467259), None)

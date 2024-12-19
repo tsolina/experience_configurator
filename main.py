@@ -32,5 +32,5 @@ def start(catia_com = None):
     root.mainloop()
 
 if __name__ == "__main__":
-    sys.stderr = open("error.log", "w")
+    # sys.stderr = open("error.log", "w")
     start()

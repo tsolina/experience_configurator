@@ -137,9 +137,9 @@ class LookValidator:
             else:
                 continue
 
-            print(self.__class__.__name__, "deactivate different", "differs?")
+            # print(self.__class__.__name__, "deactivate different", "differs?")
             if self.config_differs(config, conf):
-                print(self.__class__.__name__, "deactivate different", "differs", config.name, conf.name)
+                # print(self.__class__.__name__, "deactivate different", "differs", config.name, conf.name)
                 conf.active_look_state_var.set(Tristate.OffState)
             else:
                 if conf.active_look != config.active_look:

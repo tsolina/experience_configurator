@@ -104,29 +104,83 @@ class EvalSelected:
         else:
             self.eval_parent(item.parent())
 
-    def set_path(self, entity: exp.AnyObject):
-        entity_type = entity.com_type() #type(entity).__name__
+            
 
-        if entity_type == "VPMOccurrence" or entity_type == "Container":
-            self.set_path_vpm_occurrence(entity.as_pyclass(exp.VPMOccurrence))
-        elif entity_type == "VPMReference":
-            self.set_path_vpm_reference(entity)
-        elif entity_type == "Body":
+    # def set_path(self, entity: exp.AnyObject):
+    #     entity_type = entity.com_type() #type(entity).__name__
+
+    #     if entity_type == "VPMOccurrence" or entity_type == "Container":
+    #         self.set_path_vpm_occurrence(entity.as_pyclass(exp.VPMOccurrence))
+    #     elif entity_type == "VPMReference":
+    #         self.set_path_vpm_reference(entity)
+    #     elif entity_type == "Body":
+    #         self.path = f"**b_{entity.name()}{self.path}"
+    #         self.set_path(entity.parent().parent())
+    #     elif entity_type == "Part":
+    #         self.set_path(entity.parent())            
+    #     elif entity_type == "HybridBody":
+    #         self.path = f"**g_{entity.name()}{self.path}"
+    #         self.set_path(entity.parent())
+    #     elif entity_type == "VPMRepReference":
+    #         self.set_path_vpm_rep_reference(entity.as_pyclass(exp.VPMRepReference))
+
+
+
+    # def set_path_vpm_occurrence(self, entity: exp.VPMOccurrence):
+    #     self.set_path(entity.instance_occurrence_of().reference_instance_of())
+
+    # def set_path_vpm_reference(self, entity: exp.VPMReference):
+    #     self.path = f"r_{entity.id()}_{entity.revision()}{self.path}"  
+
+    # def set_path_vpm_rep_reference(self, entity: exp.VPMRepReference):
+    #     try:
+    #         parent_ref = entity.father()
+    #         self.set_path(parent_ref)
+    #     except Exception:
+    #         self.path = f"s_{entity.id()}_{entity.revision()}{self.path}"  
+
+
+    def set_path(self, entity: exp.AnyObject):
+        entity_type = entity.com_type()
+
+        # Define helper functions for specific cases
+        def handle_occurrence(entity: exp.VPMOccurrence):
+            self.set_path(entity.instance_occurrence_of().reference_instance_of())
+
+        def handle_reference(entity: exp.VPMReference):
+            self.path = f"r_{entity.id()}_{entity.revision()}{self.path}"
+
+        def handle_rep_reference(entity: exp.VPMRepReference):
+            try:
+                parent_ref = entity.father()
+                self.set_path(parent_ref)
+            except Exception:
+                self.path = f"s_{entity.id()}_{entity.revision()}{self.path}"
+
+        def handle_body(entity: exp.Body):
             self.path = f"**b_{entity.name()}{self.path}"
             self.set_path(entity.parent().parent())
-        elif entity_type == "HybridBody":
+
+        def handle_part(entity: exp.Part):
+            self.set_path(entity.parent())
+
+        def handle_hybrid_body(entity: exp.HybridBody):
             self.path = f"**g_{entity.name()}{self.path}"
             self.set_path(entity.parent())
 
-    def set_path_vpm_occurrence(self, entity: exp.VPMOccurrence):
-        self.set_path(entity.instance_occurrence_of().reference_instance_of())
-
-    def set_path_vpm_reference(self, entity: exp.VPMReference):
-        self.path = f"r_{entity.id()}_{entity.revision()}{self.path}"  
-
-    def set_path_vpm_rep_reference(self, entity: exp.VPMRepReference):
-        try:
-            parent_ref = entity.father()
-            self.set_path(parent_ref)
-        except Exception:
-            self.path = f"s_{entity.id()}_{entity.revision()}{self.path}"   
+        # Match the entity type and call appropriate handler
+        match entity_type:
+            case "VPMOccurrence" | "Container":
+                handle_occurrence(entity.as_pyclass(exp.VPMOccurrence))
+            case "VPMReference":
+                handle_reference(entity)
+            case "Body":
+                handle_body(entity)
+            case "Part":
+                handle_part(entity)
+            case "HybridBody":
+                handle_hybrid_body(entity)
+            case "VPMRepReference":
+                handle_rep_reference(entity.as_pyclass(exp.VPMRepReference))
+            case _:
+                raise ValueError(f"Unsupported entity type: {entity_type}")

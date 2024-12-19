@@ -69,7 +69,7 @@ class DomSaveLook:
         self._save_path = f"{self.application.registry.base_path}/{self.file_name}"
         self.x_doc.write(self._save_path, encoding="utf-8", xml_declaration=True)
 
-        self.application.status_message = f"look saved to: {self._save_path}"
+        self.application.context.services.status.status_update(f"look saved to: {self._save_path}")
         return self
 
     def config_to_xml(self):
@@ -121,5 +121,5 @@ class DomSaveLook:
         self.x_doc.write(self._save_path, encoding="utf-8", xml_declaration=True)
         self.clear()
 
-        self.application.status_message = f"look exported as: {self._save_path}"
+        self.application.context.services.status.status_update(f"look exported as: {self._save_path}") 
         return self
