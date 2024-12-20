@@ -33,7 +33,6 @@ class SelectionService:
     
 
     def selection(self, cb: Callable[[exp.Selection], None], cb_fail: Optional[Callable[[str], None]] = None) -> 'SelectionService':
-        print(cb)
         self.catia_service.ready(
             lambda: self.cat_select(lambda: cb(self.catia.active_editor().selection())),
             cb_fail

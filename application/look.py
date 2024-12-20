@@ -41,34 +41,8 @@ class Look():
     def name(self, value):
         self._name = value
 
-    def get_com_info(self, com_object):
-        try:
-            type_info = com_object._oleobj_.GetTypeInfo(0)
-            type_attr = type_info.GetTypeAttr()
-            print(dir(type_attr))
-            # print("GUID:", type_attr.guid)
-            print("TypeKind:", type_attr.typekind)
-            print("Name:", type_info.GetDocumentation(-1)[0])
-            print("Functions Count:", type_attr.cFuncs)
-            print("Variables Count:", type_attr.cVars)
-
-            for i in range(type_attr.cFuncs):
-                func_desc = type_info.GetFuncDesc(i)
-                print(f"Function {i}: {type_info.GetDocumentation(func_desc.memid)[0]}")
-
-        except Exception as e:
-            print("Error accessing type information:", e)
-
     def get_part_from_object(self, obj:exp.AnyObject) -> exp.Part:
         obj_type = obj.com_type()
-        # self.application.context.services.status.status_update(obj_type)
-        # self.application.context.services.status.status_update(dir(obj.parent()._com._oleobj_))
-        # print(dir(obj.parent()._com._oleobj_))
-        # print(obj.parent()._com._oleobj_.GetTypeInfo())
-        # self.application.context.services.status.status_update(obj.parent(exp.AnyObject).com_type())
-        # self.get_com_info(obj.parent().parent().parent()._com)
-        # print(obj.com_type())
-        # print(obj.com_type(), obj.com_type()=="Part")
 
         if obj_type == "Part":
             return obj
@@ -84,7 +58,7 @@ class Look():
     def set_trg_link_on_feature(self):
         if self._actor.link_on_feature is not None:
             return
-        print(__name__, "set_trg_link_on_feature", self._actor.type_)
+        # print(__name__, "set_trg_link_on_feature", self._actor.type_)
         if self._actor.type_ == "Container":
             try:
                 self._actor.link_on_feature = self.application.catia.services().product_service().compose_link(self._actor.cat_object, None, None)
@@ -101,13 +75,13 @@ class Look():
             self._actor.link_on_feature = self.application.catia.services().product_service().compose_link(None, self._actor.cat_object, None)
         else:
             try:
-                print(__name__, "link.here", "try")
+                # print(__name__, "link.here", "try")
                 no_occurrence = None
                 vpm_ref = self.trg_part.parent(exp.VPMRepReference).father()
                 rep_instance = vpm_ref.rep_instances().item(1)
                 self._actor.link_on_feature = self.application.catia.services().product_service().compose_link(no_occurrence, rep_instance, self.trg_part.as_pyclass(exp.Part).create_reference_from_object(self._actor.cat_object))
             except Exception as e:
-                print(__name__, "link.here", "except")
+                # print(__name__, "link.here", "except")
                 self._actor.link_on_feature = self.application.catia.services().product_service().compose_link(
                     None, self.trg_part.parent().parent().item(1), self.trg_part.create_reference_from_object(self._actor.cat_object))
 
@@ -159,19 +133,20 @@ class Look():
     @overload
     def remove_look(self, actor: 'Actor') -> 'Look':
         ...
-
+        
     def remove_look(self, arg: Union[None, 'LookObject', 'Actor'] = None) -> 'Look':
         """
         Unified remove_look method handling multiple types of input.
         """
-        if arg is None:
-            return self._remove_look_default()
-        elif isinstance(arg, LookObject):
-            return self._remove_look_from_look_object(arg)
-        elif isinstance(arg, Actor):
-            return self._remove_look_from_actor(arg)
-        else:
-            raise TypeError(f"Invalid argument type: {type(arg).__name__}")
+        match arg:
+            case None:
+                return self._remove_look_default()
+            case LookObject():
+                return self._remove_look_from_look_object(arg)
+            case Actor():
+                return self._remove_look_from_actor(arg)
+            case _:
+                raise TypeError(f"Invalid argument type: {type(arg).__name__}")
         
     def _remove_look_default(self) -> 'Look':
         if self._look and self._look.material_applied:
@@ -219,7 +194,7 @@ class Look():
         if self._look.desired_look in [self.NO_LOOK, ""]:
             return self
         if self._actor.cat_object is None:
-            print(f"{self._actor.path} object is None")
+            # print(__name__, "attach_look", f"{self._actor.path} object is None")
             return self
 
         def apply_material(look_container:'LookContainer'):
@@ -251,19 +226,20 @@ class Look():
     @overload
     def add_look(self, actor: 'Actor') -> 'Look':
         ...
-
+        
     def add_look(self, arg: Union['LookObject', 'Switch', 'Actor']) -> 'Look':
         """
         Unified add_look method handling multiple types of input.
         """
-        if isinstance(arg, LookObject):
-            return self._add_look_from_look_object(arg)
-        elif isinstance(arg, Switch):
-            return self._add_look_from_switch(arg)
-        elif isinstance(arg, Actor):
-            return self._add_look_from_actor(arg)
-        else:
-            raise TypeError(f"Invalid argument type: {type(arg).__name__}")
+        match arg:
+            case LookObject():
+                return self._add_look_from_look_object(arg)
+            case Switch():
+                return self._add_look_from_switch(arg)
+            case Actor():
+                return self._add_look_from_actor(arg)
+            case _:
+                raise TypeError(f"Invalid argument type: {type(arg).__name__}")
         
     def _add_look_from_look_object(self, look_object: 'LookObject') -> 'Look':
         self._look = look_object
