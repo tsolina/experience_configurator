@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import ttk
 
 # from models.main_window_model import MainWindowModel
 from view_models.application_context import ApplicationContext
@@ -29,6 +30,8 @@ def start(catia_com = None):
     view = MainWindowView(root, context)
     context.loaded = True
 
+    # x = ttk.Label(root)
+    # print("label", dir(x))
     root.mainloop()
 
 if __name__ == "__main__":

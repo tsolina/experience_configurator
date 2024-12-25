@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List, Tuple
 import tkinter as tk
 from tkinter import ttk
 
@@ -13,6 +13,7 @@ import application.widgets as widgets
 
 if TYPE_CHECKING:
     from views.main_window_view import MainWindowView
+    from application.actor import Actor
 
 class LookEditorView():
     # def __init__(self, root, parent:'MainWindowView', view_model: 'LookEditorViewModel'):
@@ -64,7 +65,7 @@ class LookEditorView():
         self.configurations_frame = frame
 
         # Define column headers
-        headers = [("#", 25), ("Name", 200), ("Look", 120), ("Activated", 88), ("Error", 25)]
+        headers:List[Tuple[str, int]] = [("#", 25), ("Name", 200), ("Look", 120), ("Activated", 88), ("Error", 25)]
         for col_idx, (header, width) in enumerate(headers):
             label = ttk.Label(frame, text=header, anchor="center", relief="raised")
             label.grid(row=0, column=col_idx, sticky="nsew", padx=1, pady=1)
@@ -146,6 +147,9 @@ class LookEditorView():
         frame.columnconfigure(1, weight=2)
         frame.columnconfigure(2, weight=1)
         frame.columnconfigure(3, weight=0)
+
+
+              
 
     def add_configuration_controls(self, root):
         outer_frame = tk.Frame(self.look_editor_frame, background=root['bg'], height=30)

@@ -7,6 +7,7 @@ from application.tristate import Tristate
 from application.variant import Variant
 from view_models.application_context import ApplicationContext
 from view_models.variant_editor_view_model import VariantEditorViewModel
+from views.grid_manager import GridManager
 from views.variant_editor_event_handler import VariantEditorEventHandler
 
 if TYPE_CHECKING:
@@ -26,7 +27,9 @@ class VariantEditorView():
         self.add_look_controls(root)
 
         self.add_active_variant()
-        self.add_variant_grid()
+        self.sub_variants_grid_manager:GridManager
+        self.create_sub_variant_grid()
+        # self.add_variant_grid()
         self.add_variant_controls(root)
 
     def update_variant(self, variants:ObservableList['Variant']):
@@ -125,12 +128,12 @@ class VariantEditorView():
         def on_enter(event, widget:ttk.Label):
             if not self.view_model.is_editing_sub_variant(widget.cget("text")):
                 widget.configure(style="Hover.Option.TLabel")
-                self.context.application.status_message = "on enter"
+                self.context.services.status.status_update("on enter")
 
         def on_leave(event, widget:ttk.Label):
             if not self.view_model.is_editing_sub_variant(widget.cget("text")):
                 widget.configure(style="Option.TLabel")
-                self.context.application.status_message = "on leave"
+                self.context.services.status.status_update("on leave")
 
         def on_click(event, widget:ttk.Label, all_widgets:List[ttk.Label], option:str):
             for w in all_widgets:
@@ -181,6 +184,36 @@ class VariantEditorView():
                 "label": label,
                 "var": shared_option     
             }
+
+    def create_sub_variant_grid(self):
+        self.sub_variants_container = ttk.Frame(self.variant_editor_frame, style="Standard.TFrame")
+        self.sub_variants_container.grid(row=1, column=1, sticky="nsew")
+        self.sub_variants_container.columnconfigure(0, weight=1)
+        self.sub_variants_container.rowconfigure(0, weight=1)
+
+        outer_frame = ttk.Frame(self.sub_variants_container, style="Standard.TFrame")
+        outer_frame.grid(row=0, column=0, sticky="nsew", padx=(3, 6))
+        outer_frame.columnconfigure(0, weight=1)
+        outer_frame.rowconfigure(0, weight=0)
+        outer_frame.rowconfigure(1, weight=1)
+
+        self._add_options(outer_frame)
+
+        frame = ttk.Frame(outer_frame, style="Standard.TFrame")
+        frame.grid(row=1, column=0, sticky="nsew")
+        self.switch_container = frame
+
+        # Label, Label, [Label, Combobox], Combobox
+        sub_variants_headers = [
+            ("#", 25, "label"), ("Type", 120, "label"), ("Actor", 160, ["label", "combobox"]), ("Value", 120, "combobox")
+        ]
+        self.sub_variants_grid_manager = GridManager(frame, sub_variants_headers)
+
+        frame.columnconfigure(0, weight=0)  # Adjust column weights as needed
+        frame.columnconfigure(1, weight=1)
+        frame.columnconfigure(2, weight=2)
+        frame.columnconfigure(3, weight=1)
+        frame.rowconfigure(0, weight=0)
 
     def add_variant_grid(self):
         self.sub_variants_container = ttk.Frame(self.variant_editor_frame, style="Standard.TFrame")
