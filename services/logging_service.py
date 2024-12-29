@@ -14,3 +14,5 @@ class LoggingService:
             log_message += f" | Variables: {variables}"
         
         print(log_message)
+
+    # LoggingService.log_point(self, "widget_info.count", current_row=len(self.row_widgets), row_idx=row_idx)

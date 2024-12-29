@@ -5,6 +5,7 @@ from tkinter import ttk
 from application.observable_list import ObservableList
 from application.tristate import Tristate
 from application.variant import Variant
+from services.logging_service import LoggingService
 from view_models.application_context import ApplicationContext
 from view_models.variant_editor_view_model import VariantEditorViewModel
 from views.grid_manager import GridManager
@@ -203,9 +204,11 @@ class VariantEditorView():
         frame.grid(row=1, column=0, sticky="nsew")
         self.switch_container = frame
 
+        # LoggingService.log_point(self, "enumerate item", info=frame.grid_info(), size_width=frame.winfo_width(), size_height=frame.winfo_height())
+
         # Label, Label, [Label, Combobox], Combobox
         sub_variants_headers = [
-            ("#", 25, "label"), ("Type", 120, "label"), ("Actor", 160, ["label", "combobox"]), ("Value", 120, "combobox")
+            ("#", 25, ttk.Label), ("Type", 120, ttk.Label), ("Actor", 160, [ttk.Label, ttk.Combobox]), ("Value", 120, ttk.Combobox)
         ]
         self.sub_variants_grid_manager = GridManager(frame, sub_variants_headers)
 
