@@ -98,7 +98,8 @@ class DomLoadConfig:
         nCount = 1
         for config in configs:
             sName = config.xpath("./name/text()")[0]
-            sActive = config.xpath("./activeState/text()")[0] #.strip() or ""
+            s_active = config.xpath("./activeState/text()")
+            sActive = s_active[0] if s_active else Tristate.UnknownState
 
             v:Variant = None
             # v = self.application.active_project.variants.add(cnt)
