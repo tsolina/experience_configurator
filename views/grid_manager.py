@@ -104,7 +104,7 @@ class GridManager:
                 # index = widget.index[cell_data.widget_class]
                 index = self.get_index(cell_data.widget_class, widget)
                 sub_widget = widget[index]
-                LoggingService.log_point(self, "updating_list", index=index, wc=cell_data.widget_class, widget=type(sub_widget), cell_data=cell_data.name_id, row=cell_data.row_id)
+                # LoggingService.log_point(self, "updating_list", index=index, wc=cell_data.widget_class, widget=type(sub_widget), cell_data=cell_data.name_id, row=cell_data.row_id)
                 self._update_widget(sub_widget, cell_data)
                 for item_index, item in enumerate(widget):
                     if item_index != index:

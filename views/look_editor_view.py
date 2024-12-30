@@ -148,9 +148,6 @@ class LookEditorView():
         frame.columnconfigure(2, weight=1)
         frame.columnconfigure(3, weight=0)
 
-
-              
-
     def add_configuration_controls(self, root):
         outer_frame = tk.Frame(self.look_editor_frame, background=root['bg'], height=30)
         outer_frame.grid(row=2, column=1, sticky="w", padx=4, pady=3)

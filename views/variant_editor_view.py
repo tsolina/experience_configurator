@@ -24,11 +24,13 @@ class VariantEditorView():
 
         self.add_main_frame(root)
         self.add_title()
+        self.variants_grid_manager:GridManager = None
         self.add_data_grid()
         self.add_look_controls(root)
 
         self.add_active_variant()
-        self.sub_variants_grid_manager:GridManager
+        
+        self.sub_variants_grid_manager:GridManager = None
         self.create_sub_variant_grid()
         # self.add_variant_grid()
         self.add_variant_controls(root)
@@ -57,19 +59,16 @@ class VariantEditorView():
         frame.grid(row=1, column=0, sticky="nsew", padx=(6, 3))
         self.variant_frame = frame
 
-        # Define column headers
-        headers = [("#", 25), ("Variant Set", 200), ("Current Variant", 88)]
-        for col_idx, (header, width) in enumerate(headers):
-            label = ttk.Label(frame, text=header, anchor="center", relief="raised")
-            label.grid(row=0, column=col_idx, sticky="nsew", padx=1, pady=1)
-
-            frame.grid_columnconfigure(col_idx, minsize=width)
+        # Label, Entry, Combobox
+        variants_headers = [
+            ("#", 25, ttk.Label), ("Variant Set", 200, ttk.Entry), ("Current Variant", 88, ttk.Combobox)
+        ]
+        self.variants_grid_manager = GridManager(frame, variants_headers)
 
         # Configure column weights
         frame.columnconfigure(0, weight=0)  # Adjust column weights as needed
         frame.columnconfigure(1, weight=1)
         frame.columnconfigure(2, weight=0)
-
     
     def bind_variant_name_var(self):
         name_var = self.view_model.get_active_variant_var()
@@ -204,8 +203,6 @@ class VariantEditorView():
         frame.grid(row=1, column=0, sticky="nsew")
         self.switch_container = frame
 
-        # LoggingService.log_point(self, "enumerate item", info=frame.grid_info(), size_width=frame.winfo_width(), size_height=frame.winfo_height())
-
         # Label, Label, [Label, Combobox], Combobox
         sub_variants_headers = [
             ("#", 25, ttk.Label), ("Type", 120, ttk.Label), ("Actor", 160, [ttk.Label, ttk.Combobox]), ("Value", 120, ttk.Combobox)
@@ -217,43 +214,6 @@ class VariantEditorView():
         frame.columnconfigure(2, weight=2)
         frame.columnconfigure(3, weight=1)
         frame.rowconfigure(0, weight=0)
-
-    def add_variant_grid(self):
-        self.sub_variants_container = ttk.Frame(self.variant_editor_frame, style="Standard.TFrame")
-        self.sub_variants_container.grid(row=1, column=1, sticky="nsew")
-        self.sub_variants_container.columnconfigure(0, weight=1)
-        self.sub_variants_container.rowconfigure(0, weight=1)
-
-        # self.switch_container:ttk.Frame = None
-        # self.event_handler.update_sub_variant_container()#sub_variants)
-        # return
-
-        outer_frame = ttk.Frame(self.sub_variants_container, style="Standard.TFrame")
-        outer_frame.grid(row=0, column=0, sticky="nsew", padx=(3, 6))
-        outer_frame.columnconfigure(0, weight=1)
-        outer_frame.rowconfigure(0, weight=0)
-        outer_frame.rowconfigure(1, weight=1)
-
-        self._add_options(outer_frame)
-
-        frame = ttk.Frame(outer_frame, style="Standard.TFrame")
-        frame.grid(row=1, column=0, sticky="nsew")
-        self.switch_container = frame
-
-        # Define column headers
-        headers = [("#", 25), ("Type", 120), ("Actor", 160), ("Value", 120)]
-        for col_idx, (header, width) in enumerate(headers):
-            label = ttk.Label(frame, text=header, anchor="center", relief="raised")
-            label.grid(row=0, column=col_idx, sticky="nsew", padx=0, pady=2)
-
-            frame.grid_columnconfigure(col_idx, minsize=width)
-
-        frame.columnconfigure(0, weight=0)  # Adjust column weights as needed
-        frame.columnconfigure(1, weight=1)
-        frame.columnconfigure(2, weight=2)
-        frame.columnconfigure(3, weight=1)
-        frame.rowconfigure(0, weight=0)
-        
 
     def add_variant_controls(self, root):
         outer_frame = tk.Frame(self.variant_editor_frame, background=root['bg'], height=30)
